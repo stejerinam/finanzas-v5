@@ -139,41 +139,45 @@ tr:hover td{background:var(--surface2);}
 .dash-logo{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--green);letter-spacing:0.1em;display:flex;align-items:center;gap:6px;}
 .dash-logo-dot{width:7px;height:7px;background:var(--green);border-radius:50%;}
 .dash-actions{display:flex;gap:8px;align-items:center;}
-.dash-body{padding:28px 32px;max-width:1400px;margin:0 auto;}
+.dash-body{padding:32px 40px;max-width:1400px;margin:0 auto;}
 /* stat cards */
-.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;min-height:110px;}
+.stat-card.income-card{background:rgba(184,245,82,0.05);border-color:rgba(184,245,82,0.25);}
+.stat-card.expense-card{background:rgba(245,82,82,0.05);border-color:rgba(245,82,82,0.25);}
+.stat-card.balance-card{background:rgba(82,245,200,0.05);border-color:rgba(82,245,200,0.25);}
+.stat-card.install-card{background:rgba(245,200,82,0.05);border-color:rgba(245,200,82,0.25);}
 .stat-label{font-size:0.64rem;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
-.stat-value{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;}
+.stat-value{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;}
 .stat-value.green{color:var(--green);} .stat-value.red{color:var(--red);} .stat-value.teal{color:var(--teal);} .stat-value.yellow{color:var(--yellow);}
 .stat-sub{font-size:0.72rem;color:var(--muted);font-family:'DM Mono',monospace;}
 .balance-bar-bg{height:4px;background:var(--border2);border-radius:2px;margin:8px 0 4px;}
 .balance-bar-fill{height:4px;background:var(--teal);border-radius:2px;transition:width 0.6s ease;}
 /* main row */
-.main-row{display:grid;grid-template-columns:320px 1fr;gap:16px;}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
-.panel-header{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.main-row{display:grid;grid-template-columns:340px 1fr;gap:16px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;}
+.panel-header{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
 .panel-title{font-size:0.78rem;font-weight:600;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
 .panel-badge{font-size:0.68rem;font-family:'DM Mono',monospace;background:var(--surface2);padding:2px 8px;border-radius:20px;color:var(--muted);}
-.panel-scroll{overflow-y:auto;flex:1;max-height:520px;}
+.panel-scroll{overflow-y:auto;flex:1;max-height:540px;}
 .panel-scroll::-webkit-scrollbar{width:3px;} .panel-scroll::-webkit-scrollbar-thumb{background:var(--border2);}
 /* tabs */
 .tab-group{display:flex;gap:4px;margin-left:auto;}
 .tab-btn{padding:4px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:0.74rem;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;transition:all 0.15s;}
-.tab-btn.active{background:rgba(184,245,82,0.1);border-color:rgba(184,245,82,0.3);color:var(--text);}
+.tab-btn.active{background:var(--green);border-color:var(--green);color:#000;font-weight:600;}
 /* category list */
-.cat-row{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
+.cat-row{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;}
 .cat-row:last-child{border-bottom:none;}
-.cat-row:hover{background:var(--surface2);}
-.cat-row.active-filter{background:rgba(184,245,82,0.05);border-left:2px solid var(--green);}
+.cat-row:hover{background:rgba(255,255,255,0.03);}
+.cat-row.active-filter{background:rgba(184,245,82,0.06);}
 .cat-emoji{font-size:1rem;width:22px;text-align:center;flex-shrink:0;}
 .cat-name{font-size:0.82rem;flex:1;}
-.cat-bar-wrap{width:60px;height:4px;background:var(--border2);border-radius:2px;flex-shrink:0;}
-.cat-bar{height:4px;border-radius:2px;transition:width 0.4s ease;}
-.cat-amount{font-size:0.74rem;font-family:'DM Mono',monospace;color:var(--muted);text-align:right;min-width:70px;}
+.cat-amount{font-size:0.74rem;font-family:'DM Mono',monospace;color:var(--muted);text-align:right;min-width:90px;}
 /* search bar */
-.search-bar{display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-.search-input{flex:1;min-width:120px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:7px 12px;border-radius:8px;font-family:'Cabinet Grotesk',sans-serif;font-size:0.82rem;outline:none;}
+.search-bar{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center;}
+.search-wrap{position:relative;flex:1;min-width:120px;display:flex;align-items:center;}
+.search-icon{position:absolute;left:10px;color:var(--muted);font-size:0.8rem;pointer-events:none;line-height:1;font-style:normal;}
+.search-input{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:7px 12px 7px 30px;border-radius:8px;font-family:'Cabinet Grotesk',sans-serif;font-size:0.82rem;outline:none;}
 .search-input:focus{border-color:var(--muted);}
 .filter-sel{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:6px 10px;border-radius:8px;font-size:0.78rem;font-family:'Cabinet Grotesk',sans-serif;cursor:pointer;outline:none;}
 .sort-group{display:flex;gap:4px;margin-left:auto;}
@@ -181,12 +185,18 @@ tr:hover td{background:var(--surface2);}
 .sort-btn.active{background:rgba(184,245,82,0.08);border-color:rgba(184,245,82,0.3);color:var(--green);}
 /* transaction table */
 .txn-table{width:100%;border-collapse:collapse;font-size:0.78rem;}
-.txn-table th{text-align:left;padding:8px 14px;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:5;white-space:nowrap;}
-.txn-table td{padding:8px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.txn-table th{text-align:left;padding:9px 14px;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:5;white-space:nowrap;}
+.txn-table td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
 .txn-table tr:last-child td{border-bottom:none;}
 .txn-table tr:hover td{background:var(--surface2);}
 .txn-cat-btn{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text);font-size:0.72rem;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;transition:all 0.15s;}
 .txn-cat-btn:hover{border-color:var(--green);color:var(--green);}
+/* confidence dot */
+.conf-dot{font-size:0.85rem;vertical-align:middle;}
+.conf-dot.conf-high{color:var(--green);}
+.conf-dot.conf-mid{color:var(--yellow);}
+.conf-dot.conf-low{color:var(--red);}
+.reasoning-cell{font-style:italic;color:var(--muted);font-size:0.68rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help;}
 /* category dropdown */
 .cat-dd{position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:6px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:200px;max-height:320px;overflow-y:auto;display:none;}
 .cat-dd.open{display:block;}
@@ -353,23 +363,23 @@ tr:hover td{background:var(--surface2);}
 
     <!-- Stat cards row -->
     <div class="stat-row">
-      <div class="stat-card">
+      <div class="stat-card income-card">
         <div class="stat-label">Income</div>
         <div class="stat-value green" id="stat-income">—</div>
         <div class="stat-sub" id="stat-income-sub">— transactions</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card expense-card">
         <div class="stat-label">Expenses</div>
         <div class="stat-value red" id="stat-expense">—</div>
         <div class="stat-sub" id="stat-expense-sub">— transactions</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card balance-card">
         <div class="stat-label">Net Balance</div>
         <div class="stat-value teal" id="stat-balance">—</div>
         <div class="balance-bar-bg"><div class="balance-bar-fill" id="balance-bar" style="width:0%"></div></div>
         <div class="stat-sub" id="stat-balance-sub">savings rate</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card install-card">
         <div class="stat-label">Installment Debt</div>
         <div class="stat-value yellow" id="stat-msi">—</div>
         <div class="stat-sub" id="stat-msi-sub">active plans</div>
@@ -402,7 +412,10 @@ tr:hover td{background:var(--surface2);}
           </div>
         </div>
         <div class="search-bar">
-          <input class="search-input" id="dash-search" placeholder="Search…" oninput="renderDashTxns()">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input class="search-input" id="dash-search" placeholder="Search…" oninput="renderDashTxns()">
+          </div>
           <select class="filter-sel" id="dash-cat-filter" onchange="renderDashTxns()"><option value="">All categories</option></select>
           <select class="filter-sel" id="dash-dir-filter" onchange="renderDashTxns()">
             <option value="">All</option>
@@ -415,7 +428,7 @@ tr:hover td{background:var(--surface2);}
             <thead><tr>
               <th>Date</th><th>Description</th><th>Reference</th>
               <th style="text-align:right">Amount</th>
-              <th>Category</th><th>Tier</th>
+              <th>Category</th><th>Conf.</th><th>Reasoning</th>
             </tr></thead>
             <tbody id="dash-txn-body"></tbody>
           </table>
@@ -958,11 +971,10 @@ function renderBreakdown(currency) {
     const pct = (amt / maxAmt * 100).toFixed(0);
     const color = catColors[catId] || '#6b6f7a';
     const isActive = dashCatFilter === catId;
-    return `<div class="cat-row ${isActive ? 'active-filter' : ''}" onclick="toggleCatFilter('${catId}')">
+    return `<div class="cat-row ${isActive ? 'active-filter' : ''}" onclick="toggleCatFilter('${catId}')" style="background:linear-gradient(to right,${color}20 ${pct}%,transparent ${pct}%);border-left:3px solid ${isActive ? 'var(--green)' : color}">
       <span class="cat-emoji">${meta.emoji}</span>
       <span class="cat-name">${meta.label}</span>
-      <div class="cat-bar-wrap"><div class="cat-bar" style="width:${pct}%;background:${color}"></div></div>
-      <span class="cat-amount">${fmt(amt, currency)}</span>
+      <span class="cat-amount">${fmt(amt, currency)} · ${pct}%</span>
     </div>`;
   }).join('') || '<div style="padding:20px;color:var(--muted);font-size:0.82rem;text-align:center">No transactions</div>';
 }
@@ -1017,16 +1029,16 @@ function renderDashTxns() {
   document.getElementById('dash-txn-body').innerHTML = filtered.map((r, ri) => {
     const meta = getCatMeta(r.category);
     const originalIndex = rows.indexOf(r);
-    const tierLabel = r.tier === 'sonnet+search'
-      ? `<span style="font-size:0.65rem;color:var(--teal)">🔍</span>`
-      : `<span style="font-size:0.65rem;color:var(--muted)">🐦</span>`;
+    const confPct = Math.round((r.confidence || 0) * 100);
+    const confClass = confPct >= 80 ? 'conf-high' : confPct >= 60 ? 'conf-mid' : 'conf-low';
     return `<tr>
       <td class="td-mono" style="color:var(--muted);font-size:0.72rem">${r.date}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.description)}">${esc(r.description)}</td>
       <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--blue);font-size:0.72rem">${esc(r.reference)}</td>
       <td class="td-mono" style="text-align:right;color:${r.direction==='credit'?'var(--green)':'var(--red)'}">${r.direction==='credit'?'+':'−'}${fmt(r.amount, currency)}</td>
       <td><button class="txn-cat-btn" onclick="openCatDd(event,${originalIndex})">${meta.emoji} ${meta.label} ▾</button></td>
-      <td>${tierLabel}</td>
+      <td style="white-space:nowrap"><span class="conf-dot ${confClass}">●</span> <span style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted)">${confPct}%</span></td>
+      <td class="reasoning-cell" title="${esc(r.reasoning)}">${esc(r.reasoning)}</td>
     </tr>`;
   }).join('');
 }
