@@ -256,17 +256,103 @@ tr:hover td{background:var(--surface-low);}
 
 .privacy-notice{font-size:0.73rem;color:var(--on-surface-muted);margin-top:24px;padding:14px 18px;background:var(--surface-low);border-radius:16px;line-height:1.6;}
 
-/* ── RESPONSIVE ──────────────────────────────────────────── */
+/* ── DESKTOP META-BAR ────────────────────────────────────── */
+.dash-meta{flex:1;margin:0 20px;justify-content:center;}
+.dash-btn{font-size:0.84rem;padding:9px 18px;}
+
+/* ── TABLET ──────────────────────────────────────────────── */
+@media(max-width:1024px){
+  .dash-body{padding:24px 20px;}
+  .dash-header{padding:14px 20px;}
+}
 @media(max-width:900px){
   .main-row{grid-template-columns:1fr;}
   .stat-row{grid-template-columns:1fr 1fr;}
-  .dash-body{padding:20px 16px;}
-  .dash-header{padding:14px 16px;}
 }
-@media(max-width:540px){
-  .stat-row{grid-template-columns:1fr;}
-  .container{padding:0 4px;}
-  h1{font-size:1.9rem;}
+
+/* ── MOBILE ──────────────────────────────────────────────── */
+@media(max-width:640px){
+  /* Non-dashboard screens */
+  #upload-screen.active,#processing-screen.active,
+  #cat-screen.active,#categorizing-screen.active{padding:36px 16px;}
+  .container{padding:0;}
+  h1{font-size:2rem;letter-spacing:-0.03em;}
+  .subtitle{font-size:0.88rem;margin-bottom:28px;}
+  .upload-zone{padding:36px 20px;border-radius:20px;}
+  .acct-btn{padding:8px 14px;font-size:0.8rem;}
+  .privacy-notice{border-radius:12px;}
+  .pipeline{grid-template-columns:1fr;gap:12px;margin:20px 0;}
+
+  /* Category selector */
+  .cat-selector-card{padding:28px 20px;border-radius:20px;}
+  .cat-selector-title{font-size:1.5rem;}
+  .cat-chips{grid-template-columns:1fr;}
+
+  /* Dashboard header: logo + actions on one row, meta pills scroll below */
+  .dash-header{
+    flex-wrap:wrap;padding:12px 16px;gap:0;
+    row-gap:10px;
+  }
+  .dash-logo{flex:1;}
+  .dash-actions{display:flex;gap:6px;}
+  .dash-btn{font-size:0.78rem;padding:7px 14px;}
+  .dash-meta{
+    flex:0 0 100%;margin:0;
+    justify-content:flex-start;
+    overflow-x:auto;flex-wrap:nowrap;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:2px;
+    border-top:1px solid rgba(222,191,192,0.25);
+    padding-top:8px;
+  }
+  .dash-meta:empty{display:none;}
+  /* hide scrollbar on meta strip */
+  .dash-meta::-webkit-scrollbar{display:none;}
+
+  /* Dashboard body */
+  .dash-body{padding:16px 14px;}
+
+  /* Stat cards: 2×2 always */
+  .stat-row{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .stat-card{padding:16px 14px;min-height:auto;border-radius:18px;}
+  .stat-card-icon{font-size:0.95rem;margin-bottom:6px;}
+  .stat-value{font-size:1.4rem;letter-spacing:-0.03em;}
+  .stat-label{font-size:0.58rem;letter-spacing:0.08em;}
+  .stat-sub{font-size:0.65rem;}
+  .balance-bar-bg{margin:6px 0 3px;}
+
+  /* Panels */
+  .main-row{gap:12px;}
+  .panel{border-radius:18px;}
+  .panel-header{padding:14px 16px;}
+  .panel-scroll{max-height:none;}  /* let it grow naturally on mobile */
+
+  /* Category breakdown */
+  .cat-row{padding:11px 16px;gap:10px;}
+  .cat-amount{min-width:90px;font-size:0.72rem;}
+  .cat-name{font-size:0.82rem;}
+
+  /* Search bar */
+  .search-bar{padding:10px 12px;gap:6px;}
+  .sort-group{display:none;}  /* hidden on mobile — sort by amount is default */
+
+  /* Transaction table — hide Reference, Conf, Reasoning to fit screen */
+  .txn-table th:nth-child(3),.txn-table td:nth-child(3),
+  .txn-table th:nth-child(6),.txn-table td:nth-child(6),
+  .txn-table th:nth-child(7),.txn-table td:nth-child(7){display:none;}
+  .txn-table td,.txn-table th{padding:10px 10px;}
+  .txn-table{font-size:0.76rem;}
+  .txn-cat-btn{font-size:0.68rem;padding:3px 8px;}
+  /* description column: tighter */
+  .txn-table td:nth-child(2){max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+}
+
+/* ── SMALL PHONES ─────────────────────────────────────────── */
+@media(max-width:390px){
+  h1{font-size:1.75rem;}
+  .stat-value{font-size:1.25rem;}
+  .stat-card{padding:14px 12px;}
+  .dash-body{padding:12px 10px;}
 }
 </style>
 </head>
@@ -412,10 +498,10 @@ tr:hover td{background:var(--surface-low);}
   <!-- Sticky header -->
   <div class="dash-header">
     <div class="dash-logo"><div class="dash-logo-dot"></div>Finanzas</div>
-    <div id="meta-bar" class="meta-bar" style="flex:1;margin:0 24px;justify-content:center;"></div>
+    <div id="meta-bar" class="meta-bar dash-meta"></div>
     <div class="dash-actions">
-      <button class="btn btn-download" onclick="downloadExcel()" style="font-size:0.84rem;padding:9px 18px;">↓ Export</button>
-      <button class="btn btn-secondary" onclick="resetApp()" style="font-size:0.84rem;padding:9px 16px;">↺ New</button>
+      <button class="btn btn-download dash-btn" onclick="downloadExcel()">↓ Export</button>
+      <button class="btn btn-secondary dash-btn" onclick="resetApp()">↺ New</button>
     </div>
   </div>
 
