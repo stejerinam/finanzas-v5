@@ -37,6 +37,7 @@ Extract every transaction from this statement.
 - merchantHint: if a separate column exists for merchant name or location (e.g. Lugar, Establecimiento, Merchant, Payee) that differs from description, extract it here. null otherwise.
 - counterpartyName: name of the person or business on the other side of the transaction if visible. null if not present.
 - counterpartyAccount: account number, IBAN, CLABE, or routing ID of the counterparty if visible. null if not present.
+- remainingPayments: for installment plans only — the number of monthly payments still left to pay (excluding the current one). Look for patterns like "Cuota 3/12" (remaining = 9), "3 de 12 meses" (remaining = 9), "MSI 6/18" (remaining = 12), "Installment 2 of 6" (remaining = 4). null for non-installment transactions.
 </field_definitions>
 
 <rules>
@@ -45,7 +46,7 @@ Extract every transaction from this statement.
 3. For Excel/CSV: map columns to fields by meaning regardless of language
 4. Only extract rows that represent actual financial transactions — money that moved in or out. Skip: balance-only rows, section headers, dividers, rows that repeat identically every day with zero amount, summary and subtotal rows.
 5. CRITICAL — a statement may have multiple columns: transaction amount, running balance, and others. Only use the debit/credit/transaction amount column. Never use the running balance column as the transaction amount.
-6. For installment plan summaries, include each as a transaction with type "Installment Plan"
+6. For installment plan summaries, include each as a transaction with type "Installment Plan" and populate remainingPayments.
 7. If a statement contains multiple account sections, extract transactions from all of them
 8. Works for any language, any country, any bank format
 </rules>
