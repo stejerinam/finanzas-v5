@@ -41,7 +41,7 @@ Extract every transaction from this statement.
 
 <rules>
 1. Amounts always positive — use direction for credit/debit.
-2. Currency consistency — use the primary account currency throughout. Never mix currencies.
+2. CRITICAL — Currency consistency: every amount must be in the same primary account currency (e.g. all MXN, all CLP, all COP). Many statements show foreign transactions with both the original foreign amount AND the converted local amount side by side — ALWAYS use the local/account currency amount, never the foreign one. If a row shows "$45.00 USD / $900.00 MXN", extract 900.00. The output must never mix currencies across transactions.
 3. For Excel/CSV: map columns to fields by meaning regardless of language.
 4. Only extract rows that are actual money movements. Skip: balance-only rows, section headers, dividers, zero-amount accrual rows, summary/subtotal rows.
 5. CRITICAL — statements often have multiple columns: transaction amount, running balance, others. Only read the debit/credit/transaction amount column. Never use the running balance as the transaction amount.
