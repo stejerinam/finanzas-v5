@@ -256,6 +256,15 @@ tr:hover td{background:var(--surface-low);}
 
 .privacy-notice{font-size:0.73rem;color:var(--on-surface-muted);margin-top:24px;padding:14px 18px;background:var(--surface-low);border-radius:16px;line-height:1.6;}
 
+/* ── CASH FLOW SECTION HEADERS ───────────────────────────── */
+.cf-section-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 22px 8px;position:sticky;top:0;z-index:4;}
+.cf-income{background:rgba(26,82,40,0.07);}
+.cf-expense{background:rgba(109,0,30,0.05);margin-top:4px;}
+.cf-section-label{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;font-family:'Inter',sans-serif;}
+.cf-income .cf-section-label{color:#1a5228;}
+.cf-expense .cf-section-label{color:var(--primary);}
+.cf-section-total{font-size:0.8rem;font-weight:700;font-family:'Inter',monospace;color:var(--on-surface);}
+
 /* ── DESKTOP META-BAR ────────────────────────────────────── */
 .dash-meta{flex:1;margin:0 20px;justify-content:center;}
 .dash-btn{font-size:0.84rem;padding:9px 18px;}
@@ -543,10 +552,6 @@ tr:hover td{background:var(--surface-low);}
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title">Cash Flow</span>
-          <div class="tab-group">
-            <button class="tab-btn active" id="tab-expense" onclick="switchDashTab('expense')">Expenses</button>
-            <button class="tab-btn" id="tab-income" onclick="switchDashTab('income')">Income</button>
-          </div>
         </div>
         <div class="panel-scroll" id="cat-breakdown-list"></div>
       </div>
@@ -1091,22 +1096,6 @@ function renderStatCards(currency) {
 function renderBreakdown(currency) {
   currency = currency || parsedData?.currency || selectedCountry.currency || 'MXN';
   const rows = window.DASH_ROWS || [];
-  const isExpense = dashTab === 'expense';
-
-  const filtered = rows.filter(r =>
-    r.category !== 'internal_transfer' &&
-    (isExpense ? r.direction === 'debit' : r.direction === 'credit')
-  );
-
-  // Group by category
-  const groups = {};
-  filtered.forEach(r => {
-    if (!groups[r.category]) groups[r.category] = 0;
-    groups[r.category] += r.amount;
-  });
-
-  const sorted = Object.entries(groups).sort((a, b) => b[1] - a[1]);
-  const maxAmt = sorted[0]?.[1] || 1;
 
   const catColors = {
     food:'#c0440a', cafe:'#7a5230', groceries:'#1a6b4a', transport:'#2d5c80',
@@ -1116,27 +1105,47 @@ function renderBreakdown(currency) {
     other:'#5a5e55', unassigned:'#7a5800',
   };
 
-  document.getElementById('cat-breakdown-list').innerHTML = sorted.map(([catId, amt]) => {
-    const meta = getCatMeta(catId);
-    const pct = (amt / maxAmt * 100).toFixed(0);
-    const color = catColors[catId] || '#6b6f7a';
-    const isActive = dashCatFilter === catId;
-    return `<div class="cat-row ${isActive ? 'active-filter' : ''}" onclick="toggleCatFilter('${catId}')" style="background:linear-gradient(to right,${color}16 ${pct}%,transparent ${pct}%);border-left:3px solid ${color};">
-      <span class="cat-emoji">${meta.emoji}</span>
-      <span class="cat-name">${meta.label}</span>
-      <span class="cat-amount">${fmt(amt, currency)}<span style="font-size:0.65rem;opacity:0.6;margin-left:4px">·&nbsp;${pct}%</span></span>
+  function buildSection(direction) {
+    const groups = {};
+    rows.filter(r => r.category !== 'internal_transfer' && r.direction === direction)
+        .forEach(r => { groups[r.category] = (groups[r.category] || 0) + r.amount; });
+    const sorted = Object.entries(groups).sort((a, b) => b[1] - a[1]);
+    const total = sorted.reduce((s, [, a]) => s + a, 0) || 1;
+    return { sorted, total };
+  }
+
+  function renderRows(sorted, total, colorFn) {
+    return sorted.map(([catId, amt]) => {
+      const meta = getCatMeta(catId);
+      const pct = Math.round(amt / total * 100);
+      const color = colorFn(catId);
+      const isActive = dashCatFilter === catId;
+      return `<div class="cat-row ${isActive ? 'active-filter' : ''}" onclick="toggleCatFilter('${catId}')" style="background:linear-gradient(to right,${color}18 ${pct}%,transparent ${pct}%);border-left:3px solid ${color};">
+        <span class="cat-emoji">${meta.emoji}</span>
+        <span class="cat-name">${meta.label}</span>
+        <span class="cat-amount">${fmt(amt, currency)}<span style="font-size:0.65rem;opacity:0.55;margin-left:5px">${pct}%</span></span>
+      </div>`;
+    }).join('');
+  }
+
+  const income  = buildSection('credit');
+  const expense = buildSection('debit');
+
+  const sectionHdr = (label, total, colorClass) =>
+    `<div class="cf-section-hdr cf-${colorClass}">
+      <span class="cf-section-label">${label}</span>
+      <span class="cf-section-total">${fmt(total, currency)}</span>
     </div>`;
-  }).join('') || '<div style="padding:20px;color:var(--muted);font-size:0.82rem;text-align:center">No transactions</div>';
+
+  let html = '';
+  if (income.sorted.length)  html += sectionHdr('Income', income.total, 'income')   + renderRows(income.sorted,  income.total,  () => '#1a5228');
+  if (expense.sorted.length) html += sectionHdr('Expenses', expense.total, 'expense') + renderRows(expense.sorted, expense.total, id => catColors[id] || '#5a5e55');
+  if (!html) html = '<div style="padding:24px;color:var(--muted);font-size:0.82rem;text-align:center">No transactions</div>';
+
+  document.getElementById('cat-breakdown-list').innerHTML = html;
 }
 
-function switchDashTab(tab) {
-  dashTab = tab;
-  document.getElementById('tab-expense').classList.toggle('active', tab === 'expense');
-  document.getElementById('tab-income').classList.toggle('active', tab === 'income');
-  dashCatFilter = '';
-  renderBreakdown();
-  renderDashTxns();
-}
+function switchDashTab(tab) { /* no-op: layout now shows both sections */ }
 
 function toggleCatFilter(catId) {
   dashCatFilter = dashCatFilter === catId ? '' : catId;
