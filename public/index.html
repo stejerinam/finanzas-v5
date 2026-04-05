@@ -393,7 +393,7 @@ tr:hover td{background:var(--surface2);}
       </div>
       <div class="stat-card install-card">
         <span class="stat-card-icon">🗓️</span>
-        <div class="stat-label">Remaining Debt</div>
+        <div class="stat-label">Installment Debt</div>
         <div class="stat-value yellow" id="stat-msi">—</div>
         <div class="stat-sub" id="stat-msi-sub">active plans</div>
       </div>
@@ -938,11 +938,7 @@ function renderStatCards(currency) {
   const totalExpense = expense.reduce((s, r) => s + r.amount, 0);
   const balance = totalIncome - totalExpense;
   const savingsRate = totalIncome > 0 ? Math.max(0, Math.min(100, (balance / totalIncome) * 100)) : 0;
-  // Remaining installment debt = monthly payment × remaining payments for each plan
-  const totalMSIDebt = installments.reduce((s, t) => {
-    const remaining = t.remainingPayments != null ? t.remainingPayments : 0;
-    return s + (t.amount || 0) * (remaining + 1); // +1 to include current month's payment
-  }, 0);
+  const totalMSI = installments.reduce((s, t) => s + (t.amount || 0), 0);
 
   document.getElementById('stat-income').textContent = fmt(totalIncome, currency);
   document.getElementById('stat-income-sub').textContent = `${income.length} transactions`;
@@ -951,8 +947,8 @@ function renderStatCards(currency) {
   document.getElementById('stat-balance').textContent = fmt(balance, currency);
   document.getElementById('balance-bar').style.width = savingsRate.toFixed(0) + '%';
   document.getElementById('stat-balance-sub').textContent = `${savingsRate.toFixed(0)}% savings rate`;
-  document.getElementById('stat-msi').textContent = totalMSIDebt > 0 ? fmt(totalMSIDebt, currency) : '—';
-  document.getElementById('stat-msi-sub').textContent = `${installments.length} plan${installments.length !== 1 ? 's' : ''} · total remaining`;
+  document.getElementById('stat-msi').textContent = totalMSI > 0 ? fmt(totalMSI, currency) : '—';
+  document.getElementById('stat-msi-sub').textContent = `${installments.length} active plan${installments.length !== 1 ? 's' : ''}`;
 }
 
 function renderBreakdown(currency) {

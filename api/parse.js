@@ -37,7 +37,6 @@ Extract every transaction from this statement.
 - merchantHint: if a separate column exists for merchant name or location (e.g. Lugar, Establecimiento, Merchant, Payee) that differs from description, extract it here. null otherwise.
 - counterpartyName: name of the person or business on the other side of the transaction if visible. null if not present.
 - counterpartyAccount: account number, IBAN, CLABE, or routing ID of the counterparty if visible. null if not present.
-- remainingPayments: integer — ONLY for type "Installment Plan". Number of payments still left NOT counting the current one. Derive from patterns like "Cuota 3/12" → 9, "MSI 6/18" → 12, "3 de 12 meses" → 9, "Installment 2 of 6" → 4, "2/6" → 4. If the plan total is known but current position is not, set to null. For all non-installment transactions set to null.
 </field_definitions>
 
 <rules>
