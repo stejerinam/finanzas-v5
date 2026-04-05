@@ -32,23 +32,25 @@ Extract every transaction from this statement.
 - description: merchant name, counterparty, or transaction label. Remove raw account numbers and hashes but keep all meaningful text.
 - amount: always a positive number. Direction handles the sign.
 - direction: "credit" = money IN, "debit" = money OUT
-- type: transaction mechanism as written in the statement — e.g. "Compra", "Transferencia", "Purchase", "Direct Debit", "Wire Transfer", "ATM Withdrawal". Keep original language.
+- type: transaction mechanism. Use "Installment Plan" (exactly, in English) for any installment/MSI/cuotas entry — see rule 6. For all other transactions use the mechanism as written in the statement (e.g. "Compra", "Transferencia", "Purchase", "ATM Withdrawal").
 - reference: short human-written note describing payment purpose. Banks call this: Concepto, Glosa, Memo, Narration, Payment Reference, Details, Remarks. null if not present.
 - merchantHint: if a separate column exists for merchant name or location (e.g. Lugar, Establecimiento, Merchant, Payee) that differs from description, extract it here. null otherwise.
 - counterpartyName: name of the person or business on the other side of the transaction if visible. null if not present.
 - counterpartyAccount: account number, IBAN, CLABE, or routing ID of the counterparty if visible. null if not present.
-- remainingPayments: for installment plans only — the number of monthly payments still left to pay (excluding the current one). Look for patterns like "Cuota 3/12" (remaining = 9), "3 de 12 meses" (remaining = 9), "MSI 6/18" (remaining = 12), "Installment 2 of 6" (remaining = 4). null for non-installment transactions.
+- remainingPayments: integer — ONLY for type "Installment Plan". Number of payments still left NOT counting the current one. Derive from patterns like "Cuota 3/12" → 9, "MSI 6/18" → 12, "3 de 12 meses" → 9, "Installment 2 of 6" → 4, "2/6" → 4. If the plan total is known but current position is not, set to null. For all non-installment transactions set to null.
 </field_definitions>
 
 <rules>
-1. Amounts always positive — use direction for credit/debit
-2. Currency consistency — use one currency throughout. If a statement shows amounts in multiple currencies, always use the primary account currency. Never mix currencies across transactions.
-3. For Excel/CSV: map columns to fields by meaning regardless of language
-4. Only extract rows that represent actual financial transactions — money that moved in or out. Skip: balance-only rows, section headers, dividers, rows that repeat identically every day with zero amount, summary and subtotal rows.
-5. CRITICAL — a statement may have multiple columns: transaction amount, running balance, and others. Only use the debit/credit/transaction amount column. Never use the running balance column as the transaction amount.
-6. For installment plan summaries, include each as a transaction with type "Installment Plan" and populate remainingPayments.
-7. If a statement contains multiple account sections, extract transactions from all of them
-8. Works for any language, any country, any bank format
+1. Amounts always positive — use direction for credit/debit.
+2. Currency consistency — use the primary account currency throughout. Never mix currencies.
+3. For Excel/CSV: map columns to fields by meaning regardless of language.
+4. Only extract rows that are actual money movements. Skip: balance-only rows, section headers, dividers, zero-amount accrual rows, summary/subtotal rows.
+5. CRITICAL — statements often have multiple columns: transaction amount, running balance, others. Only read the debit/credit/transaction amount column. Never use the running balance as the transaction amount.
+6. INSTALLMENT PLANS — this is critical: many Latin American credit card statements (especially Mexican, Colombian, Argentine) have a dedicated section listing active installment plans (MSI = Meses Sin Intereses, cuotas, diferidos, meses con intereses). These appear as rows like:
+   - "Amazon Prime 3/12 MSI $499" or "Liverpool 6/18 $1,500" or "Cuota 5 de 12 $800"
+   These MUST be extracted as individual transactions with type exactly "Installment Plan". Do not skip them. Do not merge them. The amount is the monthly payment amount, not the total.
+7. If a statement contains multiple account sections, extract transactions from all of them.
+8. Works for any language, any country, any bank format.
 </rules>
 
 <statement>
