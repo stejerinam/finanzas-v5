@@ -500,6 +500,7 @@ tr:hover td{background:var(--surface-low);}
       <div class="section-label" style="margin-bottom:8px">Always included (system)</div>
       <div class="system-cats">
         <span class="system-cat-pill">⇄ internal_transfer</span>
+        <span class="system-cat-pill">🚫 excluded</span>
         <span class="system-cat-pill">❓ unassigned</span>
       </div>
     </div>
@@ -1234,7 +1235,10 @@ function renderReviewCard() {
   const dirCats = txn.direction === 'credit'
     ? activeCats.filter(c => incomeIds.includes(c.id) || (c.custom && c.type === 'income'))
     : activeCats.filter(c => !incomeIds.includes(c.id) && !(c.custom && c.type === 'income'));
-  const allChips = [...dirCats, { id: 'internal_transfer', label: 'Internal Transfer', emoji: '⇄' }];
+  const allChips = [...dirCats,
+    { id: 'internal_transfer', label: 'Internal Transfer', emoji: '⇄' },
+    { id: 'excluded', label: 'Exclude', emoji: '🚫' },
+  ];
   gridEl.innerHTML = allChips.map(c =>
     `<button class="review-cat-btn" onclick="assignReviewCard(${reviewQueue[reviewCursor].txnIndex},'${c.id}')">
       <span style="font-size:1rem">${c.emoji || '📌'}</span>${esc(c.label)}
@@ -1343,8 +1347,8 @@ function renderStatCards(currency) {
   currency = currency || parsedData?.currency || selectedCountry.currency || 'MXN';
   const rows = window.DASH_ROWS || [];
 
-  const income = rows.filter(r => r.direction === 'credit' && r.category !== 'internal_transfer');
-  const expense = rows.filter(r => r.direction === 'debit' && r.category !== 'internal_transfer');
+  const income = rows.filter(r => r.direction === 'credit' && r.category !== 'internal_transfer' && r.category !== 'excluded');
+  const expense = rows.filter(r => r.direction === 'debit' && r.category !== 'internal_transfer' && r.category !== 'excluded');
   const installments = (parsedData?.transactions || []).filter(t => t.type === 'Installment Plan');
 
   const totalIncome = income.reduce((s, r) => s + r.amount, 0);
@@ -1378,7 +1382,7 @@ function renderBreakdown(currency) {
 
   function buildSection(direction) {
     const groups = {};
-    rows.filter(r => r.category !== 'internal_transfer' && r.direction === direction)
+    rows.filter(r => r.category !== 'internal_transfer' && r.category !== 'excluded' && r.direction === direction)
         .forEach(r => { groups[r.category] = (groups[r.category] || 0) + r.amount; });
     const sorted = Object.entries(groups).sort((a, b) => b[1] - a[1]);
     const total = sorted.reduce((s, [, a]) => s + a, 0) || 1;
@@ -1454,7 +1458,7 @@ function renderDashTxns() {
 
   document.getElementById('txn-count').textContent = `${filtered.length} rows`;
 
-  const allCats = [...userCategories.filter(c => c.active), {id:'internal_transfer',label:'Internal Transfer',emoji:'⇄'}, {id:'unassigned',label:'Unassigned',emoji:'❓'}];
+  const allCats = [...userCategories.filter(c => c.active), {id:'internal_transfer',label:'Internal Transfer',emoji:'⇄'}, {id:'excluded',label:'Excluded',emoji:'🚫'}, {id:'unassigned',label:'Unassigned',emoji:'❓'}];
 
   document.getElementById('dash-txn-body').innerHTML = filtered.map((r, ri) => {
     const meta = getCatMeta(r.category);
@@ -1477,6 +1481,7 @@ function getCatMeta(catId) {
   const found = userCategories.find(c => c.id === catId);
   if (found) return found;
   if (catId === 'internal_transfer') return {emoji:'⇄', label:'Internal Transfer'};
+  if (catId === 'excluded') return {emoji:'🚫', label:'Excluded'};
   if (catId === 'unassigned') return {emoji:'❓', label:'Unassigned'};
   return {emoji:'📦', label: catId};
 }
@@ -1487,6 +1492,7 @@ function openCatDd(e, rowIndex) {
   const allCats = [
     ...userCategories.filter(c => c.active),
     {id:'internal_transfer', label:'Internal Transfer', emoji:'⇄'},
+    {id:'excluded', label:'Excluded', emoji:'🚫'},
     {id:'unassigned', label:'Unassigned', emoji:'❓'},
   ];
   dd.innerHTML = allCats.map(c =>

@@ -48,6 +48,7 @@ Extract every transaction from this statement.
 6. INSTALLMENT PLANS — this is critical: many Latin American credit card statements (especially Mexican, Colombian, Argentine) have a dedicated section listing active installment plans (MSI = Meses Sin Intereses, cuotas, diferidos, meses con intereses). These appear as rows like:
    - "Amazon Prime 3/12 MSI $499" or "Liverpool 6/18 $1,500" or "Cuota 5 de 12 $800"
    These MUST be extracted as individual transactions with type exactly "Installment Plan". Do not skip them. Do not merge them. The amount is the monthly payment amount, not the total.
+   DEDUPLICATION: Some statements show the same purchase in BOTH the main transaction list AND the installment plan section. If you see the same transaction in both places, extract it ONLY from the installment plan section (type "Installment Plan") and skip the duplicate entry in the regular transaction list. Do not count it twice.
 7. If a statement contains multiple account sections, extract transactions from all of them.
 8. Works for any language, any country, any bank format.
 </rules>
