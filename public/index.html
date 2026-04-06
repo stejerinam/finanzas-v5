@@ -256,6 +256,21 @@ tr:hover td{background:var(--surface-low);}
 
 .privacy-notice{font-size:0.73rem;color:var(--on-surface-muted);margin-top:24px;padding:14px 18px;background:var(--surface-low);border-radius:16px;line-height:1.6;}
 
+/* ── BANK GUIDES ─────────────────────────────────────────────── */
+.guides-wrap{margin-top:20px;}
+.guides-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:12px 0;cursor:pointer;font-family:'Inter',sans-serif;color:var(--on-surface-variant);font-size:0.78rem;font-weight:600;text-align:left;gap:8px;}
+.guides-toggle:hover{color:var(--on-surface);}
+.guides-title{display:flex;align-items:center;gap:8px;}
+.guides-chevron{font-size:0.7rem;transition:transform 0.22s;flex-shrink:0;color:var(--on-surface-muted);}
+.guides-wrap.open .guides-chevron{transform:rotate(180deg);}
+.guides-body{display:none;flex-direction:column;gap:4px;padding-bottom:8px;}
+.guides-wrap.open .guides-body{display:flex;}
+.guide-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;background:var(--surface-lowest);transition:background 0.14s;text-decoration:none;}
+.guide-row:hover{background:var(--surface-high);}
+.guide-logo{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-0.02em;font-family:'Plus Jakarta Sans',sans-serif;}
+.guide-name{flex:1;font-size:0.84rem;font-weight:600;font-family:'Inter',sans-serif;color:var(--on-surface);}
+.guide-link-label{font-size:0.73rem;font-family:'Inter',sans-serif;color:var(--primary);font-weight:600;white-space:nowrap;}
+
 /* ── CASH FLOW SECTION HEADERS ───────────────────────────── */
 .cf-section-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 22px 8px;position:sticky;top:0;z-index:4;}
 .cf-income{background:rgba(26,82,40,0.07);}
@@ -450,6 +465,39 @@ tr:hover td{background:var(--surface-low);}
 
   <button class="btn btn-primary" id="btn-start" disabled onclick="startPipeline()" style="width:100%;max-width:360px;padding:15px 24px;font-size:1rem;border-radius:14px;margin-bottom:16px;" data-i18n="uploadBtn">Analizar mis finanzas →</button>
   <div class="privacy-notice" data-i18n="uploadPrivacy">🔒 Tu información es privada — solo enviamos texto de transacciones para análisis, nunca datos personales identificables.</div>
+
+  <!-- ── BANK GUIDES ── -->
+  <div class="guides-wrap" id="guides-wrap">
+    <button class="guides-toggle" onclick="toggleGuides()">
+      <span class="guides-title">
+        <span style="font-size:0.9rem">🏦</span>
+        <span data-i18n="guidesTitle">¿Cómo descargar tu estado de cuenta?</span>
+      </span>
+      <span class="guides-chevron">▼</span>
+    </button>
+    <div class="guides-body">
+      <a class="guide-row" href="https://www.bbva.mx/personas/canales-de-atencion/banca-por-internet.html" target="_blank" rel="noopener">
+        <div class="guide-logo" style="background:#004481;">BBVA</div>
+        <span class="guide-name">BBVA México</span>
+        <span class="guide-link-label" data-i18n="guidesLink">Ver guía →</span>
+      </a>
+      <a class="guide-row" href="https://www.banamex.com/es/personas/canales/banca_en_linea.html" target="_blank" rel="noopener">
+        <div class="guide-logo" style="background:#d01818;">Citi</div>
+        <span class="guide-name">Citibanamex</span>
+        <span class="guide-link-label" data-i18n="guidesLink">Ver guía →</span>
+      </a>
+      <a class="guide-row" href="https://nubank.com.mx/ayuda/" target="_blank" rel="noopener">
+        <div class="guide-logo" style="background:#820ad1;">Nu</div>
+        <span class="guide-name">Nu México</span>
+        <span class="guide-link-label" data-i18n="guidesLink">Ver guía →</span>
+      </a>
+      <a class="guide-row" href="https://www.santander.com.mx/personas/santander-digital/banca-por-internet.html" target="_blank" rel="noopener">
+        <div class="guide-logo" style="background:#ec0000;">San</div>
+        <span class="guide-name">Santander</span>
+        <span class="guide-link-label" data-i18n="guidesLink">Ver guía →</span>
+      </a>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -783,6 +831,8 @@ const STRINGS = {
     reviewParsingTitle: 'Leyendo tu estado de cuenta…',
     reviewParsingSub: 'Por favor espera mientras leemos tus transacciones.',
     dashTransactions: 'transacciones',
+    guidesTitle: '¿Cómo descargar tu estado de cuenta?',
+    guidesLink: 'Ver guía →',
   },
   en: {
     eyebrow: 'Finanzas · v5',
@@ -886,6 +936,8 @@ const STRINGS = {
     reviewParsingTitle: 'Parsing your statement…',
     reviewParsingSub: 'Please wait while we read your transactions.',
     dashTransactions: 'transactions',
+    guidesTitle: 'How to download your statement?',
+    guidesLink: 'View guide →',
   }
 };
 
@@ -979,6 +1031,10 @@ function setFile(file) {
   document.getElementById('file-name').textContent = `📎 ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
   document.getElementById('btn-start').disabled = false;
 }
+function toggleGuides() {
+  document.getElementById('guides-wrap').classList.toggle('open');
+}
+
 function selectAcct(btn) {
   document.querySelectorAll('.acct-btn[data-type]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
