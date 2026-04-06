@@ -406,33 +406,34 @@ tr:hover td{background:var(--surface-low);}
 </style>
 </head>
 <body>
+<button id="lang-toggle" onclick="toggleLanguage()" style="position:fixed;top:14px;right:16px;z-index:1100;padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);">EN</button>
 
 <!-- ── UPLOAD SCREEN ── -->
 <div id="upload-screen" class="screen active">
 <div class="container">
-  <div class="eyebrow">Finanzas · AI-powered</div>
-  <h1>Know exactly where<br>your <em>money goes.</em></h1>
-  <p class="subtitle">Drop any bank statement — PDF, Excel, or CSV — and get a full breakdown in seconds. Any bank, any country, totally private.</p>
+  <div class="eyebrow" data-i18n="eyebrow">Finanzas · v5</div>
+  <h1><span data-i18n="uploadTitle1">Tu dinero,</span><br><em data-i18n="uploadTitle2">sin filtros.</em></h1>
+  <p class="subtitle" data-i18n="uploadSubtitle">Sube tu estado de cuenta y la IA lo analiza automáticamente — cualquier banco, cualquier país.</p>
 
   <div class="upload-zone" id="drop-zone">
     <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.csv">
     <div class="upload-icon">📄</div>
     <div class="upload-label">
-      <strong>Drop your bank statement here</strong>
-      <span>PDF · Excel (.xlsx) · CSV &nbsp;·&nbsp; Any bank, any country</span>
+      <strong data-i18n="uploadDropTitle">Arrastra tu estado de cuenta aquí</strong>
+      <span data-i18n="uploadDropSub">PDF · Excel (.xlsx) · CSV · Cualquier banco, cualquier país</span>
     </div>
   </div>
   <div class="file-name" id="file-name"></div>
 
-  <div class="section-label">Account type</div>
+  <div class="section-label" data-i18n="uploadAcctLabel">¿Qué tipo de cuenta es esta?</div>
   <div class="acct-group" id="acct-group">
-    <button class="acct-btn active" data-type="credit" onclick="selectAcct(this)">💳 Credit</button>
-    <button class="acct-btn" data-type="debit" onclick="selectAcct(this)">🏦 Debit</button>
-    <button class="acct-btn" data-type="savings" onclick="selectAcct(this)">💰 Savings</button>
-    <button class="acct-btn" data-type="checking" onclick="selectAcct(this)">📋 Checking</button>
+    <button class="acct-btn active" data-type="credit" onclick="selectAcct(this)" data-i18n="uploadCredit">💳 Tarjeta de Crédito</button>
+    <button class="acct-btn" data-type="debit" onclick="selectAcct(this)" data-i18n="uploadDebit">🏦 Tarjeta de Débito</button>
+    <button class="acct-btn" data-type="savings" onclick="selectAcct(this)" data-i18n="uploadSavings">💰 Cuenta de Ahorro</button>
+    <button class="acct-btn" data-type="checking" onclick="selectAcct(this)" data-i18n="uploadChecking">📋 Cuenta de Cheques</button>
   </div>
 
-  <div class="section-label" style="margin-top:8px">Your country</div>
+  <div class="section-label" style="margin-top:8px" data-i18n="uploadCountryLabel">País</div>
   <div style="margin-bottom:24px;">
     <select id="country-select" onchange="selectCountry(this)"
       style="width:100%;max-width:360px;background:var(--surface);border:1.5px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:12px;font-family:'Cabinet Grotesk',sans-serif;font-size:0.9rem;outline:none;cursor:pointer;">
@@ -447,27 +448,27 @@ tr:hover td{background:var(--surface-low);}
     <span id="model-note">claude-haiku-4-5-20251001</span>
   </div>
 
-  <button class="btn btn-primary" id="btn-start" disabled onclick="startPipeline()" style="width:100%;max-width:360px;padding:15px 24px;font-size:1rem;border-radius:14px;margin-bottom:16px;">Analyze my statement →</button>
-  <div class="privacy-notice">🔒 Your data stays private — we only send transaction text for analysis, never personal identifiers.</div>
+  <button class="btn btn-primary" id="btn-start" disabled onclick="startPipeline()" style="width:100%;max-width:360px;padding:15px 24px;font-size:1rem;border-radius:14px;margin-bottom:16px;" data-i18n="uploadBtn">Analizar mis finanzas →</button>
+  <div class="privacy-notice" data-i18n="uploadPrivacy">🔒 Tu información es privada — solo enviamos texto de transacciones para análisis, nunca datos personales identificables.</div>
 </div>
 </div>
 
 <!-- ── PROCESSING SCREEN (parse) ── -->
 <div id="processing-screen" class="screen">
 <div class="container">
-  <div class="eyebrow">Finanzas · v5</div>
-  <h1>Analyzing your <em>statement</em></h1>
+  <div class="eyebrow" data-i18n="eyebrow">Finanzas · v5</div>
+  <h1><span data-i18n="processingTitle1">Analizando tu</span> <em data-i18n="processingTitle2">estado de cuenta</em></h1>
   <div class="pipeline">
     <div class="step-card" id="step-extract">
       <div class="step-header">
         <div class="step-num" id="sn-extract">1</div>
-        <div><div class="step-title">Extract Text</div><div class="step-status" id="ss-extract">Waiting…</div></div>
+        <div><div class="step-title" data-i18n="stepExtract">Extraer Texto</div><div class="step-status" id="ss-extract" data-i18n="stepWaiting">Esperando…</div></div>
       </div>
     </div>
     <div class="step-card" id="step-parse">
       <div class="step-header">
         <div class="step-num" id="sn-parse">2</div>
-        <div><div class="step-title">AI Parse</div><div class="step-status" id="ss-parse">Waiting…</div></div>
+        <div><div class="step-title" data-i18n="stepParse">Parsear con IA</div><div class="step-status" id="ss-parse" data-i18n="stepWaiting">Esperando…</div></div>
       </div>
     </div>
   </div>
@@ -478,26 +479,26 @@ tr:hover td{background:var(--surface-low);}
 <div id="cat-screen" class="screen">
 <div class="container">
   <div class="cat-selector-card">
-    <div class="eyebrow">Step 3 · Categories</div>
-    <div class="cat-selector-title">Choose your categories</div>
-    <p class="cat-selector-sub">These are the categories the AI will use. Toggle off any you don't need, or add your own. Hover a chip to see its definition.</p>
+    <div class="eyebrow" data-i18n="catEyebrow">Paso 3 · Categorías</div>
+    <div class="cat-selector-title" data-i18n="catTitle">Elige tus categorías</div>
+    <p class="cat-selector-sub" data-i18n="catSubtitle">Estas son las categorías que usará la IA. Desactiva las que no necesites o agrega las tuyas. Pasa el cursor para ver la definición.</p>
 
     <div class="cat-chips" id="cat-chips"></div>
 
     <!-- Add custom category form -->
     <div class="add-cat-form hidden" id="add-cat-form">
-      <div class="section-label" style="margin-bottom:8px">New category</div>
+      <div class="section-label" style="margin-bottom:8px" data-i18n="newCatLabel">Nueva categoría</div>
       <input type="hidden" id="new-cat-type" value="expense">
       <div class="add-cat-row">
-        <input class="add-cat-input" id="new-cat-name" placeholder="Name (e.g. Pets)" maxlength="40">
-        <input class="add-cat-input" id="new-cat-examples" placeholder="Examples, optional (e.g. Petco, vet clinic, pet food)" maxlength="120">
-        <button class="btn btn-primary" onclick="addCategory()" style="white-space:nowrap;padding:8px 16px">Add</button>
-        <button class="btn btn-secondary" onclick="toggleAddForm()" style="padding:8px 14px">✕</button>
+        <input class="add-cat-input" id="new-cat-name" placeholder="Nombre (ej. Mascotas)" maxlength="40" data-i18n="newCatNamePlaceholder">
+        <input class="add-cat-input" id="new-cat-examples" placeholder="Ejemplos opcionales (ej. Petco, veterinaria)" maxlength="120" data-i18n="newCatExamplesPlaceholder">
+        <button class="btn btn-primary" onclick="addCategory()" style="white-space:nowrap;padding:8px 16px" data-i18n="addBtn">Agregar</button>
+        <button class="btn btn-secondary" onclick="toggleAddForm()" style="padding:8px 14px" data-i18n="cancelBtn">✕</button>
       </div>
     </div>
 
     <div style="padding-top:12px;border-top:1px solid var(--border);margin-bottom:16px;">
-      <div class="section-label" style="margin-bottom:8px">Always included (system)</div>
+      <div class="section-label" style="margin-bottom:8px" data-i18n="catSystemLabel">Siempre incluidas (sistema)</div>
       <div class="system-cats">
         <span class="system-cat-pill">⇄ internal_transfer</span>
         <span class="system-cat-pill">🚫 excluded</span>
@@ -506,14 +507,14 @@ tr:hover td{background:var(--surface-low);}
     </div>
 
     <div class="cat-actions">
-      <button class="btn btn-primary" id="btn-start-cat" onclick="startCategorize()">Confirm Categories →</button>
-      <button class="btn btn-secondary" id="btn-dl-parsed" onclick="downloadParsedOnly()" disabled style="opacity:0.35">⬇ Download parsed</button>
-      <span class="cat-count" id="cat-count">0 categories selected</span>
+      <button class="btn btn-primary" id="btn-start-cat" onclick="startCategorize()" data-i18n="catConfirmBtn">Confirmar Categorías →</button>
+      <button class="btn btn-secondary" id="btn-dl-parsed" onclick="downloadParsedOnly()" disabled style="opacity:0.35" data-i18n="catDownloadBtn">⬇ Descargar parseado</button>
+      <span class="cat-count" id="cat-count">0 categorías seleccionadas</span>
     </div>
 
     <!-- Parse status shown inline while user browses categories -->
     <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;">
-      <span style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;">Parse status:</span>
+      <span style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;" data-i18n="catParseLabel">Estado del parseo:</span>
       <span id="parse-status" style="font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--muted)"><span class="spinner"></span>Starting…</span>
     </div>
   </div>
@@ -554,8 +555,8 @@ tr:hover td{background:var(--surface-low);}
   <!-- Waiting: AI still working, nothing to review yet -->
   <div id="review-waiting" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
     <div class="review-waiting-anim">🤖</div>
-    <div class="review-waiting-title" id="review-waiting-title">AI is working…</div>
-    <div class="review-waiting-sub" id="review-waiting-sub">Unassigned transactions will appear here as each batch finishes.</div>
+    <div class="review-waiting-title" id="review-waiting-title" data-i18n="reviewWaitingTitle">La IA está trabajando…</div>
+    <div class="review-waiting-sub" id="review-waiting-sub" data-i18n="reviewWaitingSub">Las transacciones sin categoría aparecerán aquí conforme avancen los lotes.</div>
   </div>
 
   <!-- Card: one unassigned transaction at a time -->
@@ -565,17 +566,17 @@ tr:hover td{background:var(--surface-low);}
       <div class="review-amount debit" id="review-amount">—</div>
       <div class="review-desc" id="review-desc">—</div>
       <div class="review-meta" id="review-meta"></div>
-      <div class="review-section-label">Category</div>
+      <div class="review-section-label" data-i18n="reviewSectionLabel">Categoría</div>
       <div class="review-cat-grid" id="review-cat-grid"></div>
     </div>
-    <button class="review-skip-btn" onclick="skipReviewCard()">Skip for now</button>
+    <button class="review-skip-btn" onclick="skipReviewCard()" data-i18n="reviewSkip">Omitir por ahora</button>
   </div>
 
   <!-- Done: all chunks complete + queue exhausted -->
   <div id="review-done-wrap" style="flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;">
     <div style="font-size:2.8rem;">✅</div>
-    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:700;color:var(--tertiary);">All done!</div>
-    <div style="font-size:0.85rem;color:var(--on-surface-variant);"><span class="spinner"></span> Building your dashboard…</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:700;color:var(--tertiary);" data-i18n="reviewDoneTitle">¡Todo listo!</div>
+    <div style="font-size:0.85rem;color:var(--on-surface-variant);"><span class="spinner"></span> <span data-i18n="reviewDoneSub">Construyendo tu dashboard…</span></div>
   </div>
 </div>
 </div>
@@ -588,8 +589,8 @@ tr:hover td{background:var(--surface-low);}
     <div class="dash-logo"><div class="dash-logo-dot"></div>Finanzas</div>
     <div id="meta-bar" class="meta-bar dash-meta"></div>
     <div class="dash-actions">
-      <button class="btn btn-download dash-btn" onclick="downloadExcel()">↓ Export</button>
-      <button class="btn btn-secondary dash-btn" onclick="resetApp()">↺ New</button>
+      <button class="btn btn-download dash-btn" onclick="downloadExcel()" data-i18n="dashDownload">↓ Exportar</button>
+      <button class="btn btn-secondary dash-btn" onclick="resetApp()" data-i18n="dashNew">↺ Nuevo</button>
     </div>
   </div>
 
@@ -599,26 +600,26 @@ tr:hover td{background:var(--surface-low);}
     <div class="stat-row">
       <div class="stat-card income-card">
         <span class="stat-card-icon">💵</span>
-        <div class="stat-label">Total Income</div>
+        <div class="stat-label" data-i18n="dashIncome">Ingresos totales</div>
         <div class="stat-value green" id="stat-income">—</div>
         <div class="stat-sub" id="stat-income-sub">— transactions</div>
       </div>
       <div class="stat-card expense-card">
         <span class="stat-card-icon">💸</span>
-        <div class="stat-label">Total Expenses</div>
+        <div class="stat-label" data-i18n="dashExpenses">Gastos totales</div>
         <div class="stat-value red" id="stat-expense">—</div>
         <div class="stat-sub" id="stat-expense-sub">— transactions</div>
       </div>
       <div class="stat-card balance-card">
         <span class="stat-card-icon">📊</span>
-        <div class="stat-label">Net Balance</div>
+        <div class="stat-label" data-i18n="dashBalance">Balance neto</div>
         <div class="stat-value teal" id="stat-balance">—</div>
         <div class="balance-bar-bg"><div class="balance-bar-fill" id="balance-bar" style="width:0%"></div></div>
         <div class="stat-sub" id="stat-balance-sub">savings rate</div>
       </div>
       <div class="stat-card install-card">
         <span class="stat-card-icon">🗓️</span>
-        <div class="stat-label">Installment Debt</div>
+        <div class="stat-label" data-i18n="dashInstallments">Deuda en MSI</div>
         <div class="stat-value yellow" id="stat-msi">—</div>
         <div class="stat-sub" id="stat-msi-sub">active plans</div>
       </div>
@@ -630,7 +631,7 @@ tr:hover td{background:var(--surface-low);}
       <!-- LEFT: Category breakdown -->
       <div class="panel">
         <div class="panel-header">
-          <span class="panel-title">Cash Flow</span>
+          <span class="panel-title" data-i18n="cashFlow">Flujo de Caja</span>
         </div>
         <div class="panel-scroll" id="cat-breakdown-list"></div>
       </div>
@@ -638,31 +639,31 @@ tr:hover td{background:var(--surface-low);}
       <!-- RIGHT: Transaction table -->
       <div class="panel">
         <div class="panel-header">
-          <span class="panel-title">Transactions</span>
+          <span class="panel-title" data-i18n="txnTitle">Transacciones</span>
           <span class="panel-badge" id="txn-count">—</span>
           <div class="sort-group">
-            <button class="sort-btn active" id="sort-amt" onclick="setDashSort('amount')">↓ Amount</button>
-            <button class="sort-btn" id="sort-date" onclick="setDashSort('date')">Date</button>
+            <button class="sort-btn active" id="sort-amt" onclick="setDashSort('amount')" data-i18n="txnSortAmt">↓ Monto</button>
+            <button class="sort-btn" id="sort-date" onclick="setDashSort('date')" data-i18n="txnSortDate">Fecha</button>
           </div>
         </div>
         <div class="search-bar">
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
-            <input class="search-input" id="dash-search" placeholder="Search…" oninput="renderDashTxns()">
+            <input class="search-input" id="dash-search" placeholder="Buscar…" oninput="renderDashTxns()" data-i18n="txnSearch">
           </div>
-          <select class="filter-sel" id="dash-cat-filter" onchange="renderDashTxns()"><option value="">All categories</option></select>
+          <select class="filter-sel" id="dash-cat-filter" onchange="renderDashTxns()"><option value="">Todas las categorías</option></select>
           <select class="filter-sel" id="dash-dir-filter" onchange="renderDashTxns()">
-            <option value="">All</option>
-            <option value="credit">Income</option>
-            <option value="debit">Expenses</option>
+            <option value="" data-i18n="txnAllDir">Todos</option>
+            <option value="credit" data-i18n="txnIncome">Ingresos</option>
+            <option value="debit" data-i18n="txnExpenses">Gastos</option>
           </select>
         </div>
         <div class="panel-scroll">
           <table class="txn-table">
             <thead><tr>
-              <th>Date</th><th>Description</th><th>Reference</th>
-              <th style="text-align:right">Amount</th>
-              <th>Category</th><th>Conf.</th><th>Reasoning</th>
+              <th data-i18n="txnColDate">Fecha</th><th data-i18n="txnColDesc">Descripción</th><th data-i18n="txnColRef">Referencia</th>
+              <th style="text-align:right" data-i18n="txnColAmt">Monto</th>
+              <th data-i18n="txnColCat">Categoría</th><th data-i18n="txnColConf">Conf.</th><th data-i18n="txnColReason">Razonamiento</th>
             </tr></thead>
             <tbody id="dash-txn-body"></tbody>
           </table>
@@ -678,6 +679,255 @@ tr:hover td{background:var(--surface-low);}
 
 
 <script>
+// ── i18n ─────────────────────────────────────────────────────────────
+const STRINGS = {
+  es: {
+    eyebrow: 'Finanzas · v5',
+    uploadTitle1: 'Tu dinero,',
+    uploadTitle2: 'sin filtros.',
+    uploadSubtitle: 'Sube tu estado de cuenta y la IA lo analiza automáticamente — cualquier banco, cualquier país.',
+    uploadAcctLabel: '¿Qué tipo de cuenta es esta?',
+    uploadCredit: '💳 Tarjeta de Crédito',
+    uploadDebit: '🏦 Tarjeta de Débito',
+    uploadSavings: '💰 Cuenta de Ahorro',
+    uploadChecking: '📋 Cuenta de Cheques',
+    uploadCountryLabel: 'País',
+    uploadDropTitle: 'Arrastra tu estado de cuenta aquí',
+    uploadDropSub: 'PDF · Excel (.xlsx) · CSV · Cualquier banco, cualquier país',
+    uploadBtn: 'Analizar mis finanzas →',
+    uploadPrivacy: '🔒 Tu información es privada — solo enviamos texto de transacciones para análisis, nunca datos personales identificables.',
+    processingTitle1: 'Analizando tu',
+    processingTitle2: 'estado de cuenta',
+    stepExtract: 'Extraer Texto',
+    stepParse: 'Parsear con IA',
+    stepWaiting: 'Esperando…',
+    catEyebrow: 'Paso 3 · Categorías',
+    catTitle: 'Elige tus categorías',
+    catSubtitle: 'Estas son las categorías que usará la IA. Desactiva las que no necesites o agrega las tuyas. Pasa el cursor para ver la definición.',
+    catExpenses: '💸 Gastos',
+    catIncome: '💰 Ingresos',
+    catSystemLabel: 'Siempre incluidas (sistema)',
+    catAddExpense: '+ Agregar gasto',
+    catAddIncome: '+ Agregar ingreso',
+    catConfirmBtn: 'Confirmar Categorías →',
+    catDownloadBtn: '⬇ Descargar parseado',
+    catParseLabel: 'Estado del parseo:',
+    catCount: 'categoría seleccionada',
+    catCountPlural: 'categorías seleccionadas',
+    newCatLabel: 'Nueva categoría',
+    newCatNamePlaceholder: 'Nombre (ej. Mascotas)',
+    newCatExamplesPlaceholder: 'Ejemplos opcionales (ej. Petco, veterinaria)',
+    addBtn: 'Agregar',
+    cancelBtn: '✕',
+    reviewWaitingTitle: 'La IA está trabajando…',
+    reviewWaitingSub: 'Las transacciones sin categoría aparecerán aquí conforme avancen los lotes.',
+    reviewSkip: 'Omitir por ahora',
+    reviewSectionLabel: 'Categoría',
+    reviewDoneTitle: '¡Todo listo!',
+    reviewDoneSub: 'Construyendo tu dashboard…',
+    dashDownload: '↓ Exportar',
+    dashNew: '↺ Nuevo',
+    dashIncome: 'Ingresos totales',
+    dashExpenses: 'Gastos totales',
+    dashBalance: 'Balance neto',
+    dashInstallments: 'Deuda en MSI',
+    dashSavingsRate: '% tasa de ahorro',
+    dashActivePlans: 'planes activos',
+    cashFlow: 'Flujo de Caja',
+    cfIncome: 'Ingresos',
+    cfExpenses: 'Gastos',
+    txnTitle: 'Transacciones',
+    txnSearch: 'Buscar…',
+    txnAllCats: 'Todas las categorías',
+    txnAllDir: 'Todos',
+    txnIncome: 'Ingresos',
+    txnExpenses: 'Gastos',
+    txnSortAmt: '↓ Monto',
+    txnSortDate: 'Fecha',
+    txnColDate: 'Fecha',
+    txnColDesc: 'Descripción',
+    txnColRef: 'Referencia',
+    txnColAmt: 'Monto',
+    txnColCat: 'Categoría',
+    txnColConf: 'Conf.',
+    txnColReason: 'Razonamiento',
+    txnRows: 'filas',
+    noTransactions: 'Sin transacciones',
+    metaBank: 'Banco',
+    metaPeriod: 'Período',
+    metaAccount: 'Cuenta',
+    metaCountry: 'País',
+    metaCurrency: 'Moneda',
+    catLabel_food: 'Restaurantes',
+    catLabel_cafe: 'Café',
+    catLabel_groceries: 'Supermercado',
+    catLabel_transport: 'Transporte',
+    catLabel_health: 'Salud',
+    catLabel_subscriptions: 'Suscripciones',
+    catLabel_shopping: 'Compras',
+    catLabel_education: 'Educación',
+    catLabel_rent: 'Renta y Hogar',
+    catLabel_entertainment: 'Entretenimiento',
+    catLabel_fitness: 'Fitness',
+    catLabel_travel: 'Viajes',
+    catLabel_salary: 'Salario',
+    catLabel_freelance: 'Freelance',
+    catLabel_reimbursement: 'Reembolso',
+    catLabel_other_income: 'Otro ingreso',
+    catLabel_other: 'Otros',
+    catLabel_internal_transfer: 'Transferencia interna',
+    catLabel_excluded: 'Excluido',
+    catLabel_unassigned: 'Sin categoría',
+    langToggle: 'EN',
+    reviewRemaining: 'por revisar',
+    reviewParsingTitle: 'Leyendo tu estado de cuenta…',
+    reviewParsingSub: 'Por favor espera mientras leemos tus transacciones.',
+    dashTransactions: 'transacciones',
+  },
+  en: {
+    eyebrow: 'Finanzas · v5',
+    uploadTitle1: 'Your money,',
+    uploadTitle2: 'unfiltered.',
+    uploadSubtitle: 'Upload your bank statement and AI analyzes it automatically — any bank, any country.',
+    uploadAcctLabel: 'What type of statement is this?',
+    uploadCredit: '💳 Credit Card',
+    uploadDebit: '🏦 Debit Card',
+    uploadSavings: '💰 Savings Account',
+    uploadChecking: '📋 Checking Account',
+    uploadCountryLabel: 'Country',
+    uploadDropTitle: 'Drop your bank statement here',
+    uploadDropSub: 'PDF · Excel (.xlsx) · CSV · Any bank, any country',
+    uploadBtn: 'Analyze my finances →',
+    uploadPrivacy: '🔒 Your data stays private — we only send transaction text for analysis, never personal identifiers.',
+    processingTitle1: 'Analyzing your',
+    processingTitle2: 'statement',
+    stepExtract: 'Extract Text',
+    stepParse: 'AI Parse',
+    stepWaiting: 'Waiting…',
+    catEyebrow: 'Step 3 · Categories',
+    catTitle: 'Choose your categories',
+    catSubtitle: 'These are the categories the AI will use. Toggle off any you don\'t need, or add your own. Hover a chip to see its definition.',
+    catExpenses: '💸 Expenses',
+    catIncome: '💰 Income',
+    catSystemLabel: 'Always included (system)',
+    catAddExpense: '+ Add expense',
+    catAddIncome: '+ Add income',
+    catConfirmBtn: 'Confirm Categories →',
+    catDownloadBtn: '⬇ Download parsed',
+    catParseLabel: 'Parse status:',
+    catCount: 'category selected',
+    catCountPlural: 'categories selected',
+    newCatLabel: 'New category',
+    newCatNamePlaceholder: 'Name (e.g. Pets)',
+    newCatExamplesPlaceholder: 'Examples, optional (e.g. Petco, vet clinic, pet food)',
+    addBtn: 'Add',
+    cancelBtn: '✕',
+    reviewWaitingTitle: 'AI is working…',
+    reviewWaitingSub: 'Unassigned transactions will appear here as each batch finishes.',
+    reviewSkip: 'Skip for now',
+    reviewSectionLabel: 'Category',
+    reviewDoneTitle: 'All done!',
+    reviewDoneSub: 'Building your dashboard…',
+    dashDownload: '↓ Export',
+    dashNew: '↺ New',
+    dashIncome: 'Total Income',
+    dashExpenses: 'Total Expenses',
+    dashBalance: 'Net Balance',
+    dashInstallments: 'Installment Debt',
+    dashSavingsRate: '% savings rate',
+    dashActivePlans: 'active plans',
+    cashFlow: 'Cash Flow',
+    cfIncome: 'Income',
+    cfExpenses: 'Expenses',
+    txnTitle: 'Transactions',
+    txnSearch: 'Search…',
+    txnAllCats: 'All categories',
+    txnAllDir: 'All',
+    txnIncome: 'Income',
+    txnExpenses: 'Expenses',
+    txnSortAmt: '↓ Amount',
+    txnSortDate: 'Date',
+    txnColDate: 'Date',
+    txnColDesc: 'Description',
+    txnColRef: 'Reference',
+    txnColAmt: 'Amount',
+    txnColCat: 'Category',
+    txnColConf: 'Conf.',
+    txnColReason: 'Reasoning',
+    txnRows: 'rows',
+    noTransactions: 'No transactions',
+    metaBank: 'Bank',
+    metaPeriod: 'Period',
+    metaAccount: 'Account',
+    metaCountry: 'Country',
+    metaCurrency: 'Currency',
+    catLabel_food: 'Food & Dining',
+    catLabel_cafe: 'Café',
+    catLabel_groceries: 'Groceries',
+    catLabel_transport: 'Transport',
+    catLabel_health: 'Health',
+    catLabel_subscriptions: 'Subscriptions',
+    catLabel_shopping: 'Shopping',
+    catLabel_education: 'Education',
+    catLabel_rent: 'Rent & Utilities',
+    catLabel_entertainment: 'Entertainment',
+    catLabel_fitness: 'Fitness',
+    catLabel_travel: 'Travel',
+    catLabel_salary: 'Salary',
+    catLabel_freelance: 'Freelance',
+    catLabel_reimbursement: 'Reimbursement',
+    catLabel_other_income: 'Other Income',
+    catLabel_other: 'Other',
+    catLabel_internal_transfer: 'Internal Transfer',
+    catLabel_excluded: 'Excluded',
+    catLabel_unassigned: 'Unassigned',
+    langToggle: 'ES',
+    reviewRemaining: 'to review',
+    reviewParsingTitle: 'Parsing your statement…',
+    reviewParsingSub: 'Please wait while we read your transactions.',
+    dashTransactions: 'transactions',
+  }
+};
+
+let currentLang = 'es';
+
+function t(key) {
+  return STRINGS[currentLang][key] ?? STRINGS['en'][key] ?? key;
+}
+
+function getCatLabel(id) {
+  return t('catLabel_' + id) || id;
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (el.tagName === 'INPUT' && el.type !== 'file') {
+      el.placeholder = t(key);
+    } else {
+      el.textContent = t(key);
+    }
+  });
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = t('langToggle');
+  // Re-render dynamic sections that use translated strings
+  renderCategorySelector();
+  if (document.getElementById('results-screen')?.classList.contains('active')) {
+    renderBreakdown();
+    renderDashTxns();
+    // Re-render table headers
+    document.querySelector('.txn-table thead tr').innerHTML =
+      `<th data-i18n="txnColDate">${t('txnColDate')}</th><th data-i18n="txnColDesc">${t('txnColDesc')}</th><th data-i18n="txnColRef">${t('txnColRef')}</th>
+       <th style="text-align:right" data-i18n="txnColAmt">${t('txnColAmt')}</th>
+       <th data-i18n="txnColCat">${t('txnColCat')}</th><th data-i18n="txnColConf">${t('txnColConf')}</th><th data-i18n="txnColReason">${t('txnColReason')}</th>`;
+  }
+}
+
+function toggleLanguage() {
+  setLanguage(currentLang === 'es' ? 'en' : 'es');
+}
+
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 // ── DEFAULT CATEGORIES ──────────────────────────────────────────────
@@ -898,7 +1148,7 @@ function updateCatStartBtn() {
   if (!btn) return;
   // Button is always enabled — startCategorize will await parse if still running
   btn.disabled = false;
-  btn.textContent = 'Confirm Categories →';
+  btn.textContent = t('catConfirmBtn');
 }
 
 async function startPipeline() {
@@ -967,7 +1217,7 @@ function renderCategorySelector() {
     return `<div class="cat-chip ${c.active ? 'active' : 'inactive'} ${c.custom ? 'custom' : ''}"
          onclick="toggleCat(${i})" title="${c.description}">
       <span class="chip-emoji">${c.emoji || '📌'}</span>
-      <span class="chip-label">${c.label}</span>
+      <span class="chip-label">${getCatLabel(c.id) || c.label}</span>
       ${c.custom ? `<span class="chip-remove" onclick="removeCat(event,${i})">×</span>` : ''}
       <div class="chip-desc">${c.description}</div>
     </div>`;
@@ -985,14 +1235,14 @@ function renderCategorySelector() {
 
   chips.innerHTML = `
     <div class="cat-chips-col">
-      <div class="cat-chips-col-title">💸 Expenses</div>
+      <div class="cat-chips-col-title" data-i18n="catExpenses">${t('catExpenses')}</div>
       ${expenseChips}
-      <button class="btn btn-secondary" onclick="toggleAddForm('expense')" style="margin-top:4px;font-size:0.78rem;padding:7px 12px;border-style:dashed">+ Add expense</button>
+      <button class="btn btn-secondary" onclick="toggleAddForm('expense')" style="margin-top:4px;font-size:0.78rem;padding:7px 12px;border-style:dashed" data-i18n="catAddExpense">${t('catAddExpense')}</button>
     </div>
     <div class="cat-chips-col">
-      <div class="cat-chips-col-title">💰 Income</div>
+      <div class="cat-chips-col-title" data-i18n="catIncome">${t('catIncome')}</div>
       ${incomeChips}
-      <button class="btn btn-secondary" onclick="toggleAddForm('income')" style="margin-top:4px;font-size:0.78rem;padding:7px 12px;border-style:dashed">+ Add income</button>
+      <button class="btn btn-secondary" onclick="toggleAddForm('income')" style="margin-top:4px;font-size:0.78rem;padding:7px 12px;border-style:dashed" data-i18n="catAddIncome">${t('catAddIncome')}</button>
     </div>`;
   updateCatCount();
 }
@@ -1039,7 +1289,7 @@ function addCategory() {
 
 function updateCatCount() {
   const n = userCategories.filter(c => c.active).length;
-  document.getElementById('cat-count').textContent = `${n} categor${n === 1 ? 'y' : 'ies'} selected`;
+  document.getElementById('cat-count').textContent = `${n} ${n === 1 ? t('catCount') : t('catCountPlural')}`;
 }
 
 // ── REVIEW STATE ─────────────────────────────────────────────────────
@@ -1070,7 +1320,7 @@ async function startCategorize() {
   allCatResults = [];
 
   show('review-screen');
-  setReviewWaitingMsg('Parsing your statement…', 'Please wait while we read your transactions.');
+  setReviewWaitingMsg(t('reviewParsingTitle') || 'Parsing your statement…', t('reviewParsingSub') || 'Please wait while we read your transactions.');
   // Force waiting state visible
   const waitEl = document.getElementById('review-waiting');
   const cardEl = document.getElementById('review-card-wrap');
@@ -1095,7 +1345,7 @@ async function startCategorize() {
   // Parse done — start categorization
   const txns = parsedData.transactions;
   allCatResults = new Array(txns.length).fill(null);
-  setReviewWaitingMsg('AI is categorizing…', 'Unassigned transactions will appear here as each batch finishes.');
+  setReviewWaitingMsg(t('reviewWaitingTitle'), t('reviewWaitingSub'));
 
   // Split into 10-transaction chunks to process concurrently
   const CHUNK = 25;
@@ -1173,7 +1423,7 @@ function updateReviewUI() {
 
   // Header label
   const remEl = document.getElementById('review-remaining');
-  if (remEl) remEl.textContent = remaining > 0 ? `${remaining} to review` : (chunksRunning ? 'Reviewing…' : 'All done!');
+  if (remEl) remEl.textContent = remaining > 0 ? `${remaining} ${t('reviewRemaining') || 'to review'}` : (chunksRunning ? (t('reviewWaitingTitle') || 'Reviewing…') : (t('reviewDoneTitle') || 'All done!'));
 
   // Chunk status
   const csEl = document.getElementById('review-chunk-status');
@@ -1219,7 +1469,7 @@ function renderReviewCard() {
   cardEl.classList.add('review-card-animate');
 
   dirEl.className = `review-dir-pill ${txn.direction}`;
-  dirEl.textContent = txn.direction === 'credit' ? '↑ Income' : '↓ Expense';
+  dirEl.textContent = txn.direction === 'credit' ? `↑ ${t('cfIncome')}` : `↓ ${t('cfExpenses')}`;
 
   amtEl.className = `review-amount ${txn.direction}`;
   amtEl.textContent = (txn.direction === 'credit' ? '+' : '−') + fmt(txn.amount, currency);
@@ -1241,7 +1491,7 @@ function renderReviewCard() {
   ];
   gridEl.innerHTML = allChips.map(c =>
     `<button class="review-cat-btn" onclick="assignReviewCard(${reviewQueue[reviewCursor].txnIndex},'${c.id}')">
-      <span style="font-size:1rem">${c.emoji || '📌'}</span>${esc(c.label)}
+      <span style="font-size:1rem">${c.emoji || '📌'}</span>${esc(getCatLabel(c.id) || c.label)}
     </button>`
   ).join('');
 }
@@ -1320,11 +1570,11 @@ function renderResults() {
 
   // Metadata bar
   document.getElementById('meta-bar').innerHTML = [
-    ['Bank', parsedData.bank],
-    ['Period', parsedData.periodStart && parsedData.periodEnd ? `${parsedData.periodStart} → ${parsedData.periodEnd}` : null],
-    ['Account', selectedAcctType],
-    ['Country', parsedData.country || selectedCountry.name],
-    ['Currency', currency],
+    [t('metaBank'), parsedData.bank],
+    [t('metaPeriod'), parsedData.periodStart && parsedData.periodEnd ? `${parsedData.periodStart} → ${parsedData.periodEnd}` : null],
+    [t('metaAccount'), selectedAcctType],
+    [t('metaCountry'), parsedData.country || selectedCountry.name],
+    [t('metaCurrency'), currency],
   ].filter(([,v]) => v).map(([k,v]) =>
     `<div class="meta-pill"><strong>${k}:</strong> ${v}</div>`
   ).join('');
@@ -1332,7 +1582,7 @@ function renderResults() {
   // Populate category filter dropdown
   const allCats = [...new Set(window.DASH_ROWS.map(r => r.category))].sort();
   const catFilter = document.getElementById('dash-cat-filter');
-  catFilter.innerHTML = '<option value="">All categories</option>' +
+  catFilter.innerHTML = `<option value="">${t('txnAllCats')}</option>` +
     allCats.map(c => {
       const meta = getCatMeta(c);
       return `<option value="${c}">${meta.emoji} ${meta.label}</option>`;
@@ -1358,14 +1608,14 @@ function renderStatCards(currency) {
   const totalMSI = installments.reduce((s, t) => s + (t.amount || 0), 0);
 
   document.getElementById('stat-income').textContent = fmt(totalIncome, currency);
-  document.getElementById('stat-income-sub').textContent = `${income.length} transactions`;
+  document.getElementById('stat-income-sub').textContent = `${income.length} ${t('dashTransactions') || 'transactions'}`;
   document.getElementById('stat-expense').textContent = fmt(totalExpense, currency);
-  document.getElementById('stat-expense-sub').textContent = `${expense.length} transactions`;
+  document.getElementById('stat-expense-sub').textContent = `${expense.length} ${t('dashTransactions') || 'transactions'}`;
   document.getElementById('stat-balance').textContent = fmt(balance, currency);
   document.getElementById('balance-bar').style.width = savingsRate.toFixed(0) + '%';
-  document.getElementById('stat-balance-sub').textContent = `${savingsRate.toFixed(0)}% savings rate`;
+  document.getElementById('stat-balance-sub').textContent = `${savingsRate.toFixed(0)}% ${t('dashSavingsRate')}`;
   document.getElementById('stat-msi').textContent = totalMSI > 0 ? fmt(totalMSI, currency) : '—';
-  document.getElementById('stat-msi-sub').textContent = `${installments.length} active plan${installments.length !== 1 ? 's' : ''}`;
+  document.getElementById('stat-msi-sub').textContent = `${installments.length} ${t('dashActivePlans')}`;
 }
 
 function renderBreakdown(currency) {
@@ -1397,7 +1647,7 @@ function renderBreakdown(currency) {
       const isActive = dashCatFilter === catId;
       return `<div class="cat-row ${isActive ? 'active-filter' : ''}" onclick="toggleCatFilter('${catId}')" style="background:linear-gradient(to right,${color}18 ${pct}%,transparent ${pct}%);border-left:3px solid ${color};">
         <span class="cat-emoji">${meta.emoji}</span>
-        <span class="cat-name">${meta.label}</span>
+        <span class="cat-name">${getCatLabel(catId) || meta.label}</span>
         <span class="cat-amount">${fmt(amt, currency)}<span style="font-size:0.65rem;opacity:0.55;margin-left:5px">${pct}%</span></span>
       </div>`;
     }).join('');
@@ -1413,9 +1663,9 @@ function renderBreakdown(currency) {
     </div>`;
 
   let html = '';
-  if (income.sorted.length)  html += sectionHdr('Income', income.total, 'income')   + renderRows(income.sorted,  income.total,  () => '#1a5228');
-  if (expense.sorted.length) html += sectionHdr('Expenses', expense.total, 'expense') + renderRows(expense.sorted, expense.total, id => catColors[id] || '#5a5e55');
-  if (!html) html = '<div style="padding:24px;color:var(--muted);font-size:0.82rem;text-align:center">No transactions</div>';
+  if (income.sorted.length)  html += sectionHdr(t('cfIncome'), income.total, 'income')   + renderRows(income.sorted,  income.total,  () => '#1a5228');
+  if (expense.sorted.length) html += sectionHdr(t('cfExpenses'), expense.total, 'expense') + renderRows(expense.sorted, expense.total, id => catColors[id] || '#5a5e55');
+  if (!html) html = `<div style="padding:24px;color:var(--muted);font-size:0.82rem;text-align:center">${t('noTransactions')}</div>`;
 
   document.getElementById('cat-breakdown-list').innerHTML = html;
 }
@@ -1456,7 +1706,7 @@ function renderDashTxns() {
     return (b.date || '').localeCompare(a.date || '');
   });
 
-  document.getElementById('txn-count').textContent = `${filtered.length} rows`;
+  document.getElementById('txn-count').textContent = `${filtered.length} ${t('txnRows')}`;
 
   const allCats = [...userCategories.filter(c => c.active), {id:'internal_transfer',label:'Internal Transfer',emoji:'⇄'}, {id:'excluded',label:'Excluded',emoji:'🚫'}, {id:'unassigned',label:'Unassigned',emoji:'❓'}];
 
@@ -1470,7 +1720,7 @@ function renderDashTxns() {
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.description)}">${esc(r.description)}</td>
       <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--blue);font-size:0.72rem">${esc(r.reference)}</td>
       <td class="td-mono" style="text-align:right;color:${r.direction==='credit'?'var(--green)':'var(--red)'}">${r.direction==='credit'?'+':'−'}${fmt(r.amount, currency)}</td>
-      <td><button class="txn-cat-btn" onclick="openCatDd(event,${originalIndex})">${meta.emoji} ${meta.label} ▾</button></td>
+      <td><button class="txn-cat-btn" onclick="openCatDd(event,${originalIndex})">${meta.emoji} ${getCatLabel(r.category) || meta.label} ▾</button></td>
       <td style="white-space:nowrap"><span class="conf-dot ${confClass}">●</span> <span style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted)">${confPct}%</span></td>
       <td class="reasoning-cell" title="${esc(r.reasoning)}">${esc(r.reasoning)}</td>
     </tr>`;
@@ -1496,7 +1746,7 @@ function openCatDd(e, rowIndex) {
     {id:'unassigned', label:'Unassigned', emoji:'❓'},
   ];
   dd.innerHTML = allCats.map(c =>
-    `<div class="cat-dd-item" onclick="assignCat(${rowIndex},'${c.id}')">${c.emoji} ${c.label}</div>`
+    `<div class="cat-dd-item" onclick="assignCat(${rowIndex},'${c.id}')">${c.emoji} ${getCatLabel(c.id) || c.label}</div>`
   ).join('');
   // Position near click — dropdown is position:fixed so NO scrollY offset
   const btn = e.target.closest('button') || e.target;
@@ -1611,6 +1861,9 @@ function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Apply default language on load
+setLanguage('es');
 </script>
 </body>
 </html>
