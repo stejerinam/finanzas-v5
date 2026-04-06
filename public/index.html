@@ -260,16 +260,32 @@ tr:hover td{background:var(--surface-low);}
 .guides-wrap{margin-top:20px;}
 .guides-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:12px 0;cursor:pointer;font-family:'Inter',sans-serif;color:var(--on-surface-variant);font-size:0.78rem;font-weight:600;text-align:left;gap:8px;}
 .guides-toggle:hover{color:var(--on-surface);}
-.guides-title{display:flex;align-items:center;gap:8px;}
+.guides-title-row{display:flex;align-items:center;gap:8px;}
 .guides-chevron{font-size:0.7rem;transition:transform 0.22s;flex-shrink:0;color:var(--on-surface-muted);}
 .guides-wrap.open .guides-chevron{transform:rotate(180deg);}
-.guides-body{display:none;flex-direction:column;gap:4px;padding-bottom:8px;}
+.guides-body{display:none;flex-direction:column;gap:6px;padding-bottom:8px;}
 .guides-wrap.open .guides-body{display:flex;}
-.guide-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;background:var(--surface-lowest);transition:background 0.14s;text-decoration:none;}
-.guide-row:hover{background:var(--surface-high);}
-.guide-logo{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-0.02em;font-family:'Plus Jakarta Sans',sans-serif;}
+/* individual bank item */
+.guide-item{border-radius:16px;overflow:hidden;background:var(--surface-lowest);}
+.guide-header{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;background:none;border:none;cursor:pointer;text-align:left;transition:background 0.14s;}
+.guide-header:hover{background:var(--surface-low);}
+.guide-logo{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-0.02em;font-family:'Plus Jakarta Sans',sans-serif;}
 .guide-name{flex:1;font-size:0.84rem;font-weight:600;font-family:'Inter',sans-serif;color:var(--on-surface);}
-.guide-link-label{font-size:0.73rem;font-family:'Inter',sans-serif;color:var(--primary);font-weight:600;white-space:nowrap;}
+.guide-item-chevron{font-size:0.65rem;color:var(--on-surface-muted);transition:transform 0.2s;flex-shrink:0;}
+.guide-item.open .guide-item-chevron{transform:rotate(180deg);}
+/* steps */
+.guide-steps{display:none;flex-direction:column;gap:0;padding:0 14px 14px;}
+.guide-item.open .guide-steps{display:flex;}
+.guide-step{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--surface-high);}
+.guide-step:first-child{border-top:none;}
+.guide-step-num{width:22px;height:22px;border-radius:50%;background:var(--primary-tint);color:var(--primary);font-size:0.68rem;font-weight:700;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.guide-step-body{flex:1;display:flex;flex-direction:column;gap:8px;}
+.guide-step-text{font-size:0.81rem;color:var(--on-surface);font-family:'Inter',sans-serif;line-height:1.5;}
+.guide-screenshot{width:100%;aspect-ratio:16/9;background:var(--surface-low);border-radius:10px;border:1.5px dashed var(--surface-highest);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:var(--on-surface-muted);overflow:hidden;}
+.guide-screenshot img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
+.guide-screenshot-placeholder{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.guide-screenshot-placeholder span:first-child{font-size:1.3rem;opacity:0.5;}
+.guide-screenshot-placeholder span:last-child{font-size:0.65rem;font-family:'Inter',sans-serif;opacity:0.5;}
 
 /* ── CASH FLOW SECTION HEADERS ───────────────────────────── */
 .cf-section-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 22px 8px;position:sticky;top:0;z-index:4;}
@@ -469,33 +485,170 @@ tr:hover td{background:var(--surface-low);}
   <!-- ── BANK GUIDES ── -->
   <div class="guides-wrap" id="guides-wrap">
     <button class="guides-toggle" onclick="toggleGuides()">
-      <span class="guides-title">
+      <span class="guides-title-row">
         <span style="font-size:0.9rem">🏦</span>
         <span data-i18n="guidesTitle">¿Cómo descargar tu estado de cuenta?</span>
       </span>
       <span class="guides-chevron">▼</span>
     </button>
     <div class="guides-body">
-      <a class="guide-row" href="https://www.bbva.mx/personas/canales-de-atencion/banca-por-internet.html" target="_blank" rel="noopener">
-        <div class="guide-logo" style="background:#004481;">BBVA</div>
-        <span class="guide-name">BBVA México</span>
-        <span class="guide-link-label" data-i18n="guidesLink">Ver guía →</span>
-      </a>
-      <a class="guide-row" href="https://www.banamex.com/es/personas/canales/banca_en_linea.html" target="_blank" rel="noopener">
-        <div class="guide-logo" style="background:#d01818;">Citi</div>
-        <span class="guide-name">Citibanamex</span>
-        <span class="guide-link-label" data-i18n="guidesLink">Ver guía →</span>
-      </a>
-      <a class="guide-row" href="https://nubank.com.mx/ayuda/" target="_blank" rel="noopener">
-        <div class="guide-logo" style="background:#820ad1;">Nu</div>
-        <span class="guide-name">Nu México</span>
-        <span class="guide-link-label" data-i18n="guidesLink">Ver guía →</span>
-      </a>
-      <a class="guide-row" href="https://www.santander.com.mx/personas/santander-digital/banca-por-internet.html" target="_blank" rel="noopener">
-        <div class="guide-logo" style="background:#ec0000;">San</div>
-        <span class="guide-name">Santander</span>
-        <span class="guide-link-label" data-i18n="guidesLink">Ver guía →</span>
-      </a>
+
+      <!-- BBVA México -->
+      <div class="guide-item" id="guide-bbva">
+        <button class="guide-header" onclick="toggleGuideItem('bbva')">
+          <div class="guide-logo" style="background:#004481;">BBVA</div>
+          <span class="guide-name">BBVA México</span>
+          <span class="guide-item-chevron">▼</span>
+        </button>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ingresa a <strong>bbva.mx</strong> y accede a <strong>Banca en Línea</strong> con tu usuario y contraseña.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">En el menú principal ve a <strong>Mis productos</strong> y selecciona tu tarjeta o cuenta.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Haz clic en <strong>Estado de cuenta</strong> en el menú lateral.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Selecciona el período, descarga el <strong>PDF</strong> y súbelo aquí.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Citibanamex -->
+      <div class="guide-item" id="guide-banamex">
+        <button class="guide-header" onclick="toggleGuideItem('banamex')">
+          <div class="guide-logo" style="background:#d01818;">Citi</div>
+          <span class="guide-name">Citibanamex</span>
+          <span class="guide-item-chevron">▼</span>
+        </button>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ingresa a <strong>banamex.com</strong> y accede a <strong>Banca en Línea</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Selecciona tu <strong>cuenta o tarjeta de crédito</strong> de la lista de productos.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ve a la sección <strong>Estado de cuenta</strong> y elige el período que deseas analizar.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Descarga el <strong>PDF</strong> y súbelo aquí.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nu México -->
+      <div class="guide-item" id="guide-nu">
+        <button class="guide-header" onclick="toggleGuideItem('nu')">
+          <div class="guide-logo" style="background:#820ad1;">Nu</div>
+          <span class="guide-name">Nu México</span>
+          <span class="guide-item-chevron">▼</span>
+        </button>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Abre la <strong>app de Nu</strong> en tu teléfono e ingresa con tu cuenta.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Toca tu <strong>tarjeta de crédito</strong> en la pantalla principal.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ve a <strong>Ver factura</strong> y selecciona el mes que quieres descargar.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Toca <strong>Compartir / Descargar</strong> y guarda el PDF para subirlo aquí.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Santander -->
+      <div class="guide-item" id="guide-santander">
+        <button class="guide-header" onclick="toggleGuideItem('santander')">
+          <div class="guide-logo" style="background:#ec0000;">San</div>
+          <span class="guide-name">Santander</span>
+          <span class="guide-item-chevron">▼</span>
+        </button>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ingresa a <strong>santander.com.mx</strong> y accede a <strong>SuperNet</strong> (Banca en Línea).</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">En el menú selecciona tu <strong>cuenta o tarjeta</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ve a <strong>Movimientos → Estado de cuenta</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Selecciona el período y descarga el <strong>PDF</strong> para subirlo aquí.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>📷</span><span>Captura de pantalla</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1033,6 +1186,14 @@ function setFile(file) {
 }
 function toggleGuides() {
   document.getElementById('guides-wrap').classList.toggle('open');
+}
+function toggleGuideItem(id) {
+  const el = document.getElementById('guide-' + id);
+  if (!el) return;
+  const wasOpen = el.classList.contains('open');
+  // Close all others
+  document.querySelectorAll('.guide-item.open').forEach(g => g.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
 }
 
 function selectAcct(btn) {
