@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     sonnet: 'claude-sonnet-4-6',
     haiku:  'claude-haiku-4-5-20251001',
   };
-  const selectedModel = MODELS[model] || MODELS.sonnet;
+  const selectedModel = MODELS[model] || MODELS.haiku;
 
   const accountTypeLabel = {
     credit: 'credit card',

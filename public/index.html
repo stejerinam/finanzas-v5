@@ -363,6 +363,46 @@ tr:hover td{background:var(--surface-low);}
   .stat-card{padding:14px 12px;}
   .dash-body{padding:12px 10px;}
 }
+
+/* ── REVIEW SCREEN ─────────────────────────────────────────── */
+#review-screen.active{display:flex;flex-direction:column;padding:0;min-height:100vh;}
+.review-container{max-width:480px;margin:0 auto;padding:32px 20px;flex:1;display:flex;flex-direction:column;width:100%;}
+.review-header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.review-remaining-label{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--on-surface);}
+.review-chunk-status{font-size:0.72rem;color:var(--on-surface-muted);font-family:'Inter',sans-serif;}
+.review-prog-bg{height:3px;background:var(--surface-high);border-radius:9999px;margin-bottom:32px;}
+.review-prog-fill{height:3px;background:var(--primary);border-radius:9999px;transition:width 0.6s ease;}
+.review-waiting-anim{font-size:2.6rem;animation:reviewPulse 2s ease-in-out infinite;}
+@keyframes reviewPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.92);}}
+.review-waiting-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:700;color:var(--on-surface);margin-top:4px;}
+.review-waiting-sub{font-size:0.85rem;color:var(--on-surface-variant);max-width:280px;line-height:1.6;text-align:center;}
+.review-card{background:var(--surface-lowest);border-radius:28px;padding:28px 24px;box-shadow:var(--shadow-lg);margin-bottom:16px;}
+@keyframes reviewCardIn{from{opacity:0;transform:translateY(18px) scale(0.97);}to{opacity:1;transform:none;}}
+.review-card-animate{animation:reviewCardIn 0.28s cubic-bezier(0.34,1.56,0.64,1);}
+.review-dir-pill{display:inline-flex;align-items:center;gap:5px;font-size:0.64rem;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;font-family:'Inter',sans-serif;padding:4px 10px;border-radius:9999px;margin-bottom:14px;}
+.review-dir-pill.credit{background:var(--secondary-tint);color:var(--secondary);}
+.review-dir-pill.debit{background:var(--primary-tint);color:var(--primary);}
+.review-amount{font-family:'Plus Jakarta Sans',sans-serif;font-size:2.5rem;font-weight:800;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;}
+.review-amount.credit{color:var(--secondary);}
+.review-amount.debit{color:var(--on-surface);}
+.review-desc{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.25rem;font-weight:700;color:var(--on-surface);margin-bottom:8px;line-height:1.2;}
+.review-meta{font-size:0.76rem;color:var(--on-surface-variant);font-family:'Inter',sans-serif;display:flex;gap:0;flex-wrap:wrap;}
+.review-meta span{margin-right:10px;}
+.review-section-label{font-size:0.61rem;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;color:var(--on-surface-muted);font-family:'Inter',sans-serif;margin:20px 0 10px;}
+.review-cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.review-cat-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;background:var(--surface-low);border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:600;color:var(--on-surface);transition:all 0.14s;text-align:left;width:100%;}
+.review-cat-btn:hover{background:var(--primary-tint);color:var(--primary);transform:translateY(-1px);}
+.review-cat-btn:active{transform:scale(0.98);}
+.review-skip-btn{width:100%;background:var(--surface-high);border:none;border-radius:9999px;padding:13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.92rem;font-weight:600;color:var(--on-surface-variant);cursor:pointer;transition:background 0.15s;}
+.review-skip-btn:hover{background:var(--surface-highest);}
+@media(max-width:640px){
+  .review-container{padding:24px 16px;}
+  .review-amount{font-size:2rem;}
+  .review-desc{font-size:1.1rem;}
+  .review-card{padding:22px 18px;}
+  .review-cat-grid{grid-template-columns:1fr 1fr;gap:6px;}
+  .review-cat-btn{font-size:0.78rem;padding:9px 10px;}
+}
 </style>
 </head>
 <body>
@@ -465,7 +505,7 @@ tr:hover td{background:var(--surface-low);}
     </div>
 
     <div class="cat-actions">
-      <button class="btn btn-primary" id="btn-start-cat" onclick="startCategorize()" disabled>⏳ Waiting for parse…</button>
+      <button class="btn btn-primary" id="btn-start-cat" onclick="startCategorize()">Confirm Categories →</button>
       <button class="btn btn-secondary" id="btn-dl-parsed" onclick="downloadParsedOnly()" disabled style="opacity:0.35">⬇ Download parsed</button>
       <span class="cat-count" id="cat-count">0 categories selected</span>
     </div>
@@ -497,6 +537,44 @@ tr:hover td{background:var(--surface-low);}
         <div><div class="step-title">Export</div><div class="step-status" id="ss-export">Waiting…</div></div>
       </div>
     </div>
+  </div>
+</div>
+</div>
+
+<!-- ── REVIEW SCREEN ── -->
+<div id="review-screen" class="screen">
+<div class="review-container">
+  <div class="review-header-bar">
+    <span class="review-remaining-label" id="review-remaining">Loading…</span>
+    <span class="review-chunk-status" id="review-chunk-status"></span>
+  </div>
+  <div class="review-prog-bg"><div class="review-prog-fill" id="review-prog-fill" style="width:0%"></div></div>
+
+  <!-- Waiting: AI still working, nothing to review yet -->
+  <div id="review-waiting" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+    <div class="review-waiting-anim">🤖</div>
+    <div class="review-waiting-title" id="review-waiting-title">AI is working…</div>
+    <div class="review-waiting-sub" id="review-waiting-sub">Unassigned transactions will appear here as each batch finishes.</div>
+  </div>
+
+  <!-- Card: one unassigned transaction at a time -->
+  <div id="review-card-wrap" style="flex:1;display:none;flex-direction:column;">
+    <div class="review-card review-card-animate" id="review-card">
+      <div class="review-dir-pill debit" id="review-dir-pill">↓ Expense</div>
+      <div class="review-amount debit" id="review-amount">—</div>
+      <div class="review-desc" id="review-desc">—</div>
+      <div class="review-meta" id="review-meta"></div>
+      <div class="review-section-label">Category</div>
+      <div class="review-cat-grid" id="review-cat-grid"></div>
+    </div>
+    <button class="review-skip-btn" onclick="skipReviewCard()">Skip for now</button>
+  </div>
+
+  <!-- Done: all chunks complete + queue exhausted -->
+  <div id="review-done-wrap" style="flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;">
+    <div style="font-size:2.8rem;">✅</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:700;color:var(--tertiary);">All done!</div>
+    <div style="font-size:0.85rem;color:var(--on-surface-variant);"><span class="spinner"></span> Building your dashboard…</div>
   </div>
 </div>
 </div>
@@ -800,6 +878,8 @@ function stripPII(text) {
 // ── PIPELINE STEP 1 & 2 ──────────────────────────────────────────────
 let parseComplete = false;
 let parseError = null;
+let parsePromise = null;   // resolves with parsedData when parse finishes
+let parseResolveRef = null;
 
 function setStep(id, state, msg) {
   const card = document.getElementById(`step-${id}`);
@@ -815,16 +895,9 @@ function setStep(id, state, msg) {
 function updateCatStartBtn() {
   const btn = document.getElementById('btn-start-cat');
   if (!btn) return;
-  if (parseError) {
-    btn.disabled = true;
-    btn.textContent = '✗ Parse failed — go back';
-  } else if (!parseComplete) {
-    btn.disabled = true;
-    btn.textContent = '⏳ Waiting for parse…';
-  } else {
-    btn.disabled = false;
-    btn.textContent = 'Start Categorizing →';
-  }
+  // Button is always enabled — startCategorize will await parse if still running
+  btn.disabled = false;
+  btn.textContent = 'Confirm Categories →';
 }
 
 async function startPipeline() {
@@ -832,11 +905,15 @@ async function startPipeline() {
   parseComplete = false;
   parseError = null;
 
-  // Show category selector immediately
+  // Set up a promise that resolves when parse finishes (so startCategorize can await it)
+  parsePromise = new Promise((res, rej) => { parseResolveRef = { res, rej }; });
+
+  // Show category selector immediately — button enabled right away
   renderCategorySelector();
   show('cat-screen');
+  updateCatStartBtn();
 
-  // Run extract + parse in background
+  // Run extract + parse fully in background
   setParseStatus('active', 'Reading file…');
   let rawText;
   try {
@@ -846,7 +923,7 @@ async function startPipeline() {
   } catch(e) {
     parseError = e.message;
     setParseStatus('error', e.message);
-    updateCatStartBtn();
+    if (parseResolveRef) parseResolveRef.rej(new Error(e.message));
     return;
   }
 
@@ -861,14 +938,14 @@ async function startPipeline() {
     const n = parsedData.transactions?.length || 0;
     parseComplete = true;
     setParseStatus('done', `✓ ${n} transactions extracted`);
-    // Enable download parsed button
     const dlBtn = document.getElementById('btn-dl-parsed');
     if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = '1'; }
+    if (parseResolveRef) parseResolveRef.res(parsedData);
   } catch(e) {
     parseError = e.message;
     setParseStatus('error', e.message);
+    if (parseResolveRef) parseResolveRef.rej(new Error(e.message));
   }
-  updateCatStartBtn();
 }
 
 function setParseStatus(state, msg) {
@@ -964,54 +1041,248 @@ function updateCatCount() {
   document.getElementById('cat-count').textContent = `${n} categor${n === 1 ? 'y' : 'ies'} selected`;
 }
 
+// ── REVIEW STATE ─────────────────────────────────────────────────────
+let reviewQueue = [];          // [{txnIndex, txn}] unassigned waiting for review
+let reviewCursor = 0;          // which card in queue we're on
+let reviewChunksDone = 0;
+let reviewChunksTotal = 0;
+let reviewAllChunksDone = false;
+let allCatResults = [];        // indexed by original txn position
+
+function setReviewWaitingMsg(title, sub) {
+  const t = document.getElementById('review-waiting-title');
+  const s = document.getElementById('review-waiting-sub');
+  if (t) t.textContent = title;
+  if (s) s.textContent = sub || '';
+}
+
 // ── PIPELINE STEP 3 & 4 ──────────────────────────────────────────────
 async function startCategorize() {
   const activeCategories = userCategories.filter(c => c.active);
   if (!activeCategories.length) return alert('Select at least one category.');
 
-  show('categorizing-screen');
+  // Show review screen immediately in waiting state
+  reviewQueue = [];
+  reviewCursor = 0;
+  reviewChunksDone = 0;
+  reviewAllChunksDone = false;
+  allCatResults = [];
 
-  document.getElementById('ss-categorize').innerHTML = '<span class="spinner"></span>Categorizing…';
-  document.getElementById('step-categorize').className = 'step-card active';
+  show('review-screen');
+  setReviewWaitingMsg('Parsing your statement…', 'Please wait while we read your transactions.');
+  // Force waiting state visible
+  const waitEl = document.getElementById('review-waiting');
+  const cardEl = document.getElementById('review-card-wrap');
+  const doneEl = document.getElementById('review-done-wrap');
+  if (waitEl) waitEl.style.display = 'flex';
+  if (cardEl) cardEl.style.display = 'none';
+  if (doneEl) doneEl.style.display = 'none';
 
-  try {
-    const r = await fetch('/api/categorize', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        transactions: parsedData.transactions,
-        country: parsedData.country || selectedCountry.name,
-        accountType: selectedAcctType,
-        categories: activeCategories,
-        model: selectedCatModel,
-      })
-    });
-    const d = await r.json();
-    if (d.error) throw new Error(d.error);
-    categorizedData = d.results;
-    const stats = d.stats || {};
-
-    document.getElementById('step-categorize').className = 'step-card done';
-    document.getElementById('sn-categorize').textContent = '✓';
-    const escalatedPct = stats.total ? Math.round((stats.escalated||0)/stats.total*100) : 0;
-    document.getElementById('ss-categorize').textContent =
-      `${categorizedData.length} categorized · ${stats.haikuOnly||0} by Haiku · ${stats.escalated||0} escalated (${escalatedPct}%)`;
-
-    // Step 4
-    document.getElementById('step-export').className = 'step-card active';
-    document.getElementById('ss-export').innerHTML = '<span class="spinner"></span>Building results…';
-    await sleep(400);
-    renderResults();
-    document.getElementById('step-export').className = 'step-card done';
-    document.getElementById('sn-export').textContent = '✓';
-    document.getElementById('ss-export').textContent = 'Ready to download';
-    await sleep(600);
-    show('results-screen');
-  } catch(e) {
-    document.getElementById('step-categorize').className = 'step-card error';
-    document.getElementById('sn-categorize').textContent = '✗';
-    document.getElementById('ss-categorize').textContent = e.message;
+  // Wait for parse to finish if still running
+  if (!parseComplete && !parseError) {
+    try { await parsePromise; }
+    catch(e) {
+      setReviewWaitingMsg('Parse failed', e.message);
+      return;
+    }
   }
+  if (parseError) {
+    setReviewWaitingMsg('Parse failed', parseError);
+    return;
+  }
+
+  // Parse done — start categorization
+  const txns = parsedData.transactions;
+  allCatResults = new Array(txns.length).fill(null);
+  setReviewWaitingMsg('AI is categorizing…', 'Unassigned transactions will appear here as each batch finishes.');
+
+  // Split into 10-transaction chunks to process concurrently
+  const CHUNK = 25;
+  const chunks = [];
+  for (let i = 0; i < txns.length; i += CHUNK) {
+    chunks.push({ batch: txns.slice(i, i + CHUNK), startIdx: i });
+  }
+  reviewChunksTotal = chunks.length;
+
+  show('review-screen');
+  updateReviewUI();
+
+  // Fire all chunks concurrently; as each resolves, surface unassigned immediately
+  try {
+    await Promise.all(chunks.map(async ({ batch, startIdx }) => {
+      try {
+        const r = await fetch('/api/categorize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            transactions: batch,
+            country: parsedData.country || selectedCountry.name,
+            accountType: selectedAcctType,
+            categories: activeCategories,
+          })
+        });
+        const d = await r.json();
+        if (d.error) throw new Error(d.error);
+
+        // Store results at correct global positions
+        d.results.forEach((res, i) => { allCatResults[startIdx + i] = res; });
+
+        // Remember if queue was drained (user was in waiting state)
+        const wasWaiting = reviewCursor >= reviewQueue.length;
+
+        // Enqueue any unassigned for manual review
+        d.results.forEach((res, i) => {
+          if (res.finalCategory === 'unassigned' || res.autoUnassigned) {
+            reviewQueue.push({ txnIndex: startIdx + i, txn: txns[startIdx + i] });
+          }
+        });
+
+        reviewChunksDone++;
+        // If user was waiting and new cards arrived, trigger card render
+        if (wasWaiting && reviewCursor < reviewQueue.length) updateReviewUI();
+        else updateReviewUI(); // just refresh counter/progress
+
+      } catch (err) {
+        // On chunk failure, mark those txns as unassigned so data is complete
+        for (let i = 0; i < batch.length; i++) {
+          if (!allCatResults[startIdx + i]) {
+            allCatResults[startIdx + i] = { finalCategory: 'unassigned', confidence: 0, reasoning: 'chunk failed', tier: 'error', autoUnassigned: false };
+          }
+        }
+        reviewChunksDone++;
+        updateReviewUI();
+      }
+    }));
+  } catch(e) { /* individual chunk errors handled above */ }
+
+  reviewAllChunksDone = true;
+  updateReviewUI();
+  // If nothing was ever unassigned (or all already reviewed), go straight to dashboard
+  if (reviewCursor >= reviewQueue.length) finishReview();
+}
+
+function updateReviewUI() {
+  const remaining = reviewQueue.length - reviewCursor;
+  const chunksRunning = reviewChunksDone < reviewChunksTotal;
+
+  // Progress bar
+  const pct = reviewChunksTotal > 0 ? (reviewChunksDone / reviewChunksTotal * 100) : 0;
+  const progEl = document.getElementById('review-prog-fill');
+  if (progEl) progEl.style.width = pct + '%';
+
+  // Header label
+  const remEl = document.getElementById('review-remaining');
+  if (remEl) remEl.textContent = remaining > 0 ? `${remaining} to review` : (chunksRunning ? 'Reviewing…' : 'All done!');
+
+  // Chunk status
+  const csEl = document.getElementById('review-chunk-status');
+  if (csEl) csEl.textContent = chunksRunning
+    ? `${reviewChunksDone}/${reviewChunksTotal} batches done`
+    : `${reviewChunksTotal} batch${reviewChunksTotal !== 1 ? 'es' : ''} complete`;
+
+  const waitEl  = document.getElementById('review-waiting');
+  const cardEl  = document.getElementById('review-card-wrap');
+  const doneEl  = document.getElementById('review-done-wrap');
+  if (!waitEl || !cardEl || !doneEl) return;
+
+  if (reviewAllChunksDone && reviewCursor >= reviewQueue.length) {
+    waitEl.style.display = 'none'; cardEl.style.display = 'none';
+    doneEl.style.display = 'flex';
+  } else if (reviewCursor < reviewQueue.length) {
+    waitEl.style.display = 'none'; doneEl.style.display = 'none';
+    cardEl.style.display = 'flex';
+    renderReviewCard();
+  } else {
+    // Queue drained but chunks still running
+    cardEl.style.display = 'none'; doneEl.style.display = 'none';
+    waitEl.style.display = 'flex';
+  }
+}
+
+function renderReviewCard() {
+  if (reviewCursor >= reviewQueue.length) return;
+  const { txn } = reviewQueue[reviewCursor];
+  const currency = parsedData?.currency || selectedCountry.currency || 'MXN';
+
+  const dirEl  = document.getElementById('review-dir-pill');
+  const amtEl  = document.getElementById('review-amount');
+  const descEl = document.getElementById('review-desc');
+  const metaEl = document.getElementById('review-meta');
+  const gridEl = document.getElementById('review-cat-grid');
+  const cardEl = document.getElementById('review-card');
+  if (!dirEl) return;
+
+  // Re-trigger animation
+  cardEl.classList.remove('review-card-animate');
+  void cardEl.offsetWidth;
+  cardEl.classList.add('review-card-animate');
+
+  dirEl.className = `review-dir-pill ${txn.direction}`;
+  dirEl.textContent = txn.direction === 'credit' ? '↑ Income' : '↓ Expense';
+
+  amtEl.className = `review-amount ${txn.direction}`;
+  amtEl.textContent = (txn.direction === 'credit' ? '+' : '−') + fmt(txn.amount, currency);
+
+  descEl.textContent = txn.description || '—';
+
+  const metaParts = [txn.date, txn.type, txn.reference].filter(Boolean);
+  metaEl.innerHTML = metaParts.map(p => `<span>${esc(p)}</span>`).join('');
+
+  // Build category chips — show only the relevant direction
+  const incomeIds = ['salary','freelance','reimbursement','other_income'];
+  const activeCats = userCategories.filter(c => c.active);
+  const dirCats = txn.direction === 'credit'
+    ? activeCats.filter(c => incomeIds.includes(c.id) || (c.custom && c.type === 'income'))
+    : activeCats.filter(c => !incomeIds.includes(c.id) && !(c.custom && c.type === 'income'));
+  const allChips = [...dirCats, { id: 'internal_transfer', label: 'Internal Transfer', emoji: '⇄' }];
+  gridEl.innerHTML = allChips.map(c =>
+    `<button class="review-cat-btn" onclick="assignReviewCard(${reviewQueue[reviewCursor].txnIndex},'${c.id}')">
+      <span style="font-size:1rem">${c.emoji || '📌'}</span>${esc(c.label)}
+    </button>`
+  ).join('');
+}
+
+function assignReviewCard(txnIndex, catId) {
+  if (allCatResults[txnIndex]) {
+    allCatResults[txnIndex].finalCategory = catId;
+    allCatResults[txnIndex].category = catId;
+    allCatResults[txnIndex].confidence = 1.0;
+    allCatResults[txnIndex].reasoning = 'manually assigned';
+    allCatResults[txnIndex].autoUnassigned = false;
+  }
+  advanceReview();
+}
+
+function skipReviewCard() { advanceReview(); }
+
+function advanceReview() {
+  reviewCursor++;
+  if (reviewAllChunksDone && reviewCursor >= reviewQueue.length) {
+    finishReview();
+  } else {
+    updateReviewUI();
+  }
+}
+
+function finishReview() {
+  // Fill any gaps (should only happen on errors) with unassigned
+  allCatResults = allCatResults.map(r => r || {
+    finalCategory: 'unassigned', confidence: 0, reasoning: 'not processed', tier: 'haiku', autoUnassigned: false
+  });
+  categorizedData = allCatResults;
+
+  // Show "done" state briefly, then render dashboard
+  const waitEl = document.getElementById('review-waiting');
+  const cardEl = document.getElementById('review-card-wrap');
+  const doneEl = document.getElementById('review-done-wrap');
+  if (waitEl) waitEl.style.display = 'none';
+  if (cardEl) cardEl.style.display = 'none';
+  if (doneEl) doneEl.style.display = 'flex';
+
+  setTimeout(() => {
+    renderResults();
+    show('results-screen');
+  }, 900);
 }
 
 // ── RESULTS ──────────────────────────────────────────────────────────
@@ -1149,10 +1420,10 @@ function switchDashTab(tab) { /* no-op: layout now shows both sections */ }
 
 function toggleCatFilter(catId) {
   dashCatFilter = dashCatFilter === catId ? '' : catId;
+  // Update the select first — renderDashTxns reads from it
+  document.getElementById('dash-cat-filter').value = dashCatFilter;
   renderBreakdown();
   renderDashTxns();
-  // Update active cat filter select
-  document.getElementById('dash-cat-filter').value = dashCatFilter;
 }
 
 function setDashSort(mode) {
@@ -1221,10 +1492,16 @@ function openCatDd(e, rowIndex) {
   dd.innerHTML = allCats.map(c =>
     `<div class="cat-dd-item" onclick="assignCat(${rowIndex},'${c.id}')">${c.emoji} ${c.label}</div>`
   ).join('');
-  // Position near click
-  const rect = e.target.getBoundingClientRect();
-  dd.style.top = (rect.bottom + window.scrollY + 4) + 'px';
-  dd.style.left = Math.min(rect.left, window.innerWidth - 210) + 'px';
+  // Position near click — dropdown is position:fixed so NO scrollY offset
+  const btn = e.target.closest('button') || e.target;
+  const rect = btn.getBoundingClientRect();
+  const ddH = 320; // max-height
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const top = spaceBelow >= ddH || spaceBelow >= 160
+    ? rect.bottom + 4
+    : rect.top - Math.min(ddH, 240) - 4;
+  dd.style.top = Math.max(8, top) + 'px';
+  dd.style.left = Math.min(rect.left, window.innerWidth - 230) + 'px';
   dd.classList.add('open');
   setTimeout(() => document.addEventListener('click', closeCatDd, {once:true}), 10);
 }
@@ -1310,6 +1587,9 @@ function resetApp() {
   currentFile = null; parsedData = null; categorizedData = null;
   parseComplete = false; parseError = null;
   window.DASH_ROWS = null; dashCatFilter = ''; dashTab = 'expense'; dashSort = 'amount';
+  reviewQueue = []; reviewCursor = 0; reviewChunksDone = 0; reviewChunksTotal = 0;
+  reviewAllChunksDone = false; allCatResults = [];
+  parsePromise = null; parseResolveRef = null;
   userCategories = DEFAULT_CATEGORIES.map(c => ({...c}));
   document.getElementById('file-name').textContent = '';
   document.getElementById('btn-start').disabled = true;

@@ -115,7 +115,13 @@ Return ONLY the JSON array.`;
       messages: [{ role: 'user', content: prompt }],
     });
     if (data.error) throw new Error(data.error.message);
-    return parseJsonArray(data.content?.[0]?.text || '[]');
+    const raw = data.content?.[0]?.text || '[]';
+    try {
+      return parseJsonArray(raw);
+    } catch(e) {
+      console.error('Haiku JSON parse failed for chunk, raw:', raw.slice(0, 200));
+      throw new Error('JSON parse failed: ' + e.message);
+    }
   }
 
   // ── TIER 2: SONNET + WEB SEARCH ───────────────────────────────────
@@ -149,12 +155,37 @@ Return ONLY the JSON array.`;
       chunks.push({ txns: transactions.slice(i, i + CHUNK_SIZE), startIndex: i });
     }
 
-    // Tier 1: Run all through Haiku
+    // Tier 1: Run all through Haiku (with one retry per chunk on failure)
     const haikuResults = [];
     for (const { txns, startIndex } of chunks) {
-      const chunkResults = await runHaiku(txns, startIndex);
+      let chunkResults;
+      try {
+        chunkResults = await runHaiku(txns, startIndex);
+      } catch(e) {
+        console.error(`Haiku chunk failed at ${startIndex}, retrying once:`, e.message);
+        await new Promise(r => setTimeout(r, 2000));
+        try {
+          chunkResults = await runHaiku(txns, startIndex);
+        } catch(e2) {
+          console.error(`Haiku chunk retry also failed at ${startIndex}:`, e2.message);
+          // Mark as needs escalation rather than silently failing
+          chunkResults = txns.map((_, i) => ({
+            index: startIndex + i + 1,
+            category: 'unassigned',
+            confidence: 0,
+            reasoning: 'chunk failed',
+          }));
+        }
+      }
       haikuResults.push(...chunkResults);
     }
+
+    // Force-escalate any chunk failures
+    haikuResults.forEach((r) => {
+      if (r.reasoning === 'chunk failed' || (r.confidence === 0 && r.category === 'unassigned')) {
+        r.confidence = 0; // ensure it gets escalated
+      }
+    });
 
     // Identify uncertain transactions for escalation
     const toEscalate = [];
@@ -198,7 +229,7 @@ Return ONLY the JSON array.`;
         ...final,
         finalCategory: final.confidence >= CONFIDENCE_THRESHOLD ? final.category : 'unassigned',
         autoUnassigned: final.confidence < CONFIDENCE_THRESHOLD && final.category !== 'unassigned',
-        tier: escalated ? 'sonnet+search' : 'haiku',
+        tier: escalated ? 'sonnet+search' : (haiku.reasoning === 'chunk failed' ? 'error' : 'haiku'),
       };
     });
 
