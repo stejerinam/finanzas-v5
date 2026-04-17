@@ -526,6 +526,9 @@ tr:hover td{background:var(--surface-low);}
           style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;cursor:pointer;box-sizing:border-box;"></select>
       </div>
     </div>
+    <div id="comp-incomplete-warning" style="display:none;margin-top:12px;padding:10px 16px;background:var(--amber-tint);border:1px solid rgba(138,94,0,0.2);border-radius:10px;font-size:0.82rem;color:var(--amber);align-items:center;gap:8px;">
+      ⚠ <span id="comp-incomplete-msg"></span>
+    </div>
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
@@ -1426,6 +1429,7 @@ const STRINGS = {
     compToggleCalendar: 'Ver por mes →',
     compToggleStatement: 'Ver por estado →',
     compNeedsMoreMsg: 'Sube un estado más para desbloquear la comparación mes a mes.',
+    compIncompleteWarning: '{months} tiene datos parciales — es posible que no refleje el mes completo.',
     compUploadBtn: 'Subir estado →',
     signIn: 'Iniciar sesión',
     signOut: 'Cerrar sesión',
@@ -1569,6 +1573,7 @@ const STRINGS = {
     compToggleCalendar: 'Switch to months →',
     compToggleStatement: 'Switch to statements →',
     compNeedsMoreMsg: 'Upload one more statement to unlock month-by-month comparison.',
+    compIncompleteWarning: '{months} has partial data — it may not reflect the full month.',
     compUploadBtn: 'Upload statement →',
     signIn: 'Sign in',
     signOut: 'Sign out',
@@ -2770,21 +2775,25 @@ function renderComparisonScreen() {
     '07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'
   };
 
+  const incompleteMonths = new Set(compData.incompleteMonths || []);
+
   const options = compMode === 'calendar'
     ? calendarMonths.map(m => {
         const [year, month] = m.split('-');
-        return { value: m, label: `${MONTH_NAMES[month]} ${year}` };
+        const isIncomplete = incompleteMonths.has(m);
+        return { value: m, label: `${MONTH_NAMES[month]} ${year}${isIncomplete ? ' ⚠ Parcial' : ''}`, incomplete: isIncomplete };
       })
     : statements.map(s => ({
         value: s.id,
-        label: `${s.bank || 'Banco'} · ${s.period_start || ''} → ${s.period_end || ''}`
+        label: `${s.bank || 'Banco'} · ${s.period_start || ''} → ${s.period_end || ''}`,
+        incomplete: false
       }));
 
   const selA = document.getElementById('comp-month-a');
   const selB = document.getElementById('comp-month-b');
   // A = older period (index 1), B = newer period (index 0)
-  selA.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 1 ? 'selected' : ''}>${o.label}</option>`).join('');
-  selB.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 0 ? 'selected' : ''}>${o.label}</option>`).join('');
+  selA.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 1 ? 'selected' : ''} style="${o.incomplete ? 'color:var(--amber)' : ''}">${o.label}</option>`).join('');
+  selB.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 0 ? 'selected' : ''} style="${o.incomplete ? 'color:var(--amber)' : ''}">${o.label}</option>`).join('');
 
   renderComparison();
 }
@@ -2833,6 +2842,24 @@ function renderComparison() {
   }
 
   const currency = parsedData?.currency || compData.statements[0]?.currency || 'MXN';
+
+  // Show/hide incomplete month warning
+  const incompleteSet = new Set(compData.incompleteMonths || []);
+  const warningEl = document.getElementById('comp-incomplete-warning');
+  const warningMsg = document.getElementById('comp-incomplete-msg');
+  if (compMode === 'calendar') {
+    const aInc = incompleteSet.has(valA);
+    const bInc = incompleteSet.has(valB);
+    if (aInc || bInc) {
+      const which = [aInc ? labelA : null, bInc ? labelB : null].filter(Boolean).join(' y ');
+      warningMsg.textContent = t('compIncompleteWarning').replace('{months}', which);
+      warningEl.style.display = 'flex';
+    } else {
+      warningEl.style.display = 'none';
+    }
+  } else {
+    warningEl.style.display = 'none';
+  }
 
   document.getElementById('comp-col-a').textContent = labelA;
   document.getElementById('comp-col-b').textContent = labelB;

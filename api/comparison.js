@@ -107,6 +107,37 @@ export default async function handler(req, res) {
     s.byCategory[t.final_category] += t.amount || 0;
   });
 
+  // Detect which calendar months are incomplete
+  // A month is complete if at least one statement covers >= 20 days of it
+  function getDaysInMonth(yearMonth) {
+    const [year, month] = yearMonth.split('-').map(Number);
+    return new Date(year, month, 0).getDate();
+  }
+
+  function getOverlapDays(yearMonth, periodStart, periodEnd) {
+    if (!periodStart || !periodEnd) return 0;
+    const [year, month] = yearMonth.split('-').map(Number);
+    const monthStart = new Date(year, month - 1, 1);
+    const monthEnd = new Date(year, month, 0);
+    const stmtStart = new Date(periodStart);
+    const stmtEnd = new Date(periodEnd);
+    const overlapStart = stmtStart > monthStart ? stmtStart : monthStart;
+    const overlapEnd = stmtEnd < monthEnd ? stmtEnd : monthEnd;
+    if (overlapEnd < overlapStart) return 0;
+    return Math.round((overlapEnd - overlapStart) / (1000 * 60 * 60 * 24)) + 1;
+  }
+
+  const incompleteMonths = new Set();
+  calendarMonths.forEach(month => {
+    const totalDays = getDaysInMonth(month);
+    const maxOverlap = Math.max(
+      ...statements.map(s => getOverlapDays(month, s.period_start, s.period_end))
+    );
+    if (maxOverlap < 20 || maxOverlap < totalDays * 0.65) {
+      incompleteMonths.add(month);
+    }
+  });
+
   return res.status(200).json({
     useCalendarMode,
     calendarMonths,
@@ -114,5 +145,6 @@ export default async function handler(req, res) {
     statements,
     monthTotals,
     statementTotals,
+    incompleteMonths: [...incompleteMonths],
   });
 }
