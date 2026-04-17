@@ -507,8 +507,9 @@ tr:hover td{background:var(--surface-low);}
     <button id="comp-mode-toggle" onclick="toggleCompMode()" style="display:none;padding:5px 14px;border-radius:20px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'DM Mono',monospace;font-size:0.7rem;cursor:pointer;" data-i18n="compToggleCalendar">Ver por mes</button>
   </div>
 
-  <div id="comp-needs-more" style="display:none;padding:10px 16px;border-radius:12px;background:var(--surface-lowest);border:1px solid var(--surface-high);font-size:0.8rem;color:var(--on-surface-muted);margin-bottom:20px;">
-    📅 <span data-i18n="compNeedsMoreMsg">Sube un estado más para desbloquear la comparación mes a mes.</span>
+  <div id="comp-needs-more" style="display:none;padding:10px 16px;border-radius:12px;background:var(--surface-lowest);border:1px solid var(--surface-high);font-size:0.8rem;color:var(--on-surface-muted);margin-bottom:20px;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+    <span>📅 <span data-i18n="compNeedsMoreMsg">Sube un estado más para desbloquear la comparación mes a mes.</span></span>
+    <button onclick="showUploadTab()" style="padding:6px 16px;border-radius:10px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;" data-i18n="compUploadBtn">Subir estado →</button>
   </div>
 
   <div style="margin-bottom:24px;">
@@ -2745,7 +2746,7 @@ function renderComparisonScreen() {
 
   document.getElementById('comp-insufficient').style.display = 'none';
   // Show nudge when in statement mode and calendar mode not yet unlocked
-  document.getElementById('comp-needs-more').style.display = (!useCalendarMode) ? 'block' : 'none';
+  document.getElementById('comp-needs-more').style.display = (!useCalendarMode) ? 'flex' : 'none';
   ['comp-month-a','comp-month-b','comp-category-rows'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = '';
