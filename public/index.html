@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Finanzas · Your money, unfiltered</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -57,7 +58,7 @@
 body{background:var(--bg);color:var(--on-surface);font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 
 .screen{display:none;} .screen.active{display:block;}
-#upload-screen.active,#processing-screen.active,#cat-screen.active,#categorizing-screen.active{padding:64px 20px;}
+#upload-screen.active,#processing-screen.active,#cat-screen.active,#categorizing-screen.active{padding:64px 20px 80px;}
 .container{max-width:680px;margin:0 auto;}
 
 /* ── HEADER ──────────────────────────────────────────────── */
@@ -177,7 +178,7 @@ tr:hover td{background:var(--surface-low);}
 .dash-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:var(--on-surface);letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;}
 .dash-logo-dot{width:8px;height:8px;background:var(--primary);border-radius:50%;}
 .dash-actions{display:flex;gap:8px;align-items:center;}
-.dash-body{padding:32px 40px;max-width:1440px;margin:0 auto;}
+.dash-body{padding:32px 40px 80px;max-width:1440px;margin:0 auto;}
 
 /* stat cards */
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
@@ -255,6 +256,14 @@ tr:hover td{background:var(--surface-low);}
 .cat-dd-item:hover{background:var(--surface-low);}
 
 .privacy-notice{font-size:0.73rem;color:var(--on-surface-muted);margin-top:24px;padding:14px 18px;background:var(--surface-low);border-radius:16px;line-height:1.6;}
+
+/* ── BOTTOM NAV ──────────────────────────────────────────────── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--surface-lowest);border-top:1px solid var(--surface-high);display:flex;align-items:center;justify-content:space-around;z-index:100;box-shadow:0 -2px 16px rgba(27,28,25,0.06);}
+.bottom-nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 32px;background:transparent;border:none;cursor:pointer;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:500;transition:color 0.15s;border-radius:12px;}
+.bottom-nav-btn:hover{color:var(--on-surface);background:var(--surface-low);}
+.bottom-nav-btn.active{color:var(--primary);}
+.bottom-nav-btn svg{width:20px;height:20px;stroke-width:2;}
+.bottom-nav-btn.active svg{stroke:var(--primary);}
 
 /* ── BANK GUIDES ─────────────────────────────────────────────── */
 .guides-wrap{margin-top:2px;margin-bottom:28px;}
@@ -438,7 +447,134 @@ tr:hover td{background:var(--surface-low);}
 </style>
 </head>
 <body>
-<button id="lang-toggle" onclick="toggleLanguage()" style="position:fixed;top:14px;right:16px;z-index:1100;padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);">EN</button>
+<div style="position:fixed;top:14px;right:16px;z-index:1100;display:flex;gap:8px;align-items:center;">
+  <button id="auth-btn" onclick="openAuthModal()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);"><span data-i18n="signIn">Iniciar sesión</span></button>
+  <button id="signout-btn" onclick="handleSignOut()" style="display:none;padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);" data-i18n="signOut">Cerrar sesión</button>
+  <button id="lang-toggle" onclick="toggleLanguage()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);">EN</button>
+</div>
+
+<!-- ── HISTORY SCREEN ── -->
+<div id="history-screen" class="screen">
+<div style="max-width:700px;margin:0 auto;padding:40px 20px;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+    <div>
+      <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Finanzas · v6</div>
+      <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:var(--on-surface)">Bienvenido, <span id="history-username"></span></h1>
+    </div>
+    <button onclick="showUploadFromHistory()"
+      style="padding:10px 20px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;">
+      + Subir estado
+    </button>
+  </div>
+
+  <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">
+    Tus estados de cuenta
+  </div>
+
+  <div id="history-list" style="display:flex;flex-direction:column;gap:10px;">
+    <!-- Populated by JS -->
+  </div>
+
+  <div id="history-empty" style="display:none;text-align:center;padding:60px 20px;color:var(--on-surface-muted);">
+    <div style="font-size:2.5rem;margin-bottom:12px">📂</div>
+    <p style="font-size:0.9rem">No tienes estados de cuenta guardados aún.</p>
+    <button onclick="showUploadFromHistory()"
+      style="margin-top:16px;padding:10px 24px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;">
+      Subir tu primer estado →
+    </button>
+  </div>
+
+  <div style="margin-top:24px;text-align:right;">
+    <button onclick="handleSignOut()" style="background:none;border:none;color:var(--on-surface-muted);font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;">
+      Cerrar sesión
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- ── COMPARISON SCREEN ── -->
+<div id="comparison-screen" class="screen">
+<div style="max-width:900px;margin:0 auto;padding:40px 20px 100px;">
+
+  <div style="margin-bottom:28px;">
+    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px" data-i18n="compEyebrow">Comparación mensual</div>
+    <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:var(--on-surface)" data-i18n="compTitle">¿Cómo vas este mes?</h1>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+    <div id="comp-mode-badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:var(--surface-lowest);border:1px solid var(--surface-high);font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);"></div>
+    <button id="comp-mode-toggle" onclick="toggleCompMode()" style="display:none;padding:5px 14px;border-radius:20px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'DM Mono',monospace;font-size:0.7rem;cursor:pointer;" data-i18n="compToggleCalendar">Ver por mes</button>
+  </div>
+
+  <div style="margin-bottom:24px;">
+    <div style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px" data-i18n="compSelectMonths">Selecciona dos períodos para comparar</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:180px;">
+        <div style="font-size:0.72rem;color:var(--on-surface-muted);margin-bottom:6px" data-i18n="compPeriodA">Período A</div>
+        <select id="comp-month-a" onchange="renderComparison()"
+          style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;cursor:pointer;box-sizing:border-box;"></select>
+      </div>
+      <div style="flex:1;min-width:180px;">
+        <div style="font-size:0.72rem;color:var(--on-surface-muted);margin-bottom:6px" data-i18n="compPeriodB">Período B</div>
+        <select id="comp-month-b" onchange="renderComparison()"
+          style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;cursor:pointer;box-sizing:border-box;"></select>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+    <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;">
+      <div style="font-size:0.64rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compIncome">Ingresos</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--tertiary)" id="comp-income-a">—</div>
+      <div style="font-size:0.78rem;color:var(--on-surface-muted);margin-top:4px" id="comp-income-b">—</div>
+      <div style="font-size:0.78rem;font-weight:600;margin-top:6px" id="comp-income-delta">—</div>
+    </div>
+    <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;">
+      <div style="font-size:0.64rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compExpenses">Gastos</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--primary)" id="comp-expense-a">—</div>
+      <div style="font-size:0.78rem;color:var(--on-surface-muted);margin-top:4px" id="comp-expense-b">—</div>
+      <div style="font-size:0.78rem;font-weight:600;margin-top:6px" id="comp-expense-delta">—</div>
+    </div>
+    <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;">
+      <div style="font-size:0.64rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compBalance">Balance neto</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--secondary)" id="comp-balance-a">—</div>
+      <div style="font-size:0.78rem;color:var(--on-surface-muted);margin-top:4px" id="comp-balance-b">—</div>
+      <div style="font-size:0.78rem;font-weight:600;margin-top:6px" id="comp-balance-delta">—</div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:16px;overflow:hidden;">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--surface-high);display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:0.78rem;font-weight:600;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;color:var(--on-surface-muted)" data-i18n="compByCategory">Por categoría</span>
+      <div style="display:flex;gap:8px;">
+        <button id="comp-tab-expense" onclick="setCompTab('expense')"
+          style="padding:4px 12px;border-radius:6px;border:1px solid var(--surface-high);background:var(--primary-tint);color:var(--primary);font-size:0.74rem;cursor:pointer;font-family:'Inter',sans-serif;"
+          data-i18n="compTabExpenses">Gastos</button>
+        <button id="comp-tab-income" onclick="setCompTab('income')"
+          style="padding:4px 12px;border-radius:6px;border:1px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-size:0.74rem;cursor:pointer;font-family:'Inter',sans-serif;"
+          data-i18n="compTabIncome">Ingresos</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 120px 120px 100px;gap:0;padding:10px 20px;background:var(--surface-low);border-bottom:1px solid var(--surface-high);">
+      <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em" data-i18n="compColCategory">Categoría</div>
+      <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" id="comp-col-a">—</div>
+      <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" id="comp-col-b">—</div>
+      <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" data-i18n="compColDelta">Cambio</div>
+    </div>
+    <div id="comp-category-rows" style="max-height:500px;overflow-y:auto;"></div>
+  </div>
+
+  <div id="comp-insufficient" style="display:none;text-align:center;padding:60px 20px;">
+    <div style="font-size:2.5rem;margin-bottom:12px">📊</div>
+    <p style="font-size:0.9rem;color:var(--on-surface-muted);margin-bottom:16px" data-i18n="compInsufficientMsg">Sube al menos dos estados de cuenta para comparar períodos.</p>
+    <button onclick="showUploadFromHistory()"
+      style="padding:10px 24px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;"
+      data-i18n="compUploadBtn">Subir estado →</button>
+  </div>
+
+</div>
+</div>
 
 <!-- ── UPLOAD SCREEN ── -->
 <div id="upload-screen" class="screen active">
@@ -871,13 +1007,291 @@ tr:hover td{background:var(--surface-low);}
 
     </div>
   </div>
+
 </div>
 
 <!-- Category reassignment dropdown -->
 <div class="cat-dd" id="cat-dd"></div>
 
+<nav class="bottom-nav" id="bottom-nav" style="display:none">
+  <button class="bottom-nav-btn" id="nav-dashboard" onclick="showDashTab('dashboard')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    <span data-i18n="navDashboard">Dashboard</span>
+  </button>
+  <button class="bottom-nav-btn" id="nav-comparison" onclick="showComparisonScreen()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span data-i18n="navComparison">Comparar</span>
+  </button>
+  <button class="bottom-nav-btn" id="nav-history" onclick="showHistory()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    <span data-i18n="navHistory">Mis estados</span>
+  </button>
+  <button class="bottom-nav-btn" id="nav-upload" onclick="showUploadTab()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <span data-i18n="navUpload">Subir estado</span>
+  </button>
+</nav>
 
 <script>
+// ── SUPABASE CLIENT ───────────────────────────────────────────────────
+const SUPABASE_URL = 'https://ouplvfcggfnapstxokfz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_rTrUxStD0fa7GxFJIMvepQ_Yx40pn0M';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentSession = null;
+let currentUserName = null;
+let analysisSaved = false;
+
+async function initAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    currentSession = session;
+    currentUserName = session.user.user_metadata?.full_name
+      || session.user.email.split('@')[0];
+    await loadUserCategories();
+    const r = await fetch('/api/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session })
+    });
+    const d = await r.json();
+    if (d.statements && d.statements.length > 0) {
+      renderHistoryList(d.statements);
+      await loadStatementDashboard(d.statements[0].id);
+    } else {
+      show('upload-screen');
+    }
+  }
+  updateAuthButton();
+}
+
+function showHistory() {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-history')?.classList.add('active');
+  loadHistory();
+  show('history-screen');
+}
+
+async function loadHistory() {
+  if (!currentSession) return;
+  try {
+    const r = await fetch('/api/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession })
+    });
+    const d = await r.json();
+    renderHistoryList(d.statements || []);
+  } catch(e) {
+    console.error('Failed to load history:', e);
+  }
+}
+
+function renderHistoryList(statements) {
+  const list = document.getElementById('history-list');
+  const empty = document.getElementById('history-empty');
+  const usernameEl = document.getElementById('history-username');
+  if (usernameEl) usernameEl.textContent = currentUserName || '';
+  if (!statements.length) {
+    list.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  list.style.display = 'flex';
+  empty.style.display = 'none';
+  const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  list.innerHTML = statements.map(s => {
+    const start = s.period_start ? new Date(s.period_start + 'T00:00:00') : null;
+    const end   = s.period_end   ? new Date(s.period_end   + 'T00:00:00') : null;
+    const period = start && end
+      ? `${MONTH_NAMES[start.getMonth()]} ${start.getFullYear()} → ${MONTH_NAMES[end.getMonth()]} ${end.getFullYear()}`
+      : 'Período desconocido';
+    const fmt = v => new Intl.NumberFormat('es-MX', {
+      style:'currency', currency: s.currency || 'MXN',
+      minimumFractionDigits:0, maximumFractionDigits:0
+    }).format(v || 0);
+    return `
+    <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:16px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;"
+      onmouseover="this.style.boxShadow='var(--shadow-md)'"
+      onmouseout="this.style.boxShadow='none'"
+    >
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:0.95rem;color:var(--on-surface);margin-bottom:4px">
+          ${s.bank || 'Banco desconocido'} · ${s.account_type || ''}
+        </div>
+        <div style="font-size:0.78rem;color:var(--on-surface-muted);font-family:'DM Mono',monospace;">
+          ${period}
+        </div>
+        <div style="display:flex;gap:16px;margin-top:8px;font-size:0.78rem;">
+          <span style="color:var(--tertiary)">↑ ${fmt(s.total_income)}</span>
+          <span style="color:var(--primary)">↓ ${fmt(s.total_expenses)}</span>
+          <span style="color:var(--on-surface-muted)">${s.transaction_count || 0} transacciones</span>
+        </div>
+      </div>
+      <button onclick="loadStatementDashboard('${s.id}')"
+        style="padding:8px 18px;border-radius:10px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+        Ver dashboard →
+      </button>
+    </div>`;
+  }).join('');
+}
+
+async function loadStatementDashboard(statementId) {
+  if (!currentSession) return;
+  try {
+    const r = await fetch('/api/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession, statementId })
+    });
+    const d = await r.json();
+    if (!d.statement || !d.transactions) return;
+    parsedData = {
+      bank: d.statement.bank,
+      accountType: d.statement.account_type,
+      periodStart: d.statement.period_start,
+      periodEnd: d.statement.period_end,
+      currency: d.statement.currency,
+      country: d.statement.country,
+      transactions: d.transactions.map(t => ({
+        date: t.date,
+        description: t.description,
+        amount: t.amount,
+        direction: t.direction,
+        type: t.type,
+        reference: t.reference,
+        merchantHint: t.merchant_hint,
+        counterpartyName: t.counterparty,
+      }))
+    };
+    categorizedData = d.transactions.map(t => ({
+      category: t.ai_category,
+      finalCategory: t.final_category,
+      confidence: t.confidence,
+      tier: t.tier,
+      reasoning: '',
+    }));
+    selectedAcctType = d.statement.account_type;
+    selectedCountry = { name: d.statement.country, currency: d.statement.currency };
+    window.SAVED_TXN_IDS = {};
+    d.transactions.forEach((t, i) => { window.SAVED_TXN_IDS[i] = t.id; });
+    analysisSaved = true;
+    renderResults();
+    show('results-screen');
+    revealBottomNav();
+  } catch(e) {
+    console.error('Failed to load statement:', e);
+  }
+}
+
+function showUploadFromHistory() {
+  show('upload-screen');
+}
+
+async function loadUserCategories() {
+  if (!currentSession) return;
+  try {
+    const r = await fetch('/api/get-categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession })
+    });
+    const d = await r.json();
+    if (d.categories && d.categories.length > 0) {
+      userCategories = d.categories.map(c => ({
+        id: c.category_id,
+        label: c.label,
+        emoji: c.emoji,
+        description: c.description || '',
+        examples: c.examples || '',
+        active: c.is_active,
+        custom: c.is_custom,
+      }));
+      console.log('Loaded saved categories:', userCategories.length);
+    }
+  } catch(e) {
+    console.error('Failed to load categories:', e);
+  }
+}
+
+async function signUp(email, password, name) {
+  const { data, error } = await sb.auth.signUp({
+    email, password,
+    options: { data: { full_name: name || null } }
+  });
+  if (error) throw new Error(error.message);
+  currentUser = data.user;
+  currentSession = data.session;
+  currentUserName = name || email.split('@')[0];
+  return data;
+}
+
+async function signIn(email, password) {
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) throw new Error(error.message);
+  currentUser = data.user;
+  currentSession = data.session;
+  currentUserName = data.user.user_metadata?.full_name || data.user.email.split('@')[0];
+  return data;
+}
+
+async function handleSignOut() {
+  await sb.auth.signOut();
+  currentUser = null;
+  currentSession = null;
+  currentUserName = null;
+  analysisSaved = false;
+  updateAuthButton();
+  resetApp();
+}
+
+async function saveUserCategories() {
+  if (!currentSession || !currentUser) return;
+  try {
+    await fetch('/api/save-categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session: currentSession,
+        categories: userCategories.map((c, i) => ({
+          category_id: c.id,
+          label: c.label,
+          emoji: c.emoji || '📌',
+          description: c.description || '',
+          examples: c.examples || '',
+          is_active: c.active !== false,
+          is_custom: c.custom === true,
+          sort_order: i,
+        }))
+      })
+    });
+  } catch(e) {
+    console.error('Failed to save categories:', e);
+  }
+}
+
+async function saveAnalysis() {
+  if (analysisSaved) return;
+  if (!currentSession) return;
+  analysisSaved = true;
+  const r = await fetch('/api/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      session: currentSession,
+      parsedData,
+      categorizedData,
+      selectedCountry,
+      selectedAcctType,
+    })
+  });
+  const d = await r.json();
+  if (d.error) throw new Error(d.error);
+  return d;
+}
+
 // ── i18n ─────────────────────────────────────────────────────────────
 const STRINGS = {
   es: {
@@ -984,6 +1398,43 @@ const STRINGS = {
     dashTransactions: 'transacciones',
     guidesTitle: '¿Cómo descargar tu estado de cuenta?',
     guidesLink: 'Ver guía →',
+    navDashboard: 'Dashboard',
+    navComparison: 'Comparar',
+    navHistory: 'Mis estados',
+    navUpload: 'Subir estado',
+    compEyebrow: 'Comparación mensual',
+    compTitle: '¿Cómo vas este mes?',
+    compSelectMonths: 'Selecciona dos períodos para comparar',
+    compPeriodA: 'Período A',
+    compPeriodB: 'Período B',
+    compIncome: 'Ingresos',
+    compExpenses: 'Gastos',
+    compBalance: 'Balance neto',
+    compByCategory: 'Por categoría',
+    compTabExpenses: 'Gastos',
+    compTabIncome: 'Ingresos',
+    compColCategory: 'Categoría',
+    compColDelta: 'Cambio',
+    compModeCalendar: 'Comparación por mes calendario',
+    compModeStatement: 'Comparación por estado de cuenta',
+    compInsufficientMsg: 'Sube otro estado de cuenta para desbloquear la comparación mensual.',
+    compToggleCalendar: 'Ver por mes →',
+    compToggleStatement: 'Ver por estado →',
+    compUploadBtn: 'Subir estado →',
+    signIn: 'Iniciar sesión',
+    signOut: 'Cerrar sesión',
+    createAccount: 'Crear cuenta',
+    createFreeAccount: 'Crear cuenta gratis',
+    maybeLater: 'Ahora no',
+    authTitle: 'Crea tu cuenta',
+    authSub: 'Guarda tu historial y accede desde cualquier dispositivo',
+    authPrivacy: '🔒 Nunca compartimos tus datos con terceros.',
+    authNamePlaceholder: 'Nombre:',
+    authErrorEmpty: 'Por favor ingresa tu email y contraseña.',
+    savePopupTitle: 'Guarda tu análisis',
+    savePopupSub: 'Crea una cuenta gratuita para guardar tus resultados.',
+    savePopupBenefit1: 'Guarda tu historial de estados de cuenta',
+    savePopupBenefit2: 'Próximamente: comparación mensual y presupuestos',
   },
   en: {
     eyebrow: 'Finanzas · v5',
@@ -1089,6 +1540,43 @@ const STRINGS = {
     dashTransactions: 'transactions',
     guidesTitle: 'How to download your statement?',
     guidesLink: 'View guide →',
+    navDashboard: 'Dashboard',
+    navComparison: 'Compare',
+    navHistory: 'My statements',
+    navUpload: 'Upload',
+    compEyebrow: 'Monthly comparison',
+    compTitle: 'How are you doing this month?',
+    compSelectMonths: 'Select two periods to compare',
+    compPeriodA: 'Period A',
+    compPeriodB: 'Period B',
+    compIncome: 'Income',
+    compExpenses: 'Expenses',
+    compBalance: 'Net balance',
+    compByCategory: 'By category',
+    compTabExpenses: 'Expenses',
+    compTabIncome: 'Income',
+    compColCategory: 'Category',
+    compColDelta: 'Change',
+    compModeCalendar: 'Calendar month comparison',
+    compModeStatement: 'Statement period comparison',
+    compInsufficientMsg: 'Upload another statement to unlock monthly comparison.',
+    compToggleCalendar: 'Switch to months →',
+    compToggleStatement: 'Switch to statements →',
+    compUploadBtn: 'Upload statement →',
+    signIn: 'Sign in',
+    signOut: 'Sign out',
+    createAccount: 'Create account',
+    createFreeAccount: 'Create free account',
+    maybeLater: 'Maybe later',
+    authTitle: 'Create your account',
+    authSub: 'Save your history and access from any device',
+    authPrivacy: '🔒 We never share your data with third parties.',
+    authNamePlaceholder: 'Name:',
+    authErrorEmpty: 'Please enter your email and password.',
+    savePopupTitle: 'Save your analysis',
+    savePopupSub: 'Create a free account to save your results.',
+    savePopupBenefit1: 'Save your statement history',
+    savePopupBenefit2: 'Coming soon: monthly comparison and budgets',
   }
 };
 
@@ -1159,7 +1647,7 @@ let currentFile = null;
 let selectedAcctType = 'credit';
 let selectedModel = 'haiku';
 let selectedCatModel = 'sonnet';
-let selectedCountry = { name: 'Mexico', currency: 'MXN', locale: 'es-MX' };
+let selectedCountry = { code: 'MX', name: 'Mexico', currency: 'MXN', locale: 'es-MX' };
 let parsedData = null;
 let categorizedData = null;
 let userCategories = DEFAULT_CATEGORIES.map(c => ({...c}));
@@ -1277,12 +1765,13 @@ function buildCountryDropdown() {
 
   // Default to Mexico
   sel.value = 'MX';
-  selectedCountry = { name: 'Mexico', currency: 'MXN', locale: 'es-MX' };
+  selectedCountry = { code: 'MX', name: 'Mexico', currency: 'MXN', locale: 'es-MX' };
 }
 
 function selectCountry(sel) {
   const opt = sel.options[sel.selectedIndex];
   selectedCountry = {
+    code: opt.value,
     name: opt.text,
     currency: opt.dataset.currency || 'USD',
     locale: opt.dataset.locale || 'en-US',
@@ -1465,12 +1954,14 @@ function renderCategorySelector() {
 function toggleCat(i) {
   userCategories[i].active = !userCategories[i].active;
   renderCategorySelector();
+  saveUserCategories();
 }
 
 function removeCat(e, i) {
   e.stopPropagation();
   userCategories.splice(i, 1);
   renderCategorySelector();
+  saveUserCategories();
 }
 
 function toggleAddForm(type) {
@@ -1500,6 +1991,7 @@ function addCategory() {
   document.getElementById('new-cat-examples').value = '';
   toggleAddForm();
   renderCategorySelector();
+  saveUserCategories();
 }
 
 function updateCatCount() {
@@ -1533,6 +2025,7 @@ async function startCategorize() {
   reviewChunksDone = 0;
   reviewAllChunksDone = false;
   allCatResults = [];
+  finishReviewCalled = false;
 
   show('review-screen');
   setReviewWaitingMsg(t('reviewParsingTitle') || 'Parsing your statement…', t('reviewParsingSub') || 'Please wait while we read your transactions.');
@@ -1733,7 +2226,10 @@ function advanceReview() {
   }
 }
 
+let finishReviewCalled = false;
 function finishReview() {
+  if (finishReviewCalled) return;
+  finishReviewCalled = true;
   // Fill any gaps (should only happen on errors) with unassigned
   allCatResults = allCatResults.map(r => r || {
     finalCategory: 'unassigned', confidence: 0, reasoning: 'not processed', tier: 'haiku', autoUnassigned: false
@@ -1751,6 +2247,27 @@ function finishReview() {
   setTimeout(() => {
     renderResults();
     show('results-screen');
+    revealBottomNav();
+    if (currentUser && currentSession && parsedData && categorizedData) {
+      saveAnalysis()
+        .then(async (d) => {
+          if (d?.statementId) {
+            console.log('Analysis saved:', d.statementId);
+            const r = await fetch('/api/history', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ session: currentSession, statementId: d.statementId })
+            });
+            const data = await r.json();
+            if (data.transactions) {
+              window.SAVED_TXN_IDS = {};
+              data.transactions.forEach((t, i) => { window.SAVED_TXN_IDS[i] = t.id; });
+            }
+            loadHistory();
+          }
+        })
+        .catch(e => console.error('Save failed:', e));
+    }
   }, 900);
 }
 
@@ -1759,6 +2276,115 @@ function finishReview() {
 let dashTab = 'expense';
 let dashSort = 'amount';
 let dashCatFilter = '';
+
+// ── AUTH UI ───────────────────────────────────────────────────────────
+let authTab = 'signup';
+let savePopupShown = false;
+let savePopupTimer = null;
+
+function openAuthModal() {
+  setAuthTab('signup');
+  document.getElementById('auth-modal').style.display = 'flex';
+  document.getElementById('auth-email').focus();
+}
+
+function closeAuthModal() {
+  document.getElementById('auth-modal').style.display = 'none';
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+function openAuthFromPopup() {
+  closeSavePopup();
+  openAuthModal();
+}
+
+function setAuthTab(tab) {
+  authTab = tab;
+  const isSignup = tab === 'signup';
+  document.getElementById('tab-signup').style.background = isSignup ? 'var(--surface-lowest)' : 'transparent';
+  document.getElementById('tab-signup').style.color = isSignup ? 'var(--on-surface)' : 'var(--on-surface-muted)';
+  document.getElementById('tab-login').style.background = isSignup ? 'transparent' : 'var(--surface-lowest)';
+  document.getElementById('tab-login').style.color = isSignup ? 'var(--on-surface-muted)' : 'var(--on-surface)';
+  document.getElementById('auth-submit-btn').setAttribute('data-i18n', isSignup ? 'createAccount' : 'signIn');
+  document.getElementById('auth-submit-btn').textContent = isSignup ? t('createAccount') : t('signIn');
+  const nameField = document.getElementById('auth-name');
+  if (nameField) nameField.style.display = isSignup ? 'block' : 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent = t('authErrorEmpty');
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('auth-submit-btn');
+  btn.textContent = '...';
+  btn.disabled = true;
+
+  try {
+    if (authTab === 'signup') {
+      const name = document.getElementById('auth-name')?.value.trim();
+      await signUp(email, password, name);
+    } else {
+      await signIn(email, password);
+    }
+    closeAuthModal();
+    updateAuthButton();
+    await loadUserCategories();
+    if (document.getElementById('results-screen').classList.contains('active') && parsedData) {
+      await saveAnalysis();
+    }
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = authTab === 'signup' ? t('createAccount') : t('signIn');
+    btn.disabled = false;
+  }
+}
+
+function updateAuthButton() {
+  const btn = document.getElementById('auth-btn');
+  const signOutBtn = document.getElementById('signout-btn');
+  if (!btn) return;
+  if (currentUser) {
+    const displayName = currentUserName
+      || currentUser.user_metadata?.full_name
+      || currentUser.email.split('@')[0];
+    btn.textContent = '👤 ' + displayName;
+    btn.onclick = null;
+    btn.style.cursor = 'default';
+    if (signOutBtn) signOutBtn.style.display = '';
+  } else {
+    btn.setAttribute('data-i18n', 'signIn');
+    btn.textContent = t('signIn');
+    btn.onclick = openAuthModal;
+    btn.style.cursor = 'pointer';
+    if (signOutBtn) signOutBtn.style.display = 'none';
+  }
+}
+
+function showSavePopup() {
+  if (savePopupShown || currentUser) return;
+  savePopupShown = true;
+  document.getElementById('save-popup').style.display = 'flex';
+}
+
+function closeSavePopup() {
+  document.getElementById('save-popup').style.display = 'none';
+}
+
+function startSavePopupTimer() {
+  if (savePopupTimer) clearTimeout(savePopupTimer);
+  savePopupShown = false;
+  savePopupTimer = setTimeout(showSavePopup, 90000);
+}
 
 function renderResults() {
   const txns = parsedData.transactions || [];
@@ -1806,6 +2432,7 @@ function renderResults() {
   renderStatCards(currency);
   renderBreakdown(currency);
   renderDashTxns();
+  startSavePopupTimer();
 }
 
 function renderStatCards(currency) {
@@ -1985,6 +2612,25 @@ function assignCat(rowIndex, catId) {
   if (!window.DASH_ROWS?.[rowIndex]) return;
   window.DASH_ROWS[rowIndex].category = catId;
   if (categorizedData?.[rowIndex]) categorizedData[rowIndex].finalCategory = catId;
+
+  // Persist category change to Supabase
+  if (currentSession && currentUser) {
+    const txn = DASH_ROWS[rowIndex];
+    if (window.SAVED_TXN_IDS && window.SAVED_TXN_IDS[rowIndex]) {
+      fetch('/api/update-category', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session: currentSession,
+          transactionId: window.SAVED_TXN_IDS[rowIndex],
+          finalCategory: catId,
+          merchantName: txn.description,
+          country: parsedData?.country || selectedCountry?.name || null,
+        })
+      }).catch(e => console.error('Category update failed:', e));
+    }
+  }
+
   closeCatDd();
   const currency = parsedData?.currency || selectedCountry.currency || 'MXN';
   renderStatCards(currency);
@@ -2050,21 +2696,258 @@ function downloadExcel() {
 }
 
 
+// ── COMPARISON ───────────────────────────────────────────────────────
+let compData = null;
+let compTab = 'expense';
+let compMode = 'statement'; // 'statement' | 'calendar'
+
+async function loadComparison() {
+  if (!currentSession) return;
+  try {
+    const r = await fetch('/api/comparison', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession })
+    });
+    compData = await r.json();
+    // Default to calendar mode when available
+    compMode = compData.useCalendarMode ? 'calendar' : 'statement';
+    renderComparisonScreen();
+  } catch(e) {
+    console.error('Failed to load comparison:', e);
+  }
+}
+
+function renderComparisonScreen() {
+  if (!compData) return;
+  const { useCalendarMode, calendarMonths, consecutiveMonths, statements, monthTotals } = compData;
+
+  // Gate purely on number of statements, not calendar months
+  const hasSufficientData = statements.length >= 2;
+
+  if (!hasSufficientData) {
+    document.getElementById('comp-insufficient').style.display = 'block';
+    document.getElementById('comp-mode-badge').style.display = 'none';
+    document.getElementById('comp-mode-toggle').style.display = 'none';
+    ['comp-month-a','comp-month-b','comp-category-rows'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    return;
+  }
+
+  document.getElementById('comp-insufficient').style.display = 'none';
+  ['comp-month-a','comp-month-b','comp-category-rows'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = '';
+  });
+
+  const badge = document.getElementById('comp-mode-badge');
+  badge.style.display = 'inline-flex';
+  badge.textContent = compMode === 'calendar' ? '📅 ' + t('compModeCalendar') : '📄 ' + t('compModeStatement');
+
+  // Show toggle only when calendar mode is available (3+ consecutive months)
+  const toggleBtn = document.getElementById('comp-mode-toggle');
+  if (useCalendarMode) {
+    toggleBtn.style.display = 'inline-block';
+    toggleBtn.textContent = compMode === 'calendar' ? t('compToggleStatement') : t('compToggleCalendar');
+  } else {
+    toggleBtn.style.display = 'none';
+  }
+
+  const MONTH_NAMES = {
+    '01':'Ene','02':'Feb','03':'Mar','04':'Abr','05':'May','06':'Jun',
+    '07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'
+  };
+
+  const options = compMode === 'calendar'
+    ? calendarMonths.map(m => {
+        const [year, month] = m.split('-');
+        return { value: m, label: `${MONTH_NAMES[month]} ${year}` };
+      })
+    : statements.map(s => ({
+        value: s.id,
+        label: `${s.bank || 'Banco'} · ${s.period_start || ''} → ${s.period_end || ''}`
+      }));
+
+  const selA = document.getElementById('comp-month-a');
+  const selB = document.getElementById('comp-month-b');
+  selA.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 0 ? 'selected' : ''}>${o.label}</option>`).join('');
+  selB.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 1 ? 'selected' : ''}>${o.label}</option>`).join('');
+
+  renderComparison();
+}
+
+function toggleCompMode() {
+  const { useCalendarMode } = compData;
+  if (!useCalendarMode) return;
+  compMode = compMode === 'calendar' ? 'statement' : 'calendar';
+  renderComparisonScreen();
+}
+
+function renderComparison() {
+  if (!compData) return;
+  const { monthTotals } = compData;
+  const valA = document.getElementById('comp-month-a').value;
+  const valB = document.getElementById('comp-month-b').value;
+
+  let totalsA, totalsB, labelA, labelB;
+  const MONTH_NAMES = {
+    '01':'Ene','02':'Feb','03':'Mar','04':'Abr','05':'May','06':'Jun',
+    '07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'
+  };
+
+  if (compMode === 'calendar') {
+    totalsA = monthTotals[valA] || { income:0, expenses:0, byCategory:{} };
+    totalsB = monthTotals[valB] || { income:0, expenses:0, byCategory:{} };
+    labelA = valA ? `${MONTH_NAMES[valA.split('-')[1]]} ${valA.split('-')[0]}` : 'A';
+    labelB = valB ? `${MONTH_NAMES[valB.split('-')[1]]} ${valB.split('-')[0]}` : 'B';
+  } else {
+    // Statement mode — use statementTotals keyed by statement_id
+    const stmtA = compData.statements.find(s => s.id === valA);
+    const stmtB = compData.statements.find(s => s.id === valB);
+    totalsA = compData.statementTotals?.[valA] || { income: 0, expenses: 0, byCategory: {} };
+    totalsB = compData.statementTotals?.[valB] || { income: 0, expenses: 0, byCategory: {} };
+    function fmtStmtLabel(s) {
+      if (!s) return '—';
+      const start = s.period_start;
+      const end = s.period_end;
+      if (!start) return s.bank || 'Estado';
+      const sm = MONTH_NAMES[start.slice(5,7)];
+      const em = MONTH_NAMES[end?.slice(5,7)];
+      return `${sm} → ${em}`;
+    }
+    labelA = fmtStmtLabel(stmtA);
+    labelB = fmtStmtLabel(stmtB);
+  }
+
+  const currency = parsedData?.currency || compData.statements[0]?.currency || 'MXN';
+
+  document.getElementById('comp-col-a').textContent = labelA;
+  document.getElementById('comp-col-b').textContent = labelB;
+
+  function fmtAmt(n) {
+    return new Intl.NumberFormat('es-MX', {
+      style:'currency', currency,
+      minimumFractionDigits:0, maximumFractionDigits:0
+    }).format(n || 0);
+  }
+
+  function deltaHtml(a, b, isExpenseStat) {
+    if (!b) return '<span style="color:var(--on-surface-muted)">—</span>';
+    const pct = ((a - b) / b * 100);
+    const isPositive = isExpenseStat ? pct < 0 : pct > 0;
+    const color = isPositive ? 'var(--tertiary)' : 'var(--primary)';
+    const arrow = pct > 0 ? '↑' : '↓';
+    return `<span style="color:${color};font-weight:600">${arrow} ${Math.abs(pct).toFixed(0)}%</span>`;
+  }
+
+  const balA = totalsA.income - totalsA.expenses;
+  const balB = totalsB.income - totalsB.expenses;
+
+  document.getElementById('comp-income-a').textContent = fmtAmt(totalsA.income);
+  document.getElementById('comp-income-b').textContent = fmtAmt(totalsB.income);
+  document.getElementById('comp-income-delta').innerHTML = deltaHtml(totalsA.income, totalsB.income, false);
+  document.getElementById('comp-expense-a').textContent = fmtAmt(totalsA.expenses);
+  document.getElementById('comp-expense-b').textContent = fmtAmt(totalsB.expenses);
+  document.getElementById('comp-expense-delta').innerHTML = deltaHtml(totalsA.expenses, totalsB.expenses, true);
+  document.getElementById('comp-balance-a').textContent = fmtAmt(balA);
+  document.getElementById('comp-balance-b').textContent = fmtAmt(balB);
+  document.getElementById('comp-balance-delta').innerHTML = deltaHtml(balA, balB, false);
+
+  const catsA = totalsA.byCategory || {};
+  const catsB = totalsB.byCategory || {};
+  const incomeIds = ['salary','freelance','reimbursement','other_income'];
+
+  const allCatIds = [...new Set([...Object.keys(catsA), ...Object.keys(catsB)])]
+    .filter(id => {
+      if (id === 'internal_transfer' || id === 'unassigned' || id === 'excluded') return false;
+      if (compTab === 'income') return incomeIds.includes(id);
+      return !incomeIds.includes(id);
+    })
+    .sort((a, b) => (catsA[b] || 0) - (catsA[a] || 0));
+
+  const rowsHtml = allCatIds.map(catId => {
+    const meta = getCatMeta(catId);
+    const amtA = catsA[catId] || 0;
+    const amtB = catsB[catId] || 0;
+    if (amtA === 0 && amtB === 0) return '';
+    const pct = amtB > 0 ? ((amtA - amtB) / amtB * 100) : null;
+    const isExpense = compTab === 'expense';
+    const isPositive = pct === null ? null : (isExpense ? pct < 0 : pct > 0);
+    const deltaColor = pct === null ? 'var(--on-surface-muted)' : isPositive ? 'var(--tertiary)' : 'var(--primary)';
+    const deltaText = pct === null ? '—' : `${pct > 0 ? '↑' : '↓'} ${Math.abs(pct).toFixed(0)}%`;
+    return `
+    <div style="display:grid;grid-template-columns:1fr 120px 120px 100px;gap:0;padding:12px 20px;border-bottom:1px solid var(--surface-low);align-items:center;">
+      <div style="display:flex;align-items:center;gap:8px;font-size:0.84rem;">
+        <span>${meta.emoji}</span>
+        <span style="color:var(--on-surface)">${getCatLabel(catId) || meta.label}</span>
+      </div>
+      <div style="text-align:right;font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--on-surface)">${fmtAmt(amtA)}</div>
+      <div style="text-align:right;font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--on-surface-muted)">${fmtAmt(amtB)}</div>
+      <div style="text-align:right;font-family:'DM Mono',monospace;font-size:0.78rem;font-weight:600;color:${deltaColor}">${deltaText}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('comp-category-rows').innerHTML = rowsHtml
+    || `<div style="padding:24px;text-align:center;color:var(--on-surface-muted);font-size:0.84rem">No hay datos para mostrar</div>`;
+}
+
+function setCompTab(tab) {
+  compTab = tab;
+  document.getElementById('comp-tab-expense').style.background = tab === 'expense' ? 'var(--primary-tint)' : 'transparent';
+  document.getElementById('comp-tab-expense').style.color = tab === 'expense' ? 'var(--primary)' : 'var(--on-surface-muted)';
+  document.getElementById('comp-tab-income').style.background = tab === 'income' ? 'var(--tertiary-tint)' : 'transparent';
+  document.getElementById('comp-tab-income').style.color = tab === 'income' ? 'var(--tertiary)' : 'var(--on-surface-muted)';
+  renderComparison();
+}
+
+function showComparisonScreen() {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-comparison')?.classList.add('active');
+  loadComparison();
+  show('comparison-screen');
+}
+
 // ── UTILS ─────────────────────────────────────────────────────────────
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
 }
+function showDashTab(tab) {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + tab)?.classList.add('active');
+  show('results-screen');
+}
+function showUploadTab() {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-upload')?.classList.add('active');
+  resetApp();
+}
+function revealBottomNav() {
+  const nav = document.getElementById('bottom-nav');
+  if (nav) nav.style.display = '';
+  document.getElementById('nav-dashboard')?.classList.add('active');
+  document.getElementById('nav-upload')?.classList.remove('active');
+}
+
 function resetApp() {
   currentFile = null; parsedData = null; categorizedData = null;
   parseComplete = false; parseError = null;
   window.DASH_ROWS = null; dashCatFilter = ''; dashTab = 'expense'; dashSort = 'amount';
   reviewQueue = []; reviewCursor = 0; reviewChunksDone = 0; reviewChunksTotal = 0;
   reviewAllChunksDone = false; allCatResults = [];
+  finishReviewCalled = false; analysisSaved = false;
   parsePromise = null; parseResolveRef = null;
   userCategories = DEFAULT_CATEGORIES.map(c => ({...c}));
   document.getElementById('file-name').textContent = '';
   document.getElementById('btn-start').disabled = true;
   show('upload-screen');
+  // Keep nav visible but highlight upload tab if nav is already shown
+  const nav = document.getElementById('bottom-nav');
+  if (nav && nav.style.display !== 'none') {
+    document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('nav-upload')?.classList.add('active');
+  }
 }
 function fmt(n, currency) {
   const cur = currency || selectedCountry?.currency || 'MXN';
@@ -2079,6 +2962,48 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // Apply default language on load
 setLanguage('es');
+initAuth();
 </script>
+
+<!-- ── AUTH MODAL ── -->
+<div id="auth-modal" style="display:none;position:fixed;inset:0;background:rgba(27,28,25,0.5);z-index:300;align-items:center;justify-content:center;">
+  <div style="background:var(--surface-lowest);border-radius:20px;padding:36px;max-width:420px;width:90%;box-shadow:var(--shadow-lg);position:relative;">
+    <button onclick="closeAuthModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--on-surface-muted);font-size:1.2rem;">✕</button>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:1.8rem;margin-bottom:8px">💰</div>
+      <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:700;color:var(--on-surface)" id="auth-modal-title" data-i18n="authTitle">Crea tu cuenta</h2>
+      <p style="font-size:0.82rem;color:var(--on-surface-variant);margin-top:4px" id="auth-modal-sub" data-i18n="authSub">Guarda tu historial y accede desde cualquier dispositivo</p>
+    </div>
+    <div style="display:flex;background:var(--surface-low);border-radius:10px;padding:3px;margin-bottom:20px;">
+      <button id="tab-signup" onclick="setAuthTab('signup')" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;" data-i18n="createAccount">Crear cuenta</button>
+      <button id="tab-login" onclick="setAuthTab('login')" style="flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.82rem;cursor:pointer;" data-i18n="signIn">Iniciar sesión</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <input id="auth-name" type="text" placeholder="Nombre:" style="padding:12px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-low);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;width:100%;box-sizing:border-box;">
+      <input id="auth-email" type="email" placeholder="tu@email.com" style="padding:12px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-low);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;width:100%;box-sizing:border-box;">
+      <input id="auth-password" type="password" placeholder="Contraseña" style="padding:12px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-low);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;width:100%;box-sizing:border-box;">
+      <div id="auth-error" style="display:none;color:#c0392b;font-size:0.78rem;text-align:center;padding:8px;background:rgba(192,57,43,0.08);border-radius:8px;"></div>
+      <button id="auth-submit-btn" onclick="submitAuth()" style="padding:13px;border-radius:10px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;margin-top:4px;" data-i18n="createAccount">Crear cuenta</button>
+    </div>
+    <p style="text-align:center;font-size:0.75rem;color:var(--on-surface-muted);margin-top:16px;line-height:1.5" data-i18n="authPrivacy">🔒 Nunca compartimos tus datos con terceros.</p>
+  </div>
+</div>
+
+<!-- ── SAVE POPUP ── -->
+<div id="save-popup" style="display:none;position:fixed;inset:0;background:rgba(27,28,25,0.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:var(--surface-lowest);border-radius:20px;padding:32px;max-width:400px;width:90%;box-shadow:var(--shadow-lg);text-align:center;position:relative;">
+    <button onclick="closeSavePopup()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--on-surface-muted);font-size:1.2rem;">✕</button>
+    <div style="font-size:2rem;margin-bottom:12px">💾</div>
+    <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:8px;color:var(--on-surface)" data-i18n="savePopupTitle">Guarda tu análisis</h3>
+    <p style="font-size:0.82rem;color:var(--on-surface-variant);line-height:1.6;margin-bottom:20px" data-i18n="savePopupSub">Crea una cuenta gratuita para guardar tus resultados.</p>
+    <ul style="text-align:left;font-size:0.82rem;color:var(--on-surface-variant);line-height:1.8;margin-bottom:24px;list-style:none;padding:0;">
+      <li>🔒 <span data-i18n="savePopupBenefit1">Guarda tu historial de estados de cuenta</span></li>
+      <li>📊 <span data-i18n="savePopupBenefit2">Próximamente: comparación mensual y presupuestos</span></li>
+    </ul>
+    <button onclick="openAuthFromPopup()" style="width:100%;padding:13px;border-radius:10px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;margin-bottom:10px;" data-i18n="createFreeAccount">Crear cuenta gratis</button>
+    <button onclick="closeSavePopup()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.82rem;cursor:pointer;" data-i18n="maybeLater">Ahora no</button>
+  </div>
+</div>
+
 </body>
 </html>
