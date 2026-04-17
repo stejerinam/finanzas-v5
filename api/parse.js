@@ -49,9 +49,20 @@ Extract every transaction from this statement.
    - "Amazon Prime 3/12 MSI $499" or "Liverpool 6/18 $1,500" or "Cuota 5 de 12 $800"
    These MUST be extracted as individual transactions with type exactly "Installment Plan". Do not skip them. Do not merge them. The amount is the monthly payment amount, not the total.
    DEDUPLICATION: Some statements show the same purchase in BOTH the main transaction list AND the installment plan section. If you see the same transaction in both places, extract it ONLY from the installment plan section (type "Installment Plan") and skip the duplicate entry in the regular transaction list. Do not count it twice.
+   DATE: Use the date the installment charge appears in the current statement period. If the only available date is the original purchase date and it falls outside the statement period (periodStart → periodEnd), use periodEnd instead.
 7. If a statement contains multiple account sections, extract transactions from all of them.
 8. Works for any language, any country, any bank format.
 </rules>
+
+Output a JSON object with this exact shape — transactions first, then metadata:
+{
+  "transactions": [...],
+  "bank": "bank name or null",
+  "country": "country name in English or null",
+  "currency": "ISO 4217 code (e.g. MXN, BOB, COP) or null",
+  "periodStart": "YYYY-MM-DD or null",
+  "periodEnd": "YYYY-MM-DD or null"
+}
 
 <statement>
 ${text.slice(0, 100000)}
