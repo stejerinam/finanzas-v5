@@ -462,7 +462,7 @@ tr:hover td{background:var(--surface-low);}
       <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Finanzas · v6</div>
       <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:var(--on-surface)">Bienvenido, <span id="history-username"></span></h1>
     </div>
-    <button onclick="showUploadFromHistory()"
+    <button onclick="showUploadTab()"
       style="padding:10px 20px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;">
       + Subir estado
     </button>
@@ -479,7 +479,7 @@ tr:hover td{background:var(--surface-low);}
   <div id="history-empty" style="display:none;text-align:center;padding:60px 20px;color:var(--on-surface-muted);">
     <div style="font-size:2.5rem;margin-bottom:12px">📂</div>
     <p style="font-size:0.9rem">No tienes estados de cuenta guardados aún.</p>
-    <button onclick="showUploadFromHistory()"
+    <button onclick="showUploadTab()"
       style="margin-top:16px;padding:10px 24px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;">
       Subir tu primer estado →
     </button>
@@ -572,7 +572,7 @@ tr:hover td{background:var(--surface-low);}
   <div id="comp-insufficient" style="display:none;text-align:center;padding:60px 20px;">
     <div style="font-size:2.5rem;margin-bottom:12px">📊</div>
     <p style="font-size:0.9rem;color:var(--on-surface-muted);margin-bottom:16px" data-i18n="compInsufficientMsg">Sube al menos dos estados de cuenta para comparar períodos.</p>
-    <button onclick="showUploadFromHistory()"
+    <button onclick="showUploadTab()"
       style="padding:10px 24px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;"
       data-i18n="compUploadBtn">Subir estado →</button>
   </div>
@@ -1190,7 +1190,7 @@ async function loadStatementDashboard(statementId) {
   }
 }
 
-function showUploadFromHistory() {
+function showUploadTab() {
   show('upload-screen');
 }
 
