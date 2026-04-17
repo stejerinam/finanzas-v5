@@ -517,12 +517,12 @@ tr:hover td{background:var(--surface-low);}
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
       <div style="flex:1;min-width:180px;">
         <div style="font-size:0.72rem;color:var(--on-surface-muted);margin-bottom:6px" data-i18n="compPeriodA">Período A</div>
-        <select id="comp-month-a" onchange="renderComparison()"
+        <select id="comp-month-a" onchange="onCompSelectA()"
           style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;cursor:pointer;box-sizing:border-box;"></select>
       </div>
       <div style="flex:1;min-width:180px;">
         <div style="font-size:0.72rem;color:var(--on-surface-muted);margin-bottom:6px" data-i18n="compPeriodB">Período B</div>
-        <select id="comp-month-b" onchange="renderComparison()"
+        <select id="comp-month-b" onchange="onCompSelectB()"
           style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;cursor:pointer;box-sizing:border-box;"></select>
       </div>
     </div>
@@ -2782,8 +2782,9 @@ function renderComparisonScreen() {
 
   const selA = document.getElementById('comp-month-a');
   const selB = document.getElementById('comp-month-b');
-  selA.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 0 ? 'selected' : ''}>${o.label}</option>`).join('');
-  selB.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 1 ? 'selected' : ''}>${o.label}</option>`).join('');
+  // A = older period (index 1), B = newer period (index 0)
+  selA.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 1 ? 'selected' : ''}>${o.label}</option>`).join('');
+  selB.innerHTML = options.map((o, i) => `<option value="${o.value}" ${i === 0 ? 'selected' : ''}>${o.label}</option>`).join('');
 
   renderComparison();
 }
@@ -2901,6 +2902,31 @@ function renderComparison() {
 
   document.getElementById('comp-category-rows').innerHTML = rowsHtml
     || `<div style="padding:24px;text-align:center;color:var(--on-surface-muted);font-size:0.84rem">No hay datos para mostrar</div>`;
+}
+
+// options are sorted descending (most recent first), so:
+//   lower index = more recent,  higher index = older
+// A = older period, B = newer period
+function onCompSelectA() {
+  const selA = document.getElementById('comp-month-a');
+  const selB = document.getElementById('comp-month-b');
+  const opts = [...selA.options];
+  const idxA = opts.findIndex(o => o.value === selA.value);
+  // B should be the next more-recent period = one step back in the desc list
+  const idxB = idxA - 1;
+  if (idxB >= 0) selB.value = opts[idxB].value;
+  renderComparison();
+}
+
+function onCompSelectB() {
+  const selA = document.getElementById('comp-month-a');
+  const selB = document.getElementById('comp-month-b');
+  const opts = [...selB.options];
+  const idxB = opts.findIndex(o => o.value === selB.value);
+  // A should be the next older period = one step forward in the desc list
+  const idxA = idxB + 1;
+  if (idxA < opts.length) selA.value = opts[idxA].value;
+  renderComparison();
 }
 
 function setCompTab(tab) {
