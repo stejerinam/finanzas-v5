@@ -507,6 +507,10 @@ tr:hover td{background:var(--surface-low);}
     <button id="comp-mode-toggle" onclick="toggleCompMode()" style="display:none;padding:5px 14px;border-radius:20px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'DM Mono',monospace;font-size:0.7rem;cursor:pointer;" data-i18n="compToggleCalendar">Ver por mes</button>
   </div>
 
+  <div id="comp-needs-more" style="display:none;padding:10px 16px;border-radius:12px;background:var(--surface-lowest);border:1px solid var(--surface-high);font-size:0.8rem;color:var(--on-surface-muted);margin-bottom:20px;">
+    📅 <span data-i18n="compNeedsMoreMsg">Sube un estado más para desbloquear la comparación mes a mes.</span>
+  </div>
+
   <div style="margin-bottom:24px;">
     <div style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px" data-i18n="compSelectMonths">Selecciona dos períodos para comparar</div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
@@ -1420,6 +1424,7 @@ const STRINGS = {
     compInsufficientMsg: 'Sube otro estado de cuenta para desbloquear la comparación mensual.',
     compToggleCalendar: 'Ver por mes →',
     compToggleStatement: 'Ver por estado →',
+    compNeedsMoreMsg: 'Sube un estado más para desbloquear la comparación mes a mes.',
     compUploadBtn: 'Subir estado →',
     signIn: 'Iniciar sesión',
     signOut: 'Cerrar sesión',
@@ -1562,6 +1567,7 @@ const STRINGS = {
     compInsufficientMsg: 'Upload another statement to unlock monthly comparison.',
     compToggleCalendar: 'Switch to months →',
     compToggleStatement: 'Switch to statements →',
+    compNeedsMoreMsg: 'Upload one more statement to unlock month-by-month comparison.',
     compUploadBtn: 'Upload statement →',
     signIn: 'Sign in',
     signOut: 'Sign out',
@@ -2727,6 +2733,7 @@ function renderComparisonScreen() {
 
   if (!hasSufficientData) {
     document.getElementById('comp-insufficient').style.display = 'block';
+    document.getElementById('comp-needs-more').style.display = 'none';
     document.getElementById('comp-mode-badge').style.display = 'none';
     document.getElementById('comp-mode-toggle').style.display = 'none';
     ['comp-month-a','comp-month-b','comp-category-rows'].forEach(id => {
@@ -2737,6 +2744,8 @@ function renderComparisonScreen() {
   }
 
   document.getElementById('comp-insufficient').style.display = 'none';
+  // Show nudge when in statement mode and calendar mode not yet unlocked
+  document.getElementById('comp-needs-more').style.display = (!useCalendarMode) ? 'block' : 'none';
   ['comp-month-a','comp-month-b','comp-category-rows'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = '';
