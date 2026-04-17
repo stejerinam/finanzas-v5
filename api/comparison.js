@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
   const calendarMonths = Object.keys(byMonth).sort().reverse();
 
-  // Find consecutive run of months from most recent
+  // Find consecutive run of calendar months from most recent (for calendar-mode dropdowns)
   const consecutiveMonths = calendarMonths.filter((m, i, arr) => {
     if (i === 0) return true;
     const prev = new Date(arr[i-1] + '-01');
@@ -44,7 +44,22 @@ export default async function handler(req, res) {
     return diff === 1;
   });
 
-  const useCalendarMode = consecutiveMonths.length >= 3;
+  // Calendar mode requires 3+ consecutive statement months (not just transaction months)
+  // A single statement spanning two months must not count as two periods
+  const uniqueStmtMonths = [...new Set(
+    statements.filter(s => s.period_start).map(s => s.period_start.slice(0, 7))
+  )].sort().reverse();
+
+  const consecutiveStmtMonths = uniqueStmtMonths.filter((m, i, arr) => {
+    if (i === 0) return true;
+    const prev = new Date(arr[i-1] + '-01');
+    const curr = new Date(m + '-01');
+    const diff = (prev.getFullYear() - curr.getFullYear()) * 12
+               + prev.getMonth() - curr.getMonth();
+    return diff === 1;
+  });
+
+  const useCalendarMode = consecutiveStmtMonths.length >= 3;
 
   // Calculate totals per month
   const monthTotals = {};
