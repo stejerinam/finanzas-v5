@@ -233,6 +233,17 @@ tr:hover td{background:var(--surface-low);}
 .sort-btn{padding:6px 12px;border-radius:9999px;border:none;background:transparent;color:var(--on-surface-muted);font-size:0.72rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;font-weight:500;}
 .sort-btn.active{background:var(--primary-tint);color:var(--primary);font-weight:700;}
 
+/* filter bar */
+.filter-bar{display:flex;gap:10px;align-items:center;margin-bottom:24px;flex-wrap:wrap;}
+.filter-bar-select{padding:8px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.82rem;outline:none;cursor:pointer;transition:border-color 0.15s;min-width:160px;}
+.filter-bar-select:focus,.filter-bar-select:hover{border-color:var(--primary);}
+.filter-bar-select.active-filter{border-color:var(--primary);background:var(--primary-tint);color:var(--primary);font-weight:600;}
+.custom-period-wrap{display:none;gap:8px;align-items:center;}
+.custom-period-wrap.visible{display:flex;}
+.period-input{padding:7px 12px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.82rem;outline:none;cursor:pointer;}
+.period-input:focus{border-color:var(--primary);}
+.filter-bar-label{font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.06em;}
+
 /* transaction table */
 .txn-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
 .txn-table th{text-align:left;padding:10px 18px;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--on-surface-muted);font-weight:600;font-family:'Inter',sans-serif;background:var(--surface-low);position:sticky;top:0;z-index:5;white-space:nowrap;}
@@ -997,6 +1008,27 @@ tr:hover td{background:var(--surface-low);}
       </div>
     </div>
 
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <select class="filter-bar-select" id="filter-account" onchange="onFilterChange()">
+        <option value="all" data-i18n="filterAllAccounts">Todas las cuentas</option>
+        <!-- Populated dynamically -->
+      </select>
+
+      <select class="filter-bar-select" id="filter-month" onchange="onFilterMonthChange()">
+        <option value="all" data-i18n="filterAllMonths">Todos los meses</option>
+        <!-- Populated dynamically -->
+      </select>
+
+      <div class="custom-period-wrap" id="custom-period-wrap">
+        <span class="filter-bar-label" data-i18n="filterFrom">Desde</span>
+        <input type="date" class="period-input" id="filter-date-from" onchange="onFilterChange()">
+        <span class="filter-bar-label" data-i18n="filterTo">Hasta</span>
+        <input type="date" class="period-input" id="filter-date-to" onchange="onFilterChange()">
+        <button onclick="clearCustomPeriod()" style="background:none;border:none;cursor:pointer;color:var(--on-surface-muted);font-size:0.8rem;padding:4px 8px;">✕</button>
+      </div>
+    </div>
+
     <!-- Main row: category breakdown + transaction table -->
     <div class="main-row">
 
@@ -1079,6 +1111,10 @@ let currentUser = null;
 let currentSession = null;
 let currentUserName = null;
 let analysisSaved = false;
+let dashFilterAccount = 'all';
+let dashFilterMonth = 'all';
+let dashFilterDateFrom = null;
+let dashFilterDateTo = null;
 
 async function initAuth() {
   const { data: { session } } = await sb.auth.getSession();
@@ -1479,6 +1515,11 @@ const STRINGS = {
     savePopupSub: 'Crea una cuenta gratuita para guardar tus resultados.',
     savePopupBenefit1: 'Guarda tu historial de estados de cuenta',
     savePopupBenefit2: 'Próximamente: comparación mensual y presupuestos',
+    filterAllAccounts: 'Todas las cuentas',
+    filterAllMonths: 'Todos los meses',
+    filterCustomPeriod: 'Período personalizado',
+    filterFrom: 'Desde',
+    filterTo: 'Hasta',
   },
   en: {
     eyebrow: 'Finanzas · v5',
@@ -1627,6 +1668,11 @@ const STRINGS = {
     savePopupSub: 'Create a free account to save your results.',
     savePopupBenefit1: 'Save your statement history',
     savePopupBenefit2: 'Coming soon: monthly comparison and budgets',
+    filterAllAccounts: 'All accounts',
+    filterAllMonths: 'All months',
+    filterCustomPeriod: 'Custom period',
+    filterFrom: 'From',
+    filterTo: 'To',
   }
 };
 
@@ -2522,12 +2568,148 @@ function renderResults() {
   renderStatCards(currency);
   renderBreakdown(currency);
   renderDashTxns();
+  buildFilterBar();
   startSavePopupTimer();
+}
+
+function getFilteredRows() {
+  let rows = window.DASH_ROWS || [];
+
+  if (dashFilterAccount !== 'all') {
+    const parts = dashFilterAccount.split('_');
+    const acctType = parts[1];
+    if (acctType && selectedAcctType) {
+      rows = rows.filter(r => (r.accountType || selectedAcctType) === acctType);
+    }
+  }
+
+  if (dashFilterMonth === 'custom') {
+    const from = dashFilterDateFrom ? new Date(dashFilterDateFrom) : null;
+    const to = dashFilterDateTo ? new Date(dashFilterDateTo) : null;
+    rows = rows.filter(r => {
+      if (!r.date) return false;
+      const d = new Date(r.date);
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+      return true;
+    });
+  } else if (dashFilterMonth !== 'all') {
+    rows = rows.filter(r => r.date && r.date.startsWith(dashFilterMonth));
+  }
+
+  return rows;
+}
+
+function buildFilterBar() {
+  const accountSel = document.getElementById('filter-account');
+  if (!accountSel) return;
+
+  const accounts = [];
+  if (parsedData) {
+    accounts.push({
+      value: parsedData.bank + '_' + selectedAcctType,
+      label: `${parsedData.bank || 'Banco'} · ${selectedAcctType || ''}`
+    });
+  }
+  if (window.LOADED_STATEMENTS && window.LOADED_STATEMENTS.length > 1) {
+    window.LOADED_STATEMENTS.forEach(s => {
+      const val = `${s.bank}_${s.account_type}_${s.id}`;
+      if (!accounts.find(a => a.value === val)) {
+        accounts.push({ value: val, label: `${s.bank || 'Banco'} · ${s.account_type || ''}`, statementId: s.id });
+      }
+    });
+  }
+
+  accountSel.innerHTML = `<option value="all">${t('filterAllAccounts')}</option>` +
+    accounts.map(a => `<option value="${a.value}">${a.label}</option>`).join('');
+
+  const monthSel = document.getElementById('filter-month');
+  if (!monthSel) return;
+
+  const months = [...new Set(
+    (window.DASH_ROWS || []).map(r => r.date ? r.date.slice(0, 7) : null).filter(Boolean)
+  )].sort().reverse();
+
+  const MONTH_NAMES = {
+    '01':'Ene','02':'Feb','03':'Mar','04':'Abr',
+    '05':'May','06':'Jun','07':'Jul','08':'Ago',
+    '09':'Sep','10':'Oct','11':'Nov','12':'Dic'
+  };
+
+  monthSel.innerHTML =
+    `<option value="all">${t('filterAllMonths')}</option>` +
+    months.map(m => {
+      const [year, month] = m.split('-');
+      return `<option value="${m}">${MONTH_NAMES[month]} ${year}</option>`;
+    }).join('') +
+    `<option value="custom">${t('filterCustomPeriod')}</option>`;
+
+  if (months.length > 0 && dashFilterMonth === 'all') {
+    dashFilterMonth = months[0];
+    monthSel.value = months[0];
+    monthSel.classList.add('active-filter');
+  } else {
+    monthSel.value = dashFilterMonth;
+    monthSel.classList.toggle('active-filter', dashFilterMonth !== 'all');
+  }
+}
+
+function onFilterMonthChange() {
+  const val = document.getElementById('filter-month').value;
+  dashFilterMonth = val;
+  const customWrap = document.getElementById('custom-period-wrap');
+  const monthSel = document.getElementById('filter-month');
+
+  if (val === 'custom') {
+    customWrap.classList.add('visible');
+    monthSel.classList.add('active-filter');
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    document.getElementById('filter-date-from').value = `${y}-${m}-01`;
+    document.getElementById('filter-date-to').value =
+      new Date(y, now.getMonth() + 1, 0).toISOString().split('T')[0];
+  } else {
+    customWrap.classList.remove('visible');
+    dashFilterDateFrom = null;
+    dashFilterDateTo = null;
+    monthSel.classList.toggle('active-filter', val !== 'all');
+  }
+  onFilterChange();
+}
+
+function clearCustomPeriod() {
+  dashFilterMonth = 'all';
+  dashFilterDateFrom = null;
+  dashFilterDateTo = null;
+  const monthSel = document.getElementById('filter-month');
+  monthSel.value = 'all';
+  monthSel.classList.remove('active-filter');
+  document.getElementById('custom-period-wrap').classList.remove('visible');
+  onFilterChange();
+}
+
+function onFilterChange() {
+  dashFilterAccount = document.getElementById('filter-account').value;
+  dashFilterMonth = document.getElementById('filter-month').value;
+
+  if (dashFilterMonth === 'custom') {
+    dashFilterDateFrom = document.getElementById('filter-date-from').value;
+    dashFilterDateTo = document.getElementById('filter-date-to').value;
+  }
+
+  const accountSel = document.getElementById('filter-account');
+  accountSel.classList.toggle('active-filter', dashFilterAccount !== 'all');
+
+  const currency = parsedData?.currency || selectedCountry?.currency || 'MXN';
+  renderStatCards(currency);
+  renderBreakdown(currency);
+  renderDashTxns();
 }
 
 function renderStatCards(currency) {
   currency = currency || parsedData?.currency || selectedCountry.currency || 'MXN';
-  const rows = window.DASH_ROWS || [];
+  const rows = getFilteredRows();
 
   const income = rows.filter(r => r.direction === 'credit' && r.category !== 'internal_transfer' && r.category !== 'excluded');
   const expense = rows.filter(r => r.direction === 'debit' && r.category !== 'internal_transfer' && r.category !== 'excluded');
@@ -2552,7 +2734,7 @@ function renderStatCards(currency) {
 
 function renderBreakdown(currency) {
   currency = currency || parsedData?.currency || selectedCountry.currency || 'MXN';
-  const rows = window.DASH_ROWS || [];
+  const rows = getFilteredRows();
 
   const catColors = {
     food:'#c0440a', cafe:'#7a5230', groceries:'#1a6b4a', transport:'#2d5c80',
@@ -2621,7 +2803,7 @@ function setDashSort(mode) {
 
 function renderDashTxns() {
   const currency = parsedData?.currency || selectedCountry.currency || 'MXN';
-  const rows = window.DASH_ROWS || [];
+  const rows = getFilteredRows();
   const search = document.getElementById('dash-search').value.toLowerCase();
   const catF = document.getElementById('dash-cat-filter').value;
   const dirF = document.getElementById('dash-dir-filter').value;
@@ -3075,6 +3257,7 @@ function resetApp() {
   currentFile = null; parsedData = null; categorizedData = null;
   parseComplete = false; parseError = null;
   window.DASH_ROWS = null; dashCatFilter = ''; dashTab = 'expense'; dashSort = 'amount';
+  dashFilterAccount = 'all'; dashFilterMonth = 'all'; dashFilterDateFrom = null; dashFilterDateTo = null;
   reviewQueue = []; reviewCursor = 0; reviewChunksDone = 0; reviewChunksTotal = 0;
   reviewAllChunksDone = false; allCatResults = [];
   finishReviewCalled = false; analysisSaved = false;
