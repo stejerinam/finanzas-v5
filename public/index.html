@@ -1462,6 +1462,8 @@ const STRINGS = {
     compIncompleteWarning: '{months} tiene datos parciales — es posible que no refleje el mes completo.',
     duplicateStatement: 'Estado de cuenta duplicado',
     duplicateStatementMsg: 'Ya subiste este estado de cuenta anteriormente. Si quieres verlo, encuéntralo en Mis Estados.',
+    duplicateGoToHistory: 'Ver Mis Estados →',
+    duplicateDismiss: 'Cerrar',
     compUploadBtn: 'Subir estado →',
     signIn: 'Iniciar sesión',
     signOut: 'Cerrar sesión',
@@ -1608,6 +1610,8 @@ const STRINGS = {
     compIncompleteWarning: '{months} has partial data — it may not reflect the full month.',
     duplicateStatement: 'Duplicate statement',
     duplicateStatementMsg: 'You have already uploaded this statement before. Find it in My Statements.',
+    duplicateGoToHistory: 'Go to My Statements →',
+    duplicateDismiss: 'Dismiss',
     compUploadBtn: 'Upload statement →',
     signIn: 'Sign in',
     signOut: 'Sign out',
@@ -1948,11 +1952,9 @@ async function startPipeline() {
       const dupResult = await dupCheck.json();
       if (dupResult.isDuplicate) {
         setParseStatus('error', t('duplicateStatement'));
-        setTimeout(() => {
-          alert(t('duplicateStatementMsg'));
-          resetApp();
-        }, 800);
         if (parseResolveRef) parseResolveRef.rej(new Error('duplicate'));
+        resetApp();
+        showDuplicateModal();
         return;
       }
     } catch(e) {
@@ -2459,6 +2461,13 @@ function showSavePopup() {
 
 function closeSavePopup() {
   document.getElementById('save-popup').style.display = 'none';
+}
+function showDuplicateModal() {
+  document.getElementById('duplicate-modal').style.display = 'flex';
+}
+function closeDuplicateModal(goToHistory) {
+  document.getElementById('duplicate-modal').style.display = 'none';
+  if (goToHistory) showHistory();
 }
 
 function startSavePopupTimer() {
@@ -3135,6 +3144,19 @@ initAuth();
     </ul>
     <button onclick="openAuthFromPopup()" style="width:100%;padding:13px;border-radius:10px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;margin-bottom:10px;" data-i18n="createFreeAccount">Crear cuenta gratis</button>
     <button onclick="closeSavePopup()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.82rem;cursor:pointer;" data-i18n="maybeLater">Ahora no</button>
+  </div>
+</div>
+
+<!-- ── DUPLICATE STATEMENT MODAL ── -->
+<div id="duplicate-modal" style="display:none;position:fixed;inset:0;background:rgba(27,28,25,0.5);z-index:400;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+  <div style="background:var(--surface-lowest);border-radius:24px;padding:32px 28px;max-width:380px;width:100%;box-shadow:var(--shadow-lg);position:relative;text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:12px">📋</div>
+    <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;color:var(--on-surface);margin-bottom:8px" data-i18n="duplicateStatement">Estado de cuenta duplicado</h2>
+    <p style="font-size:0.84rem;color:var(--on-surface-variant);line-height:1.5;margin-bottom:24px" data-i18n="duplicateStatementMsg">Ya subiste este estado de cuenta anteriormente. Si quieres verlo, encuéntralo en Mis Estados.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="closeDuplicateModal(true)" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;" data-i18n="duplicateGoToHistory">Ver Mis Estados →</button>
+      <button onclick="closeDuplicateModal(false)" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.84rem;cursor:pointer;" data-i18n="duplicateDismiss">Cerrar</button>
+    </div>
   </div>
 </div>
 
