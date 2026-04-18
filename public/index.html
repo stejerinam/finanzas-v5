@@ -348,16 +348,22 @@ tr:hover td{background:var(--surface-low);}
   .dash-btn{font-size:0.78rem;padding:7px 14px;}
   .dash-meta{
     flex:0 0 100%;margin:0;
-    justify-content:flex-start;
-    overflow-x:auto;flex-wrap:nowrap;
-    -webkit-overflow-scrolling:touch;
-    padding-bottom:2px;
+    display:grid!important;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+    overflow-x:visible;
     border-top:1px solid rgba(222,191,192,0.25);
-    padding-top:8px;
+    padding-top:10px;
   }
   .dash-meta:empty{display:none;}
-  /* hide scrollbar on meta strip */
-  .dash-meta::-webkit-scrollbar{display:none;}
+  .dash-meta .meta-pill{
+    font-size:0.66rem;
+    padding:5px 10px;
+    border-radius:8px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
 
   /* Dashboard body */
   .dash-body{padding:16px 14px;}
