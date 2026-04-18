@@ -2090,6 +2090,7 @@ async function startCategorize() {
             country: parsedData.country || selectedCountry.name,
             accountType: selectedAcctType,
             categories: activeCategories,
+            userName: currentUserName || null,
           })
         });
         const d = await r.json();

@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { transactions, country, accountType, categories } = req.body;
+  const { transactions, country, accountType, categories, userName } = req.body;
   if (!transactions || !Array.isArray(transactions) || transactions.length === 0)
     return res.status(400).json({ error: 'transactions array required' });
   if (!categories || !Array.isArray(categories) || categories.length === 0)
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
   const SYSTEM_PROMPT = `You are a personal finance transaction categorizer. Your ONLY job is to assign each transaction to a category from the provided list and return a confidence score. Output valid JSON only — no markdown, no explanation.`;
 
   // ── PROMPT BUILDER ─────────────────────────────────────────────────
-  function buildPrompt(chunk, chunkIndex, categories, country, accountType) {
+  function buildPrompt(chunk, chunkIndex, categories, country, accountType, userName) {
     const categoryList = categories.map(c => {
       const examples = c.examples ? ` Examples: ${c.examples}.` : '';
       return `- ${c.id}: ${c.label} — ${c.description}.${examples}`;
@@ -57,13 +57,20 @@ export default async function handler(req, res) {
       return parts.join(', ');
     }).join('\n');
 
-    return `Categorize these transactions from <context>${country || 'unknown country'}, ${accountType || 'unknown account type'}</context>.
+    return `Categorize these transactions from:
+<context>
+Country: ${country || 'unknown'}
+Account type: ${accountType || 'unknown'}
+${userName ? `Account holder name: ${userName}` : ''}
+</context>
 
 <categories>
 ${categoryList}
 
 Special categories always available:
-- internal_transfer: movement between the user's own accounts, credit card bill payments, or any transaction where counterpartyName matches or closely resembles the account holder name — these are almost always transfers between own accounts even if the description doesn't make it obvious.
+- internal_transfer: movement between the user's own accounts or credit card bill payments. Assign this when:
+  - The description or reference contains typical credit card payment keywords (PAGO TARJETA, PAGO TDC, etc.)
+  - OR the counterpartyName matches or closely resembles the account holder name (${userName || 'provided in context'}) — transfers to/from yourself are internal transfers even if the description is not obvious.
 - excluded: transactions the user wants to exclude from analysis (fees, taxes, adjustments, duplicates)
 - unassigned: use when you genuinely cannot determine the category even with all context
 </categories>
@@ -107,7 +114,7 @@ Return ONLY the JSON array.`;
 
   // ── TIER 1: HAIKU ──────────────────────────────────────────────────
   async function runHaiku(txns, startIndex) {
-    const prompt = buildPrompt(txns, startIndex, categories, country, accountType);
+    const prompt = buildPrompt(txns, startIndex, categories, country, accountType, userName);
     const data = await callWithRetry({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 8000,
@@ -127,7 +134,7 @@ Return ONLY the JSON array.`;
 
   // ── TIER 2: SONNET + WEB SEARCH ───────────────────────────────────
   async function runSonnetWithSearch(txns, startIndex) {
-    const prompt = buildPrompt(txns, startIndex, categories, country, accountType);
+    const prompt = buildPrompt(txns, startIndex, categories, country, accountType, userName);
     const data = await callWithRetry({
       model: 'claude-sonnet-4-6',
       max_tokens: 8000,
