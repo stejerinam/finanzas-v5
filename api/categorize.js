@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 ${categoryList}
 
 Special categories always available:
-- internal_transfer: movement between the user's own accounts, credit card bill payments
+- internal_transfer: movement between the user's own accounts, credit card bill payments, or any transaction where counterpartyName matches or closely resembles the account holder name — these are almost always transfers between own accounts even if the description doesn't make it obvious.
 - excluded: transactions the user wants to exclude from analysis (fees, taxes, adjustments, duplicates)
 - unassigned: use when you genuinely cannot determine the category even with all context
 </categories>
