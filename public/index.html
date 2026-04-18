@@ -2644,14 +2644,8 @@ function buildFilterBar() {
     }).join('') +
     `<option value="custom">${t('filterCustomPeriod')}</option>`;
 
-  if (months.length > 0 && dashFilterMonth === 'all') {
-    dashFilterMonth = months[0];
-    monthSel.value = months[0];
-    monthSel.classList.add('active-filter');
-  } else {
-    monthSel.value = dashFilterMonth;
-    monthSel.classList.toggle('active-filter', dashFilterMonth !== 'all');
-  }
+  monthSel.value = dashFilterMonth;
+  monthSel.classList.toggle('active-filter', dashFilterMonth !== 'all');
 }
 
 function onFilterMonthChange() {
