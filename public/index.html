@@ -1186,6 +1186,7 @@ async function loadAllTransactions() {
     analysisSaved = true;
     renderResults();
     show('results-screen');
+    revealBottomNav();
   } catch(e) {
     console.error('Failed to load all transactions:', e);
     show('upload-screen');
