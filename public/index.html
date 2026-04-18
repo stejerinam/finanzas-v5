@@ -444,6 +444,29 @@ tr:hover td{background:var(--surface-low);}
   .review-cat-grid{grid-template-columns:1fr 1fr;gap:6px;}
   .review-cat-btn{font-size:0.78rem;padding:9px 10px;}
 }
+
+/* ── MOBILE: BOTTOM NAV ─────────────────────────────────────── */
+@media(max-width:640px){
+  .bottom-nav-btn{padding:8px 4px;flex:1;}
+}
+
+/* ── MOBILE: HISTORY SCREEN ─────────────────────────────────── */
+@media(max-width:640px){
+  #history-screen > div{padding:24px 14px 80px!important;}
+  .history-item{flex-wrap:wrap!important;padding:16px!important;gap:12px!important;}
+  .history-item-btn{width:100%!important;text-align:center;box-sizing:border-box;}
+}
+
+/* ── MOBILE: COMPARISON SCREEN ──────────────────────────────── */
+@media(max-width:640px){
+  #comparison-screen > div{padding:20px 14px 100px!important;}
+  /* Summary cards: income+expenses side by side, balance full width */
+  .comp-summary-grid{grid-template-columns:1fr 1fr!important;}
+  .comp-balance-card{grid-column:1/-1!important;}
+  /* Category table: tighter columns */
+  .comp-cat-header,
+  .comp-cat-row{grid-template-columns:1fr 78px 78px 62px!important;padding-left:12px!important;padding-right:12px!important;}
+}
 </style>
 </head>
 <body>
@@ -531,7 +554,7 @@ tr:hover td{background:var(--surface-low);}
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+  <div class="comp-summary-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
     <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;">
       <div style="font-size:0.64rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compIncome">Ingresos</div>
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--tertiary)" id="comp-income-a">—</div>
@@ -544,7 +567,7 @@ tr:hover td{background:var(--surface-low);}
       <div style="font-size:0.78rem;color:var(--on-surface-muted);margin-top:4px" id="comp-expense-b">—</div>
       <div style="font-size:0.78rem;font-weight:600;margin-top:6px" id="comp-expense-delta">—</div>
     </div>
-    <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;">
+    <div class="comp-balance-card" style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;">
       <div style="font-size:0.64rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compBalance">Balance neto</div>
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--secondary)" id="comp-balance-a">—</div>
       <div style="font-size:0.78rem;color:var(--on-surface-muted);margin-top:4px" id="comp-balance-b">—</div>
@@ -564,7 +587,7 @@ tr:hover td{background:var(--surface-low);}
           data-i18n="compTabIncome">Ingresos</button>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 120px 120px 100px;gap:0;padding:10px 20px;background:var(--surface-low);border-bottom:1px solid var(--surface-high);">
+    <div class="comp-cat-header" style="display:grid;grid-template-columns:1fr 120px 120px 100px;gap:0;padding:10px 20px;background:var(--surface-low);border-bottom:1px solid var(--surface-high);">
       <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em" data-i18n="compColCategory">Categoría</div>
       <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" id="comp-col-a">—</div>
       <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" id="comp-col-b">—</div>
@@ -1121,7 +1144,7 @@ function renderHistoryList(statements) {
       minimumFractionDigits:0, maximumFractionDigits:0
     }).format(v || 0);
     return `
-    <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:16px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;"
+    <div class="history-item" style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:16px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;"
       onmouseover="this.style.boxShadow='var(--shadow-md)'"
       onmouseout="this.style.boxShadow='none'"
     >
@@ -1138,7 +1161,7 @@ function renderHistoryList(statements) {
           <span style="color:var(--on-surface-muted)">${s.transaction_count || 0} transacciones</span>
         </div>
       </div>
-      <button onclick="loadStatementDashboard('${s.id}')"
+      <button class="history-item-btn" onclick="loadStatementDashboard('${s.id}')"
         style="padding:8px 18px;border-radius:10px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
         Ver dashboard →
       </button>
@@ -2917,7 +2940,7 @@ function renderComparison() {
     const deltaColor = pct === null ? 'var(--on-surface-muted)' : isPositive ? 'var(--tertiary)' : 'var(--primary)';
     const deltaText = pct === null ? '—' : `${pct > 0 ? '↑' : '↓'} ${Math.abs(pct).toFixed(0)}%`;
     return `
-    <div style="display:grid;grid-template-columns:1fr 120px 120px 100px;gap:0;padding:12px 20px;border-bottom:1px solid var(--surface-low);align-items:center;">
+    <div class="comp-cat-row" style="display:grid;grid-template-columns:1fr 120px 120px 100px;gap:0;padding:12px 20px;border-bottom:1px solid var(--surface-low);align-items:center;">
       <div style="display:flex;align-items:center;gap:8px;font-size:0.84rem;">
         <span>${meta.emoji}</span>
         <span style="color:var(--on-surface)">${getCatLabel(catId) || meta.label}</span>
