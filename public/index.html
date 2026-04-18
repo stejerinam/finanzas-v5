@@ -1116,6 +1116,82 @@ let dashFilterMonth = 'all';
 let dashFilterDateFrom = null;
 let dashFilterDateTo = null;
 
+async function loadAllTransactions() {
+  if (!currentSession) return;
+  try {
+    const r = await fetch('/api/get-all-transactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession })
+    });
+    const d = await r.json();
+    if (!d.transactions) return;
+
+    window.LOADED_STATEMENTS = d.statements || [];
+
+    window.DASH_ROWS = d.transactions.map(t => ({
+      date: t.date || '',
+      description: t.description || '',
+      reference: t.reference || '',
+      amount: t.amount || 0,
+      direction: t.direction || 'debit',
+      type: t.type || '',
+      category: t.final_category || 'unassigned',
+      originalCategory: t.ai_category || 'unassigned',
+      confidence: t.confidence || 0,
+      tier: t.tier || 'haiku',
+      reasoning: '',
+      statementId: t.statement_id,
+      accountType: d.statements.find(s => s.id === t.statement_id)?.account_type || '',
+      bank: d.statements.find(s => s.id === t.statement_id)?.bank || '',
+    }));
+
+    window.SAVED_TXN_IDS = {};
+    d.transactions.forEach((t, i) => { window.SAVED_TXN_IDS[i] = t.id; });
+
+    if (d.statements.length > 0) {
+      const latest = d.statements[0];
+      selectedCountry = {
+        name: latest.country || selectedCountry?.name,
+        currency: latest.currency || 'MXN',
+        locale: latest.currency === 'MXN' ? 'es-MX' : 'en-US',
+      };
+      selectedAcctType = latest.account_type || selectedAcctType;
+      parsedData = {
+        bank: latest.bank,
+        periodStart: latest.period_start,
+        periodEnd: latest.period_end,
+        currency: latest.currency,
+        country: latest.country,
+        transactions: d.transactions.map(t => ({
+          date: t.date,
+          description: t.description,
+          amount: t.amount,
+          direction: t.direction,
+          type: t.type,
+          reference: t.reference,
+          merchantHint: t.merchant_hint,
+          counterpartyName: t.counterparty,
+        }))
+      };
+    }
+
+    const months = [...new Set(
+      d.transactions.map(t => t.date ? t.date.slice(0, 7) : null).filter(Boolean)
+    )].sort().reverse();
+    if (months.length > 0) {
+      dashFilterMonth = months[0];
+    }
+
+    analysisSaved = true;
+    renderResults();
+    show('results-screen');
+  } catch(e) {
+    console.error('Failed to load all transactions:', e);
+    show('upload-screen');
+  }
+}
+
 async function initAuth() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
@@ -1132,7 +1208,7 @@ async function initAuth() {
     const d = await r.json();
     if (d.statements && d.statements.length > 0) {
       renderHistoryList(d.statements);
-      await loadStatementDashboard(d.statements[0].id);
+      await loadAllTransactions();
     } else {
       show('upload-screen');
     }
@@ -2380,19 +2456,9 @@ function finishReview() {
     if (currentUser && currentSession && parsedData && categorizedData) {
       saveAnalysis()
         .then(async (d) => {
-          if (d?.statementId) {
-            console.log('Analysis saved:', d.statementId);
-            const r = await fetch('/api/history', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ session: currentSession, statementId: d.statementId })
-            });
-            const data = await r.json();
-            if (data.transactions) {
-              window.SAVED_TXN_IDS = {};
-              data.transactions.forEach((t, i) => { window.SAVED_TXN_IDS[i] = t.id; });
-            }
+          if (d?.statementId && currentSession) {
             loadHistory();
+            await loadAllTransactions();
           }
         })
         .catch(e => console.error('Save failed:', e));
@@ -2576,11 +2642,7 @@ function getFilteredRows() {
   let rows = window.DASH_ROWS || [];
 
   if (dashFilterAccount !== 'all') {
-    const parts = dashFilterAccount.split('_');
-    const acctType = parts[1];
-    if (acctType && selectedAcctType) {
-      rows = rows.filter(r => (r.accountType || selectedAcctType) === acctType);
-    }
+    rows = rows.filter(r => r.statementId === dashFilterAccount);
   }
 
   if (dashFilterMonth === 'custom') {
@@ -2605,18 +2667,18 @@ function buildFilterBar() {
   if (!accountSel) return;
 
   const accounts = [];
-  if (parsedData) {
-    accounts.push({
-      value: parsedData.bank + '_' + selectedAcctType,
-      label: `${parsedData.bank || 'Banco'} · ${selectedAcctType || ''}`
-    });
-  }
-  if (window.LOADED_STATEMENTS && window.LOADED_STATEMENTS.length > 1) {
+  if (window.LOADED_STATEMENTS && window.LOADED_STATEMENTS.length > 0) {
     window.LOADED_STATEMENTS.forEach(s => {
-      const val = `${s.bank}_${s.account_type}_${s.id}`;
+      const val = s.id;
+      const label = `${s.bank || 'Banco'} · ${s.account_type || ''} · ${s.period_start || ''}`;
       if (!accounts.find(a => a.value === val)) {
-        accounts.push({ value: val, label: `${s.bank || 'Banco'} · ${s.account_type || ''}`, statementId: s.id });
+        accounts.push({ value: val, label });
       }
+    });
+  } else if (parsedData) {
+    accounts.push({
+      value: 'current',
+      label: `${parsedData.bank || 'Banco'} · ${selectedAcctType || ''}`
     });
   }
 
@@ -3233,6 +3295,9 @@ function show(id) {
 function showDashTab(tab) {
   document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-' + tab)?.classList.add('active');
+  if (currentSession && window.LOADED_STATEMENTS?.length > 0) {
+    loadAllTransactions();
+  }
   show('results-screen');
 }
 function showUploadTab() {
