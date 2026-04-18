@@ -1010,7 +1010,7 @@ tr:hover td{background:var(--surface-low);}
 
     <!-- Filter bar -->
     <div class="filter-bar">
-      <select class="filter-bar-select" id="filter-account" onchange="onFilterChange()">
+      <select class="filter-bar-select" id="filter-account" onchange="onAccountFilterChange()">
         <option value="all" data-i18n="filterAllAccounts">Todas las cuentas</option>
         <!-- Populated dynamically -->
       </select>
@@ -2746,6 +2746,17 @@ function clearCustomPeriod() {
   monthSel.value = 'all';
   monthSel.classList.remove('active-filter');
   document.getElementById('custom-period-wrap').classList.remove('visible');
+  onFilterChange();
+}
+
+function onAccountFilterChange() {
+  // Reset month filter so it doesn't AND against a month the selected statement may not have
+  dashFilterMonth = 'all';
+  dashFilterDateFrom = null;
+  dashFilterDateTo = null;
+  const monthSel = document.getElementById('filter-month');
+  if (monthSel) { monthSel.value = 'all'; monthSel.classList.remove('active-filter'); }
+  document.getElementById('custom-period-wrap')?.classList.remove('visible');
   onFilterChange();
 }
 
