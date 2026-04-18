@@ -1287,10 +1287,6 @@ function renderHistoryList(statements) {
           <span style="color:var(--on-surface-muted)">${s.transaction_count || 0} transacciones</span>
         </div>
       </div>
-      <button class="history-item-btn" onclick="loadStatementDashboard('${s.id}')"
-        style="padding:8px 18px;border-radius:10px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
-        Ver dashboard →
-      </button>
     </div>`;
   }).join('');
 }
