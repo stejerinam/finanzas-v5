@@ -7,6 +7,14 @@
   "routes": [
     { "src": "/api/parse", "dest": "/api/parse.js" },
     { "src": "/api/categorize", "dest": "/api/categorize.js" },
+    { "src": "/api/auth", "dest": "/api/auth.js" },
+    { "src": "/api/save", "dest": "/api/save.js" },
+    { "src": "/api/history", "dest": "/api/history.js" },
+    { "src": "/api/update-category", "dest": "/api/update-category.js" },
+    { "src": "/api/save-categories", "dest": "/api/save-categories.js" },
+    { "src": "/api/get-categories", "dest": "/api/get-categories.js" },
+    { "src": "/api/comparison", "dest": "/api/comparison.js" },
+    { "src": "/api/check-duplicate", "dest": "/api/check-duplicate.js" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }

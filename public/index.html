@@ -1322,6 +1322,7 @@ async function saveAnalysis() {
       categorizedData,
       selectedCountry,
       selectedAcctType,
+      contentHash: window.CURRENT_CONTENT_HASH || null,
     })
   });
   const d = await r.json();
@@ -1459,6 +1460,8 @@ const STRINGS = {
     compToggleStatement: 'Ver por estado →',
     compNeedsMoreMsg: 'Sube un estado más para desbloquear la comparación mes a mes.',
     compIncompleteWarning: '{months} tiene datos parciales — es posible que no refleje el mes completo.',
+    duplicateStatement: 'Estado de cuenta duplicado',
+    duplicateStatementMsg: 'Ya subiste este estado de cuenta anteriormente. Si quieres verlo, encuéntralo en Mis Estados.',
     compUploadBtn: 'Subir estado →',
     signIn: 'Iniciar sesión',
     signOut: 'Cerrar sesión',
@@ -1603,6 +1606,8 @@ const STRINGS = {
     compToggleStatement: 'Switch to statements →',
     compNeedsMoreMsg: 'Upload one more statement to unlock month-by-month comparison.',
     compIncompleteWarning: '{months} has partial data — it may not reflect the full month.',
+    duplicateStatement: 'Duplicate statement',
+    duplicateStatementMsg: 'You have already uploaded this statement before. Find it in My Statements.',
     compUploadBtn: 'Upload statement →',
     signIn: 'Sign in',
     signOut: 'Sign out',
@@ -1896,6 +1901,14 @@ function updateCatStartBtn() {
   btn.textContent = t('catConfirmBtn');
 }
 
+async function hashText(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text.slice(0, 50000));
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 async function startPipeline() {
   if (!currentFile) return;
   parseComplete = false;
@@ -1922,6 +1935,32 @@ async function startPipeline() {
     if (parseResolveRef) parseResolveRef.rej(new Error(e.message));
     return;
   }
+
+  // Duplicate check
+  const textHash = await hashText(rawText);
+  if (currentSession) {
+    try {
+      const dupCheck = await fetch('/api/check-duplicate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session: currentSession, contentHash: textHash })
+      });
+      const dupResult = await dupCheck.json();
+      if (dupResult.isDuplicate) {
+        setParseStatus('error', t('duplicateStatement'));
+        setTimeout(() => {
+          alert(t('duplicateStatementMsg'));
+          resetApp();
+        }, 800);
+        if (parseResolveRef) parseResolveRef.rej(new Error('duplicate'));
+        return;
+      }
+    } catch(e) {
+      // Non-fatal: if duplicate check fails, continue with upload
+      console.warn('Duplicate check failed, continuing:', e.message);
+    }
+  }
+  window.CURRENT_CONTENT_HASH = textHash;
 
   try {
     const r = await fetch('/api/parse', {
@@ -3031,6 +3070,7 @@ function resetApp() {
   reviewAllChunksDone = false; allCatResults = [];
   finishReviewCalled = false; analysisSaved = false;
   parsePromise = null; parseResolveRef = null;
+  window.CURRENT_CONTENT_HASH = null;
   userCategories = DEFAULT_CATEGORIES.map(c => ({...c}));
   document.getElementById('file-name').textContent = '';
   document.getElementById('btn-start').disabled = true;
