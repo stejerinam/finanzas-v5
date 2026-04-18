@@ -2927,14 +2927,25 @@ function getCatMeta(catId) {
   return {emoji:'📦', label: catId};
 }
 
+const INCOME_CAT_IDS = new Set(['salary','freelance','reimbursement','other_income']);
+
 function openCatDd(e, rowIndex) {
   e.stopPropagation();
   const dd = document.getElementById('cat-dd');
-  const allCats = [
-    ...userCategories.filter(c => c.active),
+  const row = window.DASH_ROWS?.[rowIndex];
+  const isCredit = row?.direction === 'credit';
+
+  const expenseOnly = userCategories.filter(c => c.active && !INCOME_CAT_IDS.has(c.id));
+  const incomeOnly  = userCategories.filter(c => c.active && INCOME_CAT_IDS.has(c.id));
+  const universal   = [
     {id:'internal_transfer', label:'Internal Transfer', emoji:'⇄'},
     {id:'excluded', label:'Excluded', emoji:'🚫'},
     {id:'unassigned', label:'Unassigned', emoji:'❓'},
+  ];
+
+  const allCats = [
+    ...(isCredit ? incomeOnly : expenseOnly),
+    ...universal,
   ];
   dd.innerHTML = allCats.map(c =>
     `<div class="cat-dd-item" onclick="assignCat(${rowIndex},'${c.id}')">${c.emoji} ${getCatLabel(c.id) || c.label}</div>`
