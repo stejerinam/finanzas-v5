@@ -2903,7 +2903,7 @@ function renderDashTxns() {
 
   document.getElementById('dash-txn-body').innerHTML = filtered.map((r, ri) => {
     const meta = getCatMeta(r.category);
-    const originalIndex = rows.indexOf(r);
+    const originalIndex = window.DASH_ROWS.indexOf(r);
     const confPct = Math.round((r.confidence || 0) * 100);
     const confClass = confPct >= 80 ? 'conf-high' : confPct >= 60 ? 'conf-mid' : 'conf-low';
     return `<tr>
