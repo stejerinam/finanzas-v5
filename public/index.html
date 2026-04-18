@@ -1172,6 +1172,9 @@ async function loadAllTransactions() {
           reference: t.reference,
           merchantHint: t.merchant_hint,
           counterpartyName: t.counterparty,
+          statementId: t.statement_id,
+          accountType: d.statements.find(s => s.id === t.statement_id)?.account_type || '',
+          bank: d.statements.find(s => s.id === t.statement_id)?.bank || '',
         }))
       };
       categorizedData = d.transactions.map(t => ({
@@ -2612,6 +2615,9 @@ function renderResults() {
       confidence: c.confidence || 0,
       tier: c.tier || 'haiku',
       reasoning: c.reasoning || '',
+      statementId: t.statementId || '',
+      accountType: t.accountType || '',
+      bank: t.bank || '',
     };
   });
 
