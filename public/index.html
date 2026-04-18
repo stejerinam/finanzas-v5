@@ -1174,6 +1174,13 @@ async function loadAllTransactions() {
           counterpartyName: t.counterparty,
         }))
       };
+      categorizedData = d.transactions.map(t => ({
+        category: t.ai_category,
+        finalCategory: t.final_category,
+        confidence: t.confidence,
+        tier: t.tier,
+        reasoning: '',
+      }));
     }
 
     const months = [...new Set(
