@@ -1189,7 +1189,7 @@ async function loadAllTransactions() {
     const months = [...new Set(
       d.transactions.map(t => t.date ? t.date.slice(0, 7) : null).filter(Boolean)
     )].sort().reverse();
-    if (months.length > 0) {
+    if (months.length > 0 && dashFilterMonth === 'all') {
       dashFilterMonth = months[0];
     }
 
