@@ -484,6 +484,17 @@ tr:hover td{background:var(--surface-low);}
   .comp-cat-header,
   .comp-cat-row{grid-template-columns:1fr 78px 78px 62px!important;padding-left:12px!important;padding-right:12px!important;}
 }
+
+/* ── NEW GUIDE ACCORDION ─────────────────────────────────────── */
+.guide-item2{border-bottom:1px solid var(--surface-high);}
+.guide-toggle2{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;color:var(--on-surface);text-align:left;transition:background 0.15s;}
+.guide-toggle2:hover{background:var(--surface-low);}
+.guide-chevron2{font-size:0.8rem;color:var(--on-surface-muted);transition:transform 0.2s;}
+.guide-chevron2.open{transform:rotate(180deg);}
+.guide-body2{padding:0 24px 20px;}
+.guide-steps2{font-size:0.84rem;color:var(--on-surface-variant);line-height:1.8;padding-left:20px;margin-bottom:14px;}
+.guide-steps2 li{margin-bottom:4px;}
+.guide-video-placeholder{padding:12px 16px;background:var(--surface-low);border-radius:10px;font-size:0.78rem;color:var(--on-surface-muted);text-align:center;border:1px dashed var(--surface-high);}
 </style>
 </head>
 <body>
@@ -491,46 +502,6 @@ tr:hover td{background:var(--surface-low);}
   <button id="auth-btn" onclick="openAuthModal()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);"><span data-i18n="signIn">Iniciar sesión</span></button>
   <button id="signout-btn" onclick="handleSignOut()" style="display:none;padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);" data-i18n="signOut">Cerrar sesión</button>
   <button id="lang-toggle" onclick="toggleLanguage()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);">EN</button>
-</div>
-
-<!-- ── HISTORY SCREEN ── -->
-<div id="history-screen" class="screen">
-<div style="max-width:700px;margin:0 auto;padding:40px 20px;">
-
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
-    <div>
-      <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Finanzas · v6</div>
-      <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:var(--on-surface)">Bienvenido, <span id="history-username"></span></h1>
-    </div>
-    <button onclick="showUploadTab()"
-      style="padding:10px 20px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;">
-      + Subir estado
-    </button>
-  </div>
-
-  <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">
-    Tus estados de cuenta
-  </div>
-
-  <div id="history-list" style="display:flex;flex-direction:column;gap:10px;">
-    <!-- Populated by JS -->
-  </div>
-
-  <div id="history-empty" style="display:none;text-align:center;padding:60px 20px;color:var(--on-surface-muted);">
-    <div style="font-size:2.5rem;margin-bottom:12px">📂</div>
-    <p style="font-size:0.9rem">No tienes estados de cuenta guardados aún.</p>
-    <button onclick="showUploadTab()"
-      style="margin-top:16px;padding:10px 24px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;">
-      Subir tu primer estado →
-    </button>
-  </div>
-
-  <div style="margin-top:24px;text-align:right;">
-    <button onclick="handleSignOut()" style="background:none;border:none;color:var(--on-surface-muted);font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;">
-      Cerrar sesión
-    </button>
-  </div>
-</div>
 </div>
 
 <!-- ── COMPARISON SCREEN ── -->
@@ -626,213 +597,175 @@ tr:hover td{background:var(--surface-low);}
 
 <!-- ── UPLOAD SCREEN ── -->
 <div id="upload-screen" class="screen active">
-<div class="container">
-  <div class="eyebrow" data-i18n="eyebrow">Finanzas · v5</div>
-  <h1><span data-i18n="uploadTitle1">Tu dinero,</span><br><em data-i18n="uploadTitle2">sin filtros.</em></h1>
-  <p class="subtitle" data-i18n="uploadSubtitle">Sube tu estado de cuenta y la IA lo analiza automáticamente — cualquier banco, cualquier país.</p>
+<div style="max-width:620px;margin:0 auto;padding:40px 20px 100px;">
 
-  <div class="upload-zone" id="drop-zone">
-    <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.csv">
-    <div class="upload-icon">📄</div>
-    <div class="upload-label">
-      <strong data-i18n="uploadDropTitle">Arrastra tu estado de cuenta aquí</strong>
-      <span data-i18n="uploadDropSub">PDF · Excel (.xlsx) · CSV · Cualquier banco, cualquier país</span>
-    </div>
+  <!-- Header -->
+  <div style="margin-bottom:32px;">
+    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Finanzas</div>
+    <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:var(--on-surface);line-height:1.2">
+      Tu dinero,<br><em style="color:var(--primary);font-style:italic">sin filtros.</em>
+    </h1>
   </div>
-  <div class="file-name" id="file-name"></div>
 
-  <!-- ── BANK GUIDES ─────────────────────────────────────── -->
-  <div class="guides-wrap" id="guides-wrap">
-    <button class="guides-toggle" onclick="toggleGuides()">
-      <span class="guides-title-row">📋 <span data-i18n="guidesTitle">¿Cómo descargar tu estado de cuenta?</span></span>
-      <span class="guides-chevron">▼</span>
+  <!-- Sign in button (shown when not logged in) -->
+  <div id="auth-btn-wrap" style="margin-bottom:20px;display:none;">
+    <button onclick="openAuthModal()"
+      style="padding:9px 20px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.84rem;font-weight:600;cursor:pointer;">
+      <span data-i18n="signIn">Iniciar sesión</span>
     </button>
-    <div class="guides-body">
-
-      <!-- BBVA -->
-      <div class="guide-item" id="guide-bbva">
-        <button class="guide-header" onclick="toggleGuideItem('bbva')">
-          <img class="guide-logo-img" src="/logos/bbva.avif" alt="BBVA">
-          <span class="guide-name">BBVA</span>
-          <span class="guide-item-chevron">▼</span>
-        </button>
-        <div class="guide-steps">
-          <div class="guide-step">
-            <div class="guide-step-num">1</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Ingresa a <strong>bbva.mx</strong> y entra a tu cuenta.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">2</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Selecciona la tarjeta o cuenta que quieres analizar.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">3</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Ve a <strong>Movimientos</strong> y haz clic en <strong>Descargar estado de cuenta</strong>.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">4</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Elige el periodo y descarga en formato <strong>PDF o Excel</strong>.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Banamex -->
-      <div class="guide-item" id="guide-banamex">
-        <button class="guide-header" onclick="toggleGuideItem('banamex')">
-          <img class="guide-logo-img" src="/logos/banamex.jpg" alt="Banamex">
-          <span class="guide-name">Banamex</span>
-          <span class="guide-item-chevron">▼</span>
-        </button>
-        <div class="guide-steps">
-          <div class="guide-step">
-            <div class="guide-step-num">1</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Ingresa a <strong>banamex.com</strong> y accede a tu banca en línea.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">2</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Ve a <strong>Mis productos</strong> y selecciona tu tarjeta o cuenta.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">3</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Haz clic en <strong>Estado de cuenta</strong> en el menú lateral.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">4</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Selecciona el mes deseado y descarga el <strong>PDF</strong>.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Nu -->
-      <div class="guide-item" id="guide-nu">
-        <button class="guide-header" onclick="toggleGuideItem('nu')">
-          <img class="guide-logo-img" src="/logos/nu.jpg" alt="Nu">
-          <span class="guide-name">Nu</span>
-          <span class="guide-item-chevron">▼</span>
-        </button>
-        <div class="guide-steps">
-          <div class="guide-step">
-            <div class="guide-step-num">1</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Abre la app de <strong>Nu</strong> en tu celular.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">2</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Entra a <strong>Tarjeta de crédito</strong> o tu cuenta Nu.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">3</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Toca el ícono de <strong>configuración ⚙️</strong> y selecciona <strong>Estado de cuenta</strong>.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">4</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Elige el mes y presiona <strong>Descargar PDF</strong>.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Santander -->
-      <div class="guide-item" id="guide-santander">
-        <button class="guide-header" onclick="toggleGuideItem('santander')">
-          <img class="guide-logo-img" src="/logos/santander.jpg" alt="Santander">
-          <span class="guide-name">Santander</span>
-          <span class="guide-item-chevron">▼</span>
-        </button>
-        <div class="guide-steps">
-          <div class="guide-step">
-            <div class="guide-step-num">1</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Entra a <strong>santander.com.mx</strong> y accede a tu cuenta.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">2</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Selecciona <strong>Mis cuentas</strong> y elige la tarjeta o cuenta deseada.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">3</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Haz clic en <strong>Consultar estado de cuenta</strong>.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-step-num">4</div>
-            <div class="guide-step-body">
-              <div class="guide-step-text">Elige el periodo y descarga el <strong>PDF</strong>.</div>
-              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /guides-body -->
-  </div><!-- /guides-wrap -->
-
-  <div class="section-label" data-i18n="uploadAcctLabel">¿Qué tipo de cuenta es esta?</div>
-  <div class="acct-group" id="acct-group">
-    <button class="acct-btn active" data-type="credit" onclick="selectAcct(this)" data-i18n="uploadCredit">💳 Tarjeta de Crédito</button>
-    <button class="acct-btn" data-type="debit" onclick="selectAcct(this)" data-i18n="uploadDebit">🏦 Tarjeta de Débito</button>
-    <button class="acct-btn" data-type="savings" onclick="selectAcct(this)" data-i18n="uploadSavings">💰 Cuenta de Ahorro</button>
-    <button class="acct-btn" data-type="checking" onclick="selectAcct(this)" data-i18n="uploadChecking">📋 Cuenta de Cheques</button>
   </div>
 
-  <div class="section-label" style="margin-top:8px" data-i18n="uploadCountryLabel">País</div>
-  <div style="margin-bottom:24px;">
-    <select id="country-select" onchange="selectCountry(this)"
-      style="width:100%;max-width:360px;background:var(--surface);border:1.5px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:12px;font-family:'Cabinet Grotesk',sans-serif;font-size:0.9rem;outline:none;cursor:pointer;">
-    </select>
-  </div>
+  <!-- ── UPLOAD SECTION ── -->
+  <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:20px;padding:28px;margin-bottom:20px;">
 
-  <div style="display:none">
-    <div class="acct-group" style="margin-bottom:0">
-      <button class="acct-btn" id="model-sonnet" onclick="selectModel('sonnet',this)">⚡ Sonnet 4</button>
-      <button class="acct-btn active" id="model-haiku" onclick="selectModel('haiku',this)">🐦 Haiku 4.5</button>
+    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px" data-i18n="uploadNewLabel">Nuevo análisis</div>
+
+    <!-- Drop zone -->
+    <div class="upload-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.csv">
+      <div class="upload-icon">📂</div>
+      <div class="upload-label">
+        <strong data-i18n="uploadDropTitle">Arrastra tu estado de cuenta aquí</strong>
+        <span data-i18n="uploadDropSub">PDF · Excel (.xlsx) · CSV · Cualquier banco</span>
+      </div>
     </div>
-    <span id="model-note">claude-haiku-4-5-20251001</span>
+    <div class="file-name" id="file-name"></div>
+
+    <!-- Account type -->
+    <div class="section-label" style="margin-top:16px" data-i18n="uploadAcctLabel">¿Qué tipo de cuenta es esta?</div>
+    <div class="acct-group" id="acct-group">
+      <button class="acct-btn active" data-type="credit" onclick="selectAcct(this)" data-i18n="uploadCredit">💳 Tarjeta de Crédito</button>
+      <button class="acct-btn" data-type="debit" onclick="selectAcct(this)" data-i18n="uploadDebit">🏦 Tarjeta de Débito</button>
+      <button class="acct-btn" data-type="savings" onclick="selectAcct(this)" data-i18n="uploadSavings">💰 Cuenta de Ahorro</button>
+      <button class="acct-btn" data-type="checking" onclick="selectAcct(this)" data-i18n="uploadChecking">📋 Cuenta de Cheques</button>
+    </div>
+
+    <!-- Country -->
+    <div class="section-label" data-i18n="uploadCountryLabel">País</div>
+    <div style="margin-bottom:20px;">
+      <select id="country-select" onchange="selectCountry(this)"
+        style="width:100%;max-width:340px;background:var(--surface-low);border:1.5px solid var(--surface-high);color:var(--on-surface);padding:9px 12px;border-radius:10px;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;cursor:pointer;">
+      </select>
+    </div>
+
+    <!-- Waterfall info -->
+    <div style="margin-bottom:20px;padding:10px 14px;background:var(--surface-low);border:1px solid var(--surface-high);border-radius:10px;font-size:0.78rem;color:var(--on-surface-muted);">
+      🌊 <span data-i18n="uploadWaterfall">Categorización inteligente — Haiku clasifica transacciones claras, Sonnet+WebSearch escala las inciertas.</span>
+    </div>
+
+    <!-- CTA -->
+    <button class="btn btn-primary" id="btn-start" disabled onclick="startPipeline()" style="width:100%" data-i18n="uploadBtn">Analizar mis finanzas →</button>
+
+    <!-- Privacy -->
+    <p style="font-size:0.72rem;color:var(--on-surface-muted);margin-top:12px;text-align:center;line-height:1.5" data-i18n="uploadPrivacy">
+      🔒 Solo enviamos texto de transacciones — nunca tu nombre ni datos personales.
+    </p>
   </div>
 
-  <button class="btn btn-primary" id="btn-start" disabled onclick="startPipeline()" style="width:100%;max-width:360px;padding:15px 24px;font-size:1rem;border-radius:14px;margin-bottom:16px;" data-i18n="uploadBtn">Analizar mis finanzas →</button>
-  <div class="privacy-notice" data-i18n="uploadPrivacy">🔒 Tu información es privada — solo enviamos texto de transacciones para análisis, nunca datos personales identificables.</div>
+  <!-- ── PAST STATEMENTS SECTION (only shown when logged in) ── -->
+  <div id="history-section" style="display:none;margin-bottom:20px;">
+    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px" data-i18n="historyLabel">Tus estados anteriores</div>
+    <div id="history-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div id="history-empty" style="display:none;padding:20px;text-align:center;color:var(--on-surface-muted);font-size:0.84rem;background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;">
+      <span data-i18n="historyEmpty">Aún no tienes estados guardados.</span>
+    </div>
+  </div>
+
+  <!-- ── BANK GUIDES SECTION ── -->
+  <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:20px;overflow:hidden;">
+
+    <div style="padding:20px 24px;border-bottom:1px solid var(--surface-high);">
+      <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px" data-i18n="guidesLabel">Guías de descarga</div>
+      <p style="font-size:0.84rem;color:var(--on-surface-variant)" data-i18n="guidesSub">¿Cómo descargar tu estado de cuenta?</p>
+    </div>
+
+    <!-- BBVA -->
+    <div class="guide-item2">
+      <button class="guide-toggle2" onclick="toggleGuide('bbva')">
+        <span>🏦 BBVA México</span>
+        <span class="guide-chevron2" id="chevron-bbva">▾</span>
+      </button>
+      <div class="guide-body2" id="guide-body-bbva" style="display:none">
+        <ol class="guide-steps2">
+          <li>Ingresa a la app de BBVA o a <strong>bbva.mx</strong></li>
+          <li>Ve a <strong>Mis cuentas</strong> → selecciona tu tarjeta</li>
+          <li>Toca <strong>Estado de cuenta</strong></li>
+          <li>Selecciona el mes y descarga el PDF</li>
+        </ol>
+        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
+      </div>
+    </div>
+
+    <!-- Banamex -->
+    <div class="guide-item2">
+      <button class="guide-toggle2" onclick="toggleGuide('banamex')">
+        <span>🏛️ Citibanamex</span>
+        <span class="guide-chevron2" id="chevron-banamex">▾</span>
+      </button>
+      <div class="guide-body2" id="guide-body-banamex" style="display:none">
+        <ol class="guide-steps2">
+          <li>Ingresa a <strong>citibanamex.com</strong> o la app</li>
+          <li>Ve a <strong>Mis productos</strong> → tu tarjeta o cuenta</li>
+          <li>Selecciona <strong>Estados de cuenta</strong></li>
+          <li>Elige el mes y descarga el PDF</li>
+        </ol>
+        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
+      </div>
+    </div>
+
+    <!-- Nu -->
+    <div class="guide-item2">
+      <button class="guide-toggle2" onclick="toggleGuide('nu')">
+        <span>🟣 Nu México</span>
+        <span class="guide-chevron2" id="chevron-nu">▾</span>
+      </button>
+      <div class="guide-body2" id="guide-body-nu" style="display:none">
+        <ol class="guide-steps2">
+          <li>Abre la app de Nu</li>
+          <li>Toca tu tarjeta → <strong>Ver estado de cuenta</strong></li>
+          <li>Selecciona el mes deseado</li>
+          <li>Toca <strong>Exportar PDF</strong> en la esquina superior</li>
+        </ol>
+        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
+      </div>
+    </div>
+
+    <!-- Santander -->
+    <div class="guide-item2">
+      <button class="guide-toggle2" onclick="toggleGuide('santander')">
+        <span>🔴 Santander México</span>
+        <span class="guide-chevron2" id="chevron-santander">▾</span>
+      </button>
+      <div class="guide-body2" id="guide-body-santander" style="display:none">
+        <ol class="guide-steps2">
+          <li>Ingresa a <strong>santander.com.mx</strong> o la app</li>
+          <li>Ve a <strong>Mis cuentas</strong></li>
+          <li>Selecciona <strong>Consultar movimientos</strong></li>
+          <li>Elige el período y descarga el estado en PDF</li>
+        </ol>
+        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
+      </div>
+    </div>
+
+    <!-- HSBC -->
+    <div class="guide-item2" style="border-bottom:none">
+      <button class="guide-toggle2" onclick="toggleGuide('hsbc')">
+        <span>🔶 HSBC México</span>
+        <span class="guide-chevron2" id="chevron-hsbc">▾</span>
+      </button>
+      <div class="guide-body2" id="guide-body-hsbc" style="display:none">
+        <ol class="guide-steps2">
+          <li>Ingresa a <strong>hsbc.com.mx</strong> o la app</li>
+          <li>Ve a <strong>Cuentas y tarjetas</strong></li>
+          <li>Selecciona <strong>Estado de cuenta</strong></li>
+          <li>Elige el mes y descarga el PDF</li>
+        </ol>
+        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
+      </div>
+    </div>
+
+  </div><!-- /bank guides -->
+
 </div>
 </div>
 
@@ -1083,7 +1016,7 @@ tr:hover td{background:var(--surface-low);}
 <div class="cat-dd" id="cat-dd"></div>
 
 <nav class="bottom-nav" id="bottom-nav" style="display:none">
-  <button class="bottom-nav-btn" id="nav-dashboard" onclick="showDashTab('dashboard')">
+  <button class="bottom-nav-btn active" id="nav-dashboard" onclick="showDashTab('dashboard')">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
     <span data-i18n="navDashboard">Dashboard</span>
   </button>
@@ -1091,11 +1024,11 @@ tr:hover td{background:var(--surface-low);}
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     <span data-i18n="navComparison">Comparar</span>
   </button>
-  <button class="bottom-nav-btn" id="nav-history" onclick="showHistory()">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-    <span data-i18n="navHistory">Mis estados</span>
+  <button class="bottom-nav-btn" id="nav-budget" onclick="showBudgetScreen()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span data-i18n="navBudget">Presupuesto</span>
   </button>
-  <button class="bottom-nav-btn" id="nav-upload" onclick="showUploadTab()">
+  <button class="bottom-nav-btn" id="nav-upload" onclick="showUploadScreen()">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     <span data-i18n="navUpload">Subir estado</span>
   </button>
@@ -1115,6 +1048,8 @@ let dashFilterAccount = 'all';
 let dashFilterMonth = 'all';
 let dashFilterDateFrom = null;
 let dashFilterDateTo = null;
+let budgetData = null;
+let budgetModalCatId = null;
 
 async function loadAllTransactions() {
   if (!currentSession) return;
@@ -1228,10 +1163,7 @@ async function initAuth() {
 }
 
 function showHistory() {
-  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('nav-history')?.classList.add('active');
-  loadHistory();
-  show('history-screen');
+  showUploadScreen();
 }
 
 async function loadHistory() {
@@ -1603,6 +1535,25 @@ const STRINGS = {
     filterCustomPeriod: 'Período personalizado',
     filterFrom: 'Desde',
     filterTo: 'Hasta',
+    navBudget: 'Presupuesto',
+    budgetEyebrow: 'Presupuesto',
+    budgetTitle: '¿Cómo van tus gastos?',
+    budgetByCategory: 'Por categoría',
+    budgetOver: 'sobre presupuesto',
+    budgetUnder: 'bajo presupuesto',
+    budgetSetHint: 'Agregar presupuesto',
+    budgetAvgHint: 'Promedio de tus últimos meses',
+    budgetNoHistory: 'Sin historial suficiente aún',
+    budgetModalLabel: 'Presupuesto mensual',
+    budgetSave: 'Guardar',
+    budgetDelete: 'Eliminar',
+    budgetLoginMsg: 'Inicia sesión para configurar tu presupuesto.',
+    historyLabel: 'Tus estados anteriores',
+    historyEmpty: 'Aún no tienes estados guardados.',
+    uploadNewLabel: 'Nuevo análisis',
+    uploadWaterfall: 'Categorización inteligente — Haiku clasifica transacciones claras, Sonnet+WebSearch escala las inciertas.',
+    guidesLabel: 'Guías de descarga',
+    guidesSub: '¿Cómo descargar tu estado de cuenta?',
   },
   en: {
     eyebrow: 'Finanzas · v5',
@@ -1756,6 +1707,25 @@ const STRINGS = {
     filterCustomPeriod: 'Custom period',
     filterFrom: 'From',
     filterTo: 'To',
+    navBudget: 'Budget',
+    budgetEyebrow: 'Budget',
+    budgetTitle: 'How are your expenses?',
+    budgetByCategory: 'By category',
+    budgetOver: 'over budget',
+    budgetUnder: 'under budget',
+    budgetSetHint: 'Add budget',
+    budgetAvgHint: 'Average from your recent months',
+    budgetNoHistory: 'Not enough history yet',
+    budgetModalLabel: 'Monthly budget',
+    budgetSave: 'Save',
+    budgetDelete: 'Delete',
+    budgetLoginMsg: 'Sign in to configure your budget.',
+    historyLabel: 'Your past statements',
+    historyEmpty: 'No statements saved yet.',
+    uploadNewLabel: 'New analysis',
+    uploadWaterfall: 'Smart categorization — Haiku classifies clear transactions, Sonnet+WebSearch escalates uncertain ones.',
+    guidesLabel: 'Download guides',
+    guidesSub: 'How to download your bank statement?',
   }
 };
 
@@ -2554,21 +2524,31 @@ async function submitAuth() {
 function updateAuthButton() {
   const btn = document.getElementById('auth-btn');
   const signOutBtn = document.getElementById('signout-btn');
-  if (!btn) return;
+  const authWrap = document.getElementById('auth-btn-wrap');
+  const historySection = document.getElementById('history-section');
+
   if (currentUser) {
     const displayName = currentUserName
       || currentUser.user_metadata?.full_name
       || currentUser.email.split('@')[0];
-    btn.textContent = '👤 ' + displayName;
-    btn.onclick = null;
-    btn.style.cursor = 'default';
+    if (btn) {
+      btn.textContent = '👤 ' + displayName;
+      btn.onclick = null;
+      btn.style.cursor = 'default';
+    }
     if (signOutBtn) signOutBtn.style.display = '';
+    if (authWrap) authWrap.style.display = 'none';
+    if (historySection) historySection.style.display = 'block';
   } else {
-    btn.setAttribute('data-i18n', 'signIn');
-    btn.textContent = t('signIn');
-    btn.onclick = openAuthModal;
-    btn.style.cursor = 'pointer';
+    if (btn) {
+      btn.setAttribute('data-i18n', 'signIn');
+      btn.textContent = t('signIn');
+      btn.onclick = openAuthModal;
+      btn.style.cursor = 'pointer';
+    }
     if (signOutBtn) signOutBtn.style.display = 'none';
+    if (authWrap) authWrap.style.display = 'block';
+    if (historySection) historySection.style.display = 'none';
   }
 }
 
@@ -2586,7 +2566,7 @@ function showDuplicateModal() {
 }
 function closeDuplicateModal(goToHistory) {
   document.getElementById('duplicate-modal').style.display = 'none';
-  if (goToHistory) showHistory();
+  if (goToHistory) showUploadScreen();
 }
 
 function startSavePopupTimer() {
@@ -3320,6 +3300,22 @@ function showComparisonScreen() {
   show('comparison-screen');
 }
 
+function showUploadScreen() {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-upload')?.classList.add('active');
+  loadHistory();
+  show('upload-screen');
+}
+
+function toggleGuide(bank) {
+  const body = document.getElementById('guide-body-' + bank);
+  const chevron = document.getElementById('chevron-' + bank);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron?.classList.toggle('open', !isOpen);
+}
+
 // ── UTILS ─────────────────────────────────────────────────────────────
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
@@ -3375,6 +3371,271 @@ function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function loadBudgets() {
+  if (!currentSession) {
+    document.getElementById('budget-login-msg').style.display = 'block';
+    document.getElementById('budget-category-list').style.display = 'none';
+    document.getElementById('budget-summary').style.display = 'none';
+    return;
+  }
+  document.getElementById('budget-login-msg').style.display = 'none';
+  document.getElementById('budget-category-list').style.display = 'flex';
+  document.getElementById('budget-summary').style.display = 'block';
+
+  try {
+    const r = await fetch('/api/budgets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession, action: 'get' })
+    });
+    budgetData = await r.json();
+    buildBudgetMonthSelector();
+    renderBudgetScreen();
+  } catch(e) {
+    console.error('Failed to load budgets:', e);
+  }
+}
+
+function buildBudgetMonthSelector() {
+  const sel = document.getElementById('budget-month-sel');
+  if (!sel || !window.DASH_ROWS) return;
+
+  const months = [...new Set(
+    (window.DASH_ROWS || [])
+      .map(r => r.date ? r.date.slice(0, 7) : null)
+      .filter(Boolean)
+  )].sort().reverse();
+
+  const MONTH_NAMES = {
+    '01':'Ene','02':'Feb','03':'Mar','04':'Abr',
+    '05':'May','06':'Jun','07':'Jul','08':'Ago',
+    '09':'Sep','10':'Oct','11':'Nov','12':'Dic'
+  };
+
+  sel.innerHTML = months.map((m, i) => {
+    const [year, month] = m.split('-');
+    return `<option value="${m}" ${i===0?'selected':''}>${MONTH_NAMES[month]} ${year}</option>`;
+  }).join('');
+}
+
+function renderBudgetScreen() {
+  if (!budgetData || !window.DASH_ROWS) return;
+
+  const selectedMonth = document.getElementById('budget-month-sel')?.value;
+  if (!selectedMonth) return;
+
+  const currency = parsedData?.currency || selectedCountry?.currency || 'MXN';
+
+  function fmtAmt(n) {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency', currency,
+      minimumFractionDigits: 0, maximumFractionDigits: 0
+    }).format(n || 0);
+  }
+
+  const monthRows = (window.DASH_ROWS || []).filter(r =>
+    r.date && r.date.startsWith(selectedMonth) &&
+    r.direction === 'debit' &&
+    r.category !== 'internal_transfer' &&
+    r.category !== 'excluded'
+  );
+
+  const spendByCat = {};
+  monthRows.forEach(r => {
+    if (!spendByCat[r.category]) spendByCat[r.category] = 0;
+    spendByCat[r.category] += r.amount || 0;
+  });
+
+  const budgetMap = {};
+  (budgetData.budgets || []).forEach(b => {
+    budgetMap[b.category_id] = b.amount;
+  });
+
+  const totalSpent = Object.values(spendByCat).reduce((s, v) => s + v, 0);
+  const totalBudget = Object.values(budgetMap).reduce((s, v) => s + v, 0);
+  const totalDiff = totalBudget - totalSpent;
+  const totalPct = totalBudget > 0 ? Math.min((totalSpent / totalBudget) * 100, 100) : 0;
+  const barColor = totalPct >= 100 ? 'var(--error)' : totalPct >= 80 ? 'var(--amber)' : 'var(--tertiary)';
+
+  const MONTH_NAMES_FULL = {
+    '01':'Enero','02':'Febrero','03':'Marzo','04':'Abril',
+    '05':'Mayo','06':'Junio','07':'Julio','08':'Agosto',
+    '09':'Septiembre','10':'Octubre','11':'Noviembre','12':'Diciembre'
+  };
+  const [yr, mn] = selectedMonth.split('-');
+  const monthLabel = `${MONTH_NAMES_FULL[mn]} ${yr}`;
+
+  document.getElementById('budget-summary').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">${monthLabel}</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:var(--on-surface)">
+          ${fmtAmt(totalSpent)}
+          <span style="font-size:1rem;font-weight:400;color:var(--on-surface-muted)">de ${fmtAmt(totalBudget)}</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        ${totalBudget > 0 ? `
+          <div style="font-size:1.1rem;font-weight:700;color:${totalDiff >= 0 ? 'var(--tertiary)' : 'var(--error)'}">
+            ${totalDiff >= 0 ? '✓ ' + fmtAmt(totalDiff) + ' bajo presupuesto' : '⚠ ' + fmtAmt(Math.abs(totalDiff)) + ' sobre presupuesto'}
+          </div>` :
+          `<div style="font-size:0.84rem;color:var(--on-surface-muted)">Sin presupuesto total</div>`
+        }
+      </div>
+    </div>
+    ${totalBudget > 0 ? `
+    <div style="height:8px;background:var(--surface-high);border-radius:4px;overflow:hidden;">
+      <div style="height:8px;border-radius:4px;background:${barColor};width:${totalPct.toFixed(0)}%;transition:width 0.5s ease;"></div>
+    </div>` : ''}
+  `;
+
+  const expenseCatIds = [
+    ...new Set([
+      ...userCategories.filter(c => c.active && !isIncomeCat(c.id)).map(c => c.id),
+      ...Object.keys(spendByCat).filter(id => id !== 'internal_transfer' && id !== 'excluded')
+    ])
+  ];
+
+  expenseCatIds.sort((a, b) => {
+    const spA = spendByCat[a] || 0, spB = spendByCat[b] || 0;
+    const budA = budgetMap[a] || 0, budB = budgetMap[b] || 0;
+    const overA = budA > 0 && spA > budA ? 1 : 0;
+    const overB = budB > 0 && spB > budB ? 1 : 0;
+    if (overA !== overB) return overB - overA;
+    return spB - spA;
+  });
+
+  document.getElementById('budget-category-list').innerHTML = expenseCatIds.map(catId => {
+    const meta = getCatMeta(catId);
+    const spent = spendByCat[catId] || 0;
+    const budget = budgetMap[catId] || 0;
+    const diff = budget - spent;
+    const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+    const isOver = budget > 0 && spent > budget;
+    const isUnder = budget > 0 && spent <= budget;
+    const barColor2 = isOver ? 'var(--error)' : pct >= 80 ? 'var(--amber)' : 'var(--tertiary)';
+
+    return `
+    <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;cursor:pointer;transition:box-shadow 0.15s;"
+      onmouseover="this.style.boxShadow='var(--shadow-sm)'"
+      onmouseout="this.style.boxShadow='none'"
+      onclick="openBudgetModal('${catId}')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${budget > 0 ? '12px' : '0'}">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:1.1rem">${meta.emoji}</span>
+          <span style="font-weight:600;font-size:0.9rem;color:var(--on-surface)">${getCatLabel(catId)}</span>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--on-surface)">
+            ${fmtAmt(spent)}
+            ${budget > 0 ? `<span style="font-weight:400;font-size:0.82rem;color:var(--on-surface-muted)"> de ${fmtAmt(budget)}</span>` : ''}
+          </div>
+          ${budget > 0 ? `
+          <div style="font-size:0.78rem;font-weight:600;color:${isOver ? 'var(--error)' : 'var(--tertiary)'}">
+            ${isOver ? '⚠ ' + fmtAmt(Math.abs(diff)) + ' ' + t('budgetOver') : isUnder ? '✓ ' + fmtAmt(diff) + ' ' + t('budgetUnder') : ''}
+          </div>` : `
+          <div style="font-size:0.75rem;color:var(--on-surface-muted)">${t('budgetSetHint')} →</div>`}
+        </div>
+      </div>
+      ${budget > 0 ? `
+      <div style="height:6px;background:var(--surface-high);border-radius:3px;overflow:hidden;">
+        <div style="height:6px;border-radius:3px;background:${barColor2};width:${pct.toFixed(0)}%;transition:width 0.5s ease;"></div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function isIncomeCat(id) {
+  return ['salary','freelance','reimbursement','other_income'].includes(id);
+}
+
+function openBudgetModal(catId) {
+  budgetModalCatId = catId;
+  const meta = getCatMeta(catId);
+  const avg = budgetData?.averages?.[catId] || 0;
+  const existing = budgetData?.budgets?.find(b => b.category_id === catId);
+  const currency = parsedData?.currency || selectedCountry?.currency || 'MXN';
+
+  document.getElementById('budget-modal-emoji').textContent = meta.emoji;
+  document.getElementById('budget-modal-title').textContent = getCatLabel(catId);
+
+  const avgFormatted = new Intl.NumberFormat('es-MX', {
+    style: 'currency', currency,
+    minimumFractionDigits: 0, maximumFractionDigits: 0
+  }).format(avg);
+
+  document.getElementById('budget-modal-avg').textContent =
+    avg > 0 ? `${t('budgetAvgHint')}: ${avgFormatted}` : t('budgetNoHistory');
+
+  document.getElementById('budget-modal-input').value =
+    existing?.amount || (avg > 0 ? Math.round(avg * 1.1) : '');
+
+  const deleteBtn = document.getElementById('budget-delete-btn');
+  if (deleteBtn) deleteBtn.style.display = existing ? 'block' : 'none';
+
+  document.getElementById('budget-modal').style.display = 'flex';
+  document.getElementById('budget-modal-input').focus();
+  document.getElementById('budget-modal-input').select();
+}
+
+function closeBudgetModal() {
+  document.getElementById('budget-modal').style.display = 'none';
+  budgetModalCatId = null;
+}
+
+async function saveBudget() {
+  const amount = parseFloat(document.getElementById('budget-modal-input').value);
+  if (!amount || amount <= 0 || !budgetModalCatId) return;
+
+  try {
+    await fetch('/api/budgets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession, action: 'set', categoryId: budgetModalCatId, amount })
+    });
+
+    if (!budgetData.budgets) budgetData.budgets = [];
+    const existing = budgetData.budgets.find(b => b.category_id === budgetModalCatId);
+    if (existing) {
+      existing.amount = amount;
+    } else {
+      budgetData.budgets.push({ category_id: budgetModalCatId, amount, is_recurring: true });
+    }
+
+    closeBudgetModal();
+    renderBudgetScreen();
+  } catch(e) {
+    console.error('Failed to save budget:', e);
+  }
+}
+
+async function deleteBudget() {
+  if (!budgetModalCatId) return;
+  try {
+    await fetch('/api/budgets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession, action: 'delete', categoryId: budgetModalCatId })
+    });
+
+    if (budgetData.budgets) {
+      budgetData.budgets = budgetData.budgets.filter(b => b.category_id !== budgetModalCatId);
+    }
+
+    closeBudgetModal();
+    renderBudgetScreen();
+  } catch(e) {
+    console.error('Failed to delete budget:', e);
+  }
+}
+
+function showBudgetScreen() {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-budget')?.classList.add('active');
+  loadBudgets();
+  show('budget-screen');
+}
 
 // Apply default language on load
 setLanguage('es');
@@ -3432,6 +3693,63 @@ initAuth();
       <button onclick="closeDuplicateModal(false)" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.84rem;cursor:pointer;" data-i18n="duplicateDismiss">Cerrar</button>
     </div>
   </div>
+</div>
+
+<!-- ── BUDGET SCREEN ── -->
+<div id="budget-screen" class="screen">
+<div style="max-width:700px;margin:0 auto;padding:32px 20px 100px;">
+
+  <!-- Header -->
+  <div style="margin-bottom:24px;">
+    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px" data-i18n="budgetEyebrow">Presupuesto</div>
+    <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:var(--on-surface)" data-i18n="budgetTitle">¿Cómo van tus gastos?</h1>
+  </div>
+
+  <!-- Month selector -->
+  <div style="margin-bottom:20px;">
+    <select id="budget-month-sel" onchange="renderBudgetScreen()"
+      style="padding:8px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.84rem;outline:none;cursor:pointer;">
+    </select>
+  </div>
+
+  <!-- Summary card -->
+  <div id="budget-summary" style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:16px;padding:24px;margin-bottom:20px;"></div>
+
+  <!-- Category budget list -->
+  <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px" data-i18n="budgetByCategory">Por categoría</div>
+  <div id="budget-category-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+
+  <!-- Not logged in message -->
+  <div id="budget-login-msg" style="display:none;text-align:center;padding:60px 20px;color:var(--on-surface-muted);">
+    <div style="font-size:2rem;margin-bottom:12px">🔒</div>
+    <p style="font-size:0.9rem;margin-bottom:16px" data-i18n="budgetLoginMsg">Inicia sesión para configurar tu presupuesto.</p>
+    <button onclick="openAuthModal()"
+      style="padding:10px 24px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;"
+      data-i18n="signIn">Iniciar sesión</button>
+  </div>
+
+</div>
+
+<!-- Budget edit modal -->
+<div id="budget-modal" style="display:none;position:fixed;inset:0;background:rgba(27,28,25,0.5);z-index:300;align-items:center;justify-content:center;">
+  <div style="background:var(--surface-lowest);border-radius:20px;padding:32px;max-width:380px;width:90%;box-shadow:var(--shadow-lg);position:relative;">
+    <button onclick="closeBudgetModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--on-surface-muted);font-size:1.2rem;">✕</button>
+    <div style="font-size:1.4rem;margin-bottom:8px" id="budget-modal-emoji"></div>
+    <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:4px;color:var(--on-surface)" id="budget-modal-title"></h3>
+    <p style="font-size:0.78rem;color:var(--on-surface-muted);margin-bottom:20px" id="budget-modal-avg"></p>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:8px" data-i18n="budgetModalLabel">Presupuesto mensual</label>
+      <input type="number" id="budget-modal-input"
+        style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-low);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:600;outline:none;"
+        placeholder="0">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="saveBudget()" style="flex:1;padding:12px;border-radius:10px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;" data-i18n="budgetSave">Guardar</button>
+      <button onclick="deleteBudget()" id="budget-delete-btn" style="padding:12px 16px;border-radius:10px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.84rem;cursor:pointer;display:none;" data-i18n="budgetDelete">Eliminar</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 </body>

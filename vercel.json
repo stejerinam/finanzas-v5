@@ -16,6 +16,7 @@
     { "src": "/api/comparison", "dest": "/api/comparison.js" },
     { "src": "/api/check-duplicate", "dest": "/api/check-duplicate.js" },
     { "src": "/api/get-all-transactions", "dest": "/api/get-all-transactions.js" },
+    { "src": "/api/budgets", "dest": "/api/budgets.js" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
