@@ -9,14 +9,14 @@ export default async function handler(req, res) {
   const { data: { user }, error: authError } =
     await supabaseAnon.auth.getUser(session.access_token);
   if (authError || !user)
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized', detail: authError?.message });
 
   if (action === 'get') {
     const { data: budgets, error: budgetError } = await supabase
       .from('budgets')
       .select('*')
       .eq('user_id', user.id)
-      .eq('is_recurring', true);
+      .is('month', null);
 
     if (budgetError)
       return res.status(500).json({ error: budgetError.message });
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
   }
 
   if (action === 'set') {
-    // delete + insert to handle NULL month (upsert onConflict breaks with NULL)
+    // delete existing rolling budget for this category, then insert fresh
     await supabase
       .from('budgets')
       .delete()
@@ -74,16 +74,10 @@ export default async function handler(req, res) {
 
     const { error } = await supabase
       .from('budgets')
-      .insert({
-        user_id: user.id,
-        category_id: categoryId,
-        amount: amount,
-        month: null,
-        is_recurring: true,
-      });
+      .insert({ user_id: user.id, category_id: categoryId, amount, month: null });
 
     if (error)
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message, detail: error.details, hint: error.hint });
 
     return res.status(200).json({ success: true });
   }
