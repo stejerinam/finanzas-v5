@@ -672,99 +672,171 @@ tr:hover td{background:var(--surface-low);}
   </div>
 
   <!-- ── BANK GUIDES SECTION ── -->
-  <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:20px;overflow:hidden;">
+  <div class="guides-wrap" id="guides-wrap">
+    <button class="guides-toggle" onclick="toggleGuides()">
+      <span class="guides-title-row">📋 <span data-i18n="guidesTitle">¿Cómo descargar tu estado de cuenta?</span></span>
+      <span class="guides-chevron">▼</span>
+    </button>
+    <div class="guides-body">
 
-    <div style="padding:20px 24px;border-bottom:1px solid var(--surface-high);">
-      <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px" data-i18n="guidesLabel">Guías de descarga</div>
-      <p style="font-size:0.84rem;color:var(--on-surface-variant)" data-i18n="guidesSub">¿Cómo descargar tu estado de cuenta?</p>
-    </div>
-
-    <!-- BBVA -->
-    <div class="guide-item2">
-      <button class="guide-toggle2" onclick="toggleGuide('bbva')">
-        <span>🏦 BBVA México</span>
-        <span class="guide-chevron2" id="chevron-bbva">▾</span>
-      </button>
-      <div class="guide-body2" id="guide-body-bbva" style="display:none">
-        <ol class="guide-steps2">
-          <li>Ingresa a la app de BBVA o a <strong>bbva.mx</strong></li>
-          <li>Ve a <strong>Mis cuentas</strong> → selecciona tu tarjeta</li>
-          <li>Toca <strong>Estado de cuenta</strong></li>
-          <li>Selecciona el mes y descarga el PDF</li>
-        </ol>
-        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
+      <!-- BBVA -->
+      <div class="guide-item" id="guide-bbva">
+        <button class="guide-header" onclick="toggleGuideItem('bbva')">
+          <img class="guide-logo-img" src="/logos/bbva.avif" alt="BBVA">
+          <span class="guide-name">BBVA</span>
+          <span class="guide-item-chevron">▼</span>
+        </button>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ingresa a <strong>bbva.mx</strong> y entra a tu cuenta.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Selecciona la tarjeta o cuenta que quieres analizar.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ve a <strong>Movimientos</strong> y haz clic en <strong>Descargar estado de cuenta</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Elige el periodo y descarga en formato <strong>PDF o Excel</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Banamex -->
-    <div class="guide-item2">
-      <button class="guide-toggle2" onclick="toggleGuide('banamex')">
-        <span>🏛️ Citibanamex</span>
-        <span class="guide-chevron2" id="chevron-banamex">▾</span>
-      </button>
-      <div class="guide-body2" id="guide-body-banamex" style="display:none">
-        <ol class="guide-steps2">
-          <li>Ingresa a <strong>citibanamex.com</strong> o la app</li>
-          <li>Ve a <strong>Mis productos</strong> → tu tarjeta o cuenta</li>
-          <li>Selecciona <strong>Estados de cuenta</strong></li>
-          <li>Elige el mes y descarga el PDF</li>
-        </ol>
-        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
+      <!-- Banamex -->
+      <div class="guide-item" id="guide-banamex">
+        <button class="guide-header" onclick="toggleGuideItem('banamex')">
+          <img class="guide-logo-img" src="/logos/banamex.jpg" alt="Banamex">
+          <span class="guide-name">Banamex</span>
+          <span class="guide-item-chevron">▼</span>
+        </button>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ingresa a <strong>banamex.com</strong> y accede a tu banca en línea.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Ve a <strong>Mis productos</strong> y selecciona tu tarjeta o cuenta.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Haz clic en <strong>Estado de cuenta</strong> en el menú lateral.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Selecciona el mes deseado y descarga el <strong>PDF</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Nu -->
-    <div class="guide-item2">
-      <button class="guide-toggle2" onclick="toggleGuide('nu')">
-        <span>🟣 Nu México</span>
-        <span class="guide-chevron2" id="chevron-nu">▾</span>
-      </button>
-      <div class="guide-body2" id="guide-body-nu" style="display:none">
-        <ol class="guide-steps2">
-          <li>Abre la app de Nu</li>
-          <li>Toca tu tarjeta → <strong>Ver estado de cuenta</strong></li>
-          <li>Selecciona el mes deseado</li>
-          <li>Toca <strong>Exportar PDF</strong> en la esquina superior</li>
-        </ol>
-        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
+      <!-- Nu -->
+      <div class="guide-item" id="guide-nu">
+        <button class="guide-header" onclick="toggleGuideItem('nu')">
+          <img class="guide-logo-img" src="/logos/nu.jpg" alt="Nu">
+          <span class="guide-name">Nu</span>
+          <span class="guide-item-chevron">▼</span>
+        </button>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Abre la app de <strong>Nu</strong> en tu celular.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Entra a <strong>Tarjeta de crédito</strong> o tu cuenta Nu.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Toca el ícono de <strong>configuración ⚙️</strong> y selecciona <strong>Estado de cuenta</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Elige el mes y presiona <strong>Descargar PDF</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Santander -->
-    <div class="guide-item2">
-      <button class="guide-toggle2" onclick="toggleGuide('santander')">
-        <span>🔴 Santander México</span>
-        <span class="guide-chevron2" id="chevron-santander">▾</span>
-      </button>
-      <div class="guide-body2" id="guide-body-santander" style="display:none">
-        <ol class="guide-steps2">
-          <li>Ingresa a <strong>santander.com.mx</strong> o la app</li>
-          <li>Ve a <strong>Mis cuentas</strong></li>
-          <li>Selecciona <strong>Consultar movimientos</strong></li>
-          <li>Elige el período y descarga el estado en PDF</li>
-        </ol>
-        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
+      <!-- Santander -->
+      <div class="guide-item" id="guide-santander">
+        <button class="guide-header" onclick="toggleGuideItem('santander')">
+          <img class="guide-logo-img" src="/logos/santander.jpg" alt="Santander">
+          <span class="guide-name">Santander</span>
+          <span class="guide-item-chevron">▼</span>
+        </button>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Entra a <strong>santander.com.mx</strong> y accede a tu cuenta.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Selecciona <strong>Mis cuentas</strong> y elige la tarjeta o cuenta deseada.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Haz clic en <strong>Consultar estado de cuenta</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-body">
+              <div class="guide-step-text">Elige el periodo y descarga el <strong>PDF</strong>.</div>
+              <div class="guide-screenshot"><div class="guide-screenshot-placeholder"><span>🖼️</span><span>Screenshot próximamente</span></div></div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- HSBC -->
-    <div class="guide-item2" style="border-bottom:none">
-      <button class="guide-toggle2" onclick="toggleGuide('hsbc')">
-        <span>🔶 HSBC México</span>
-        <span class="guide-chevron2" id="chevron-hsbc">▾</span>
-      </button>
-      <div class="guide-body2" id="guide-body-hsbc" style="display:none">
-        <ol class="guide-steps2">
-          <li>Ingresa a <strong>hsbc.com.mx</strong> o la app</li>
-          <li>Ve a <strong>Cuentas y tarjetas</strong></li>
-          <li>Selecciona <strong>Estado de cuenta</strong></li>
-          <li>Elige el mes y descarga el PDF</li>
-        </ol>
-        <div class="guide-video-placeholder">🎬 Video tutorial próximamente</div>
-      </div>
-    </div>
-
-  </div><!-- /bank guides -->
+    </div><!-- /guides-body -->
+  </div><!-- /guides-wrap -->
 
 </div>
 </div>
