@@ -3562,7 +3562,7 @@ function openBudgetModal(catId) {
   document.getElementById('budget-modal-avg').textContent =
     avg > 0 ? `${t('budgetAvgHint')}: ${avgFormatted}` : t('budgetNoHistory');
 
-  const suggested = avg > 0 ? Math.floor(avg / 10) * 10 : 0;
+  const suggested = avg > 0 ? Math.round(avg / 10) * 10 : 0;
   window._budgetSuggested = suggested;
   const inputVal = existing?.amount
     ? Math.floor(existing.amount / 10) * 10
@@ -3639,7 +3639,7 @@ async function autoAssignAllBudgets() {
 
   const toSet = Object.entries(budgetData.averages)
     .filter(([id]) => !isIncomeCat(id) && id !== 'internal_transfer' && id !== 'excluded')
-    .map(([id, avg]) => ({ id, amount: Math.floor(avg / 10) * 10 }))
+    .map(([id, avg]) => ({ id, amount: Math.round(avg / 10) * 10 }))
     .filter(x => x.amount > 0);
 
   try {
