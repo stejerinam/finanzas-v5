@@ -1281,7 +1281,7 @@ function showUploadTab() {
 async function loadUserCategories() {
   if (!currentSession) return;
   try {
-    const r = await fetch('/api/get-categories', {
+    const r = await fetch('/api/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session: currentSession })
@@ -1338,11 +1338,12 @@ async function handleSignOut() {
 async function saveUserCategories() {
   if (!currentSession || !currentUser) return;
   try {
-    await fetch('/api/save-categories', {
+    await fetch('/api/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         session: currentSession,
+        action: 'save',
         categories: userCategories.map((c, i) => ({
           category_id: c.id,
           label: c.label,
