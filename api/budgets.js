@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       .from('budgets')
       .select('*')
       .eq('user_id', user.id)
-      .is('month', null);
+      .eq('month', 'rolling');
 
     if (budgetError)
       return res.status(500).json({ error: budgetError.message });
@@ -70,11 +70,11 @@ export default async function handler(req, res) {
       .delete()
       .eq('user_id', user.id)
       .eq('category_id', categoryId)
-      .is('month', null);
+      .eq('month', 'rolling');
 
     const { error } = await supabase
       .from('budgets')
-      .insert({ user_id: user.id, category_id: categoryId, amount, month: null });
+      .insert({ user_id: user.id, category_id: categoryId, amount, month: 'rolling' });
 
     if (error)
       return res.status(500).json({ error: error.message, detail: error.details, hint: error.hint });
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
       .delete()
       .eq('user_id', user.id)
       .eq('category_id', categoryId)
-      .is('month', null);
+      .eq('month', 'rolling');
 
     if (error)
       return res.status(500).json({ error: error.message });
