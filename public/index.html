@@ -3637,6 +3637,40 @@ async function deleteBudget() {
   }
 }
 
+async function autoAssignAllBudgets() {
+  if (!budgetData?.averages) return;
+  const btn = document.getElementById('budget-auto-all-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+  const toSet = Object.entries(budgetData.averages)
+    .filter(([id]) => !isIncomeCat(id) && id !== 'internal_transfer' && id !== 'excluded')
+    .map(([id, avg]) => ({ id, amount: Math.floor(avg * 1.1 / 10) * 10 }))
+    .filter(x => x.amount > 0);
+
+  try {
+    await Promise.all(toSet.map(({ id, amount }) =>
+      fetch('/api/budgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session: currentSession, action: 'set', categoryId: id, amount })
+      })
+    ));
+
+    if (!budgetData.budgets) budgetData.budgets = [];
+    toSet.forEach(({ id, amount }) => {
+      const existing = budgetData.budgets.find(b => b.category_id === id);
+      if (existing) { existing.amount = amount; }
+      else { budgetData.budgets.push({ category_id: id, amount, is_recurring: true }); }
+    });
+
+    renderBudgetScreen();
+  } catch(e) {
+    console.error('Failed to auto-assign budgets:', e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '✦ Auto-asignar todo'; }
+  }
+}
+
 function showBudgetScreen() {
   document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-budget')?.classList.add('active');
@@ -3723,7 +3757,13 @@ initAuth();
   <div id="budget-summary" style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:16px;padding:24px;margin-bottom:20px;"></div>
 
   <!-- Category budget list -->
-  <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px" data-i18n="budgetByCategory">Por categoría</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;" data-i18n="budgetByCategory">Por categoría</div>
+    <button onclick="autoAssignAllBudgets()" id="budget-auto-all-btn"
+      style="font-size:0.72rem;font-family:'DM Mono',monospace;padding:4px 12px;border-radius:6px;border:1px solid var(--primary);background:var(--primary-tint);color:var(--primary);cursor:pointer;font-weight:600;letter-spacing:0.04em;">
+      ✦ Auto-asignar todo
+    </button>
+  </div>
   <div id="budget-category-list" style="display:flex;flex-direction:column;gap:10px;"></div>
 
   <!-- Not logged in message -->
