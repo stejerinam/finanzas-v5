@@ -3498,14 +3498,7 @@ function renderBudgetScreen() {
     ])
   ];
 
-  expenseCatIds.sort((a, b) => {
-    const spA = spendByCat[a] || 0, spB = spendByCat[b] || 0;
-    const budA = budgetMap[a] || 0, budB = budgetMap[b] || 0;
-    const overA = budA > 0 && spA > budA ? 1 : 0;
-    const overB = budB > 0 && spB > budB ? 1 : 0;
-    if (overA !== overB) return overB - overA;
-    return spB - spA;
-  });
+  expenseCatIds.sort((a, b) => (spendByCat[b] || 0) - (spendByCat[a] || 0));
 
   document.getElementById('budget-category-list').innerHTML = expenseCatIds.map(catId => {
     const meta = getCatMeta(catId);
