@@ -3569,8 +3569,14 @@ function openBudgetModal(catId) {
   document.getElementById('budget-modal-avg').textContent =
     avg > 0 ? `${t('budgetAvgHint')}: ${avgFormatted}` : t('budgetNoHistory');
 
-  document.getElementById('budget-modal-input').value =
-    existing?.amount || (avg > 0 ? Math.round(avg * 1.1) : '');
+  const suggested = avg > 0 ? Math.floor(avg * 1.1 / 10) * 10 : 0;
+  window._budgetSuggested = suggested;
+  const inputVal = existing?.amount
+    ? Math.floor(existing.amount / 10) * 10
+    : (suggested || '');
+  document.getElementById('budget-modal-input').value = inputVal;
+  const autoBtn = document.getElementById('budget-auto-btn');
+  if (autoBtn) autoBtn.style.display = suggested > 0 ? 'inline-block' : 'none';
 
   const deleteBtn = document.getElementById('budget-delete-btn');
   if (deleteBtn) deleteBtn.style.display = existing ? 'block' : 'none';
@@ -3739,8 +3745,14 @@ initAuth();
     <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:4px;color:var(--on-surface)" id="budget-modal-title"></h3>
     <p style="font-size:0.78rem;color:var(--on-surface-muted);margin-bottom:20px" id="budget-modal-avg"></p>
     <div style="margin-bottom:16px;">
-      <label style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:8px" data-i18n="budgetModalLabel">Presupuesto mensual</label>
-      <input type="number" id="budget-modal-input"
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <label style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;" data-i18n="budgetModalLabel">Presupuesto mensual</label>
+        <button id="budget-auto-btn" onclick="document.getElementById('budget-modal-input').value=window._budgetSuggested||0"
+          style="display:none;font-size:0.72rem;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:6px;border:1px solid var(--primary);background:var(--primary-tint);color:var(--primary);cursor:pointer;font-weight:600;letter-spacing:0.04em;">
+          ✦ Auto
+        </button>
+      </div>
+      <input type="number" id="budget-modal-input" step="10"
         style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-low);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:600;outline:none;"
         placeholder="0">
     </div>
