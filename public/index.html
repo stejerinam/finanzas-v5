@@ -362,12 +362,15 @@ tr:hover td{background:var(--surface-low);}
 
   /* Dashboard header: logo + actions on one row, meta pills scroll below */
   .dash-header{
-    flex-wrap:wrap;padding:12px 16px;gap:0;
-    row-gap:10px;
+    flex-wrap:wrap;padding:10px 14px;gap:0;
+    row-gap:8px;
   }
-  .dash-logo{flex:1;}
-  .dash-actions{display:flex;gap:6px;}
-  .dash-btn{font-size:0.78rem;padding:7px 14px;}
+  .dash-logo{flex:1;font-size:0.95rem;}
+  .dash-actions{display:flex;gap:4px;align-items:center;}
+  #auth-btn{display:none!important;}
+  #signout-btn{padding:4px 8px!important;font-size:0.68rem!important;}
+  #lang-toggle{padding:4px 8px!important;font-size:0.68rem!important;}
+  .dash-btn{font-size:0.72rem;padding:5px 10px;}
   .dash-meta{
     flex:0 0 100%;margin:0;
     display:flex!important;
