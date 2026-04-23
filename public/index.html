@@ -194,7 +194,7 @@ tr:hover td{background:var(--surface-low);}
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
 .stat-card{background:var(--surface-lowest);border:1px solid rgba(27,28,25,0.07);border-radius:24px;padding:24px;min-height:124px;position:relative;overflow:hidden;box-shadow:var(--shadow-md);transition:box-shadow 0.2s;}
 .stat-card:hover{box-shadow:var(--shadow-lg);}
-.stat-card-icon{font-size:1.1rem;margin-bottom:10px;display:block;opacity:0.7;}
+.stat-card-icon{font-size:1.1rem;margin-bottom:10px;display:flex;align-items:center;opacity:0.7;}
 .stat-label{font-size:0.63rem;font-family:'Inter',sans-serif;color:var(--on-surface-variant);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;font-weight:600;}
 .stat-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:var(--fs-stat,2.4rem);font-weight:800;letter-spacing:-0.04em;margin-bottom:6px;line-height:1;color:var(--on-surface);font-variant-numeric:tabular-nums;}
 .stat-value.green{color:var(--secondary);}
@@ -367,9 +367,7 @@ tr:hover td{background:var(--surface-low);}
   }
   .dash-logo{flex:1;font-size:0.95rem;}
   .dash-actions{display:flex;gap:4px;align-items:center;}
-  #auth-btn{display:none!important;}
   #signout-btn{padding:4px 8px!important;font-size:0.68rem!important;}
-  #lang-toggle{padding:4px 8px!important;font-size:0.68rem!important;}
   .dash-btn{font-size:0.72rem;padding:5px 10px;}
   .dash-meta{
     flex:0 0 100%;margin:0;
@@ -622,7 +620,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   </div>
 
   <div id="comp-insufficient" style="display:none;text-align:center;padding:60px 20px;">
-    <div style="font-size:2.5rem;margin-bottom:12px">📊</div>
+    <div style="color:var(--on-surface-muted);display:flex;align-items:center;justify-content:center;margin-bottom:12px;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
     <p style="font-size:0.9rem;color:var(--on-surface-muted);margin-bottom:16px" data-i18n="compInsufficientMsg">Sube al menos dos estados de cuenta para comparar períodos.</p>
     <button onclick="showUploadTab()"
       style="padding:10px 24px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;"
@@ -640,7 +638,10 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   <div style="margin-bottom:32px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
       <div style="font-size:0.72rem;font-family:monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;">Finanzas</div>
-      <button id="upload-lang-toggle" onclick="toggleLanguage()" style="padding:4px 12px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;">EN</button>
+      <div id="upload-lang-seg" style="display:flex;border-radius:9999px;background:var(--surface-high);padding:2px;gap:1px;">
+        <button id="upload-lang-seg-es" onclick="setLanguage('es')" style="padding:3px 9px;border-radius:9999px;border:none;font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;background:transparent;color:var(--on-surface-muted);">ES</button>
+        <button id="upload-lang-seg-en" onclick="setLanguage('en')" style="padding:3px 9px;border-radius:9999px;border:none;font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;background:transparent;color:var(--on-surface-muted);">EN</button>
+      </div>
     </div>
     <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:var(--on-surface);line-height:1.2">
       Tu dinero,<br><em style="color:var(--primary);font-style:italic">sin filtros.</em>
@@ -983,7 +984,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 
   <!-- Waiting: AI still working, nothing to review yet -->
   <div id="review-waiting" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
-    <div class="review-waiting-anim">🤖</div>
+    <div class="review-waiting-anim"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg></div>
     <div class="review-waiting-title" id="review-waiting-title" data-i18n="reviewWaitingTitle">La IA está trabajando…</div>
     <div class="review-waiting-sub" id="review-waiting-sub" data-i18n="reviewWaitingSub">Las transacciones sin categoría aparecerán aquí conforme avancen los lotes.</div>
   </div>
@@ -1003,7 +1004,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 
   <!-- Done: all chunks complete + queue exhausted -->
   <div id="review-done-wrap" style="flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;">
-    <div style="font-size:2.8rem;">✅</div>
+    <div style="color:var(--tertiary);display:flex;align-items:center;justify-content:center;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:700;color:var(--tertiary);" data-i18n="reviewDoneTitle">¡Todo listo!</div>
     <div style="font-size:0.85rem;color:var(--on-surface-variant);"><span class="spinner"></span> <span data-i18n="reviewDoneSub">Construyendo tu dashboard…</span></div>
   </div>
@@ -1020,7 +1021,10 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
     <div class="dash-actions">
       <button id="auth-btn" onclick="openAuthModal()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;"><span data-i18n="signIn">Iniciar sesión</span></button>
       <button id="signout-btn" onclick="handleSignOut()" style="display:none;padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;" data-i18n="signOut">Cerrar sesión</button>
-      <button id="lang-toggle" onclick="toggleLanguage()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;">EN</button>
+      <div id="lang-seg" style="display:flex;border-radius:9999px;background:var(--surface-high);padding:2px;gap:1px;flex-shrink:0;">
+        <button id="lang-seg-es" onclick="setLanguage('es')" style="padding:3px 9px;border-radius:9999px;border:none;font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;background:transparent;color:var(--on-surface-muted);">ES</button>
+        <button id="lang-seg-en" onclick="setLanguage('en')" style="padding:3px 9px;border-radius:9999px;border:none;font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;background:transparent;color:var(--on-surface-muted);">EN</button>
+      </div>
       <button class="btn btn-download dash-btn" onclick="downloadExcel()" data-i18n="dashDownload">↓ Exportar</button>
       <button class="btn btn-secondary dash-btn" onclick="resetApp()" data-i18n="dashNew">↺ Nuevo</button>
     </div>
@@ -1030,7 +1034,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 
     <!-- Zero-state (shown when no data) -->
     <div id="stat-zero-state-wrap" style="display:none;text-align:center;padding:48px 20px;margin-bottom:32px;background:var(--surface-lowest);border:1px solid rgba(27,28,25,0.07);border-radius:24px;">
-      <div style="font-size:2.5rem;margin-bottom:12px;">📊</div>
+      <div style="color:var(--on-surface-muted);display:flex;align-items:center;justify-content:center;margin-bottom:12px;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:var(--fs-h2,1.4rem);font-weight:700;color:var(--on-surface);margin-bottom:10px;">Sube tu primer estado de cuenta</div>
       <p style="color:var(--on-surface-muted);font-size:var(--fs-body,0.94rem);margin-bottom:24px;max-width:340px;margin-left:auto;margin-right:auto;line-height:1.6;">Arrastra un PDF o Excel de cualquier banco y la IA analizará tus gastos automáticamente.</p>
       <button class="btn btn-primary" onclick="showUploadTab()">Subir estado →</button>
@@ -1039,26 +1043,26 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
     <!-- Stat cards row -->
     <div class="stat-row" id="stat-row-wrap">
       <div class="stat-card income-card">
-        <span class="stat-card-icon">💵</span>
+        <span class="stat-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
         <div class="stat-label" data-i18n="dashIncome">Ingresos totales</div>
         <div class="stat-value green" id="stat-income">—</div>
         <div class="stat-sub" id="stat-income-sub">— transactions</div>
       </div>
       <div class="stat-card expense-card">
-        <span class="stat-card-icon">💸</span>
+        <span class="stat-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></span>
         <div class="stat-label" data-i18n="dashExpenses">Gastos totales</div>
         <div class="stat-value red" id="stat-expense">—</div>
         <div class="stat-sub" id="stat-expense-sub">— transactions</div>
       </div>
       <div class="stat-card balance-card">
-        <span class="stat-card-icon">📊</span>
+        <span class="stat-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
         <div class="stat-label" data-i18n="dashBalance">Balance neto</div>
         <div class="stat-value teal" id="stat-balance">—</div>
         <div class="balance-bar-bg"><div class="balance-bar-fill" id="balance-bar" style="width:0%"></div></div>
         <div class="stat-sub" id="stat-balance-sub">savings rate</div>
       </div>
       <div class="stat-card install-card">
-        <span class="stat-card-icon">🗓️</span>
+        <span class="stat-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
         <div class="stat-label" data-i18n="dashInstallments">Deuda en MSI</div>
         <div class="stat-value yellow" id="stat-msi">—</div>
         <div class="stat-sub" id="stat-msi-sub">active plans</div>
@@ -1649,7 +1653,7 @@ const STRINGS = {
     maybeLater: 'Ahora no',
     authTitle: 'Crea tu cuenta',
     authSub: 'Guarda tu historial y accede desde cualquier dispositivo',
-    authPrivacy: '🔒 Nunca compartimos tus datos con terceros.',
+    authPrivacy: 'Nunca compartimos tus datos con terceros.',
     authNamePlaceholder: 'Nombre:',
     authErrorEmpty: 'Por favor ingresa tu email y contraseña.',
     savePopupTitle: 'Guarda tu análisis',
@@ -1821,7 +1825,7 @@ const STRINGS = {
     maybeLater: 'Maybe later',
     authTitle: 'Create your account',
     authSub: 'Save your history and access from any device',
-    authPrivacy: '🔒 We never share your data with third parties.',
+    authPrivacy: 'We never share your data with third parties.',
     authNamePlaceholder: 'Name:',
     authErrorEmpty: 'Please enter your email and password.',
     savePopupTitle: 'Save your analysis',
@@ -1865,6 +1869,19 @@ function getCatLabel(id) {
   return t('catLabel_' + id) || id;
 }
 
+function updateLangSegs(lang) {
+  [['lang-seg-es','lang-seg-en'],['upload-lang-seg-es','upload-lang-seg-en']].forEach(([esId, enId]) => {
+    const esBtn = document.getElementById(esId);
+    const enBtn = document.getElementById(enId);
+    if (!esBtn || !enBtn) return;
+    const activeStyle = 'background:var(--surface-lowest);color:var(--on-surface);box-shadow:0 1px 4px rgba(27,28,25,0.10);';
+    const inactiveStyle = 'background:transparent;color:var(--on-surface-muted);box-shadow:none;';
+    const baseSeg = 'padding:3px 9px;border-radius:9999px;border:none;font-family:\'Inter\',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;';
+    esBtn.style.cssText = baseSeg + (lang === 'es' ? activeStyle : inactiveStyle);
+    enBtn.style.cssText = baseSeg + (lang === 'en' ? activeStyle : inactiveStyle);
+  });
+}
+
 function setLanguage(lang) {
   currentLang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1875,9 +1892,7 @@ function setLanguage(lang) {
       el.textContent = t(key);
     }
   });
-  document.querySelectorAll('#lang-toggle,#upload-lang-toggle').forEach(btn => {
-    if (btn) btn.textContent = t('langToggle');
-  });
+  updateLangSegs(lang);
   // Re-render dynamic sections that use translated strings
   renderCategorySelector();
   if (document.getElementById('results-screen')?.classList.contains('active')) {
@@ -2664,9 +2679,14 @@ function updateAuthButton() {
       || currentUser.user_metadata?.full_name
       || currentUser.email.split('@')[0];
     if (btn) {
-      btn.textContent = '👤 ' + displayName;
+      const initials = displayName.split(' ').slice(0,2).map(w => w[0]?.toUpperCase()||'').join('');
+      btn.innerHTML = `<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font-size:0.62rem;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;">${initials}</span>`;
+      btn.style.padding = '2px';
+      btn.style.borderRadius = '50%';
+      btn.style.background = 'transparent';
       btn.onclick = null;
       btn.style.cursor = 'default';
+      btn.title = displayName;
     }
     if (signOutBtn) signOutBtn.style.display = '';
     if (authWrap) authWrap.style.display = 'none';
@@ -3827,7 +3847,7 @@ initAuth();
   <div style="background:var(--surface-lowest);border-radius:20px;padding:36px;max-width:420px;width:90%;box-shadow:var(--shadow-lg);position:relative;">
     <button onclick="closeAuthModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--on-surface-muted);font-size:1.2rem;">✕</button>
     <div style="text-align:center;margin-bottom:24px;">
-      <div style="font-size:1.8rem;margin-bottom:8px">💰</div>
+      <div style="color:var(--primary);display:flex;align-items:center;justify-content:center;margin-bottom:8px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
       <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:700;color:var(--on-surface)" id="auth-modal-title" data-i18n="authTitle">Crea tu cuenta</h2>
       <p style="font-size:0.82rem;color:var(--on-surface-variant);margin-top:4px" id="auth-modal-sub" data-i18n="authSub">Guarda tu historial y accede desde cualquier dispositivo</p>
     </div>
@@ -3842,7 +3862,7 @@ initAuth();
       <div id="auth-error" style="display:none;color:#c0392b;font-size:0.78rem;text-align:center;padding:8px;background:rgba(192,57,43,0.08);border-radius:8px;"></div>
       <button id="auth-submit-btn" onclick="submitAuth()" style="padding:13px;border-radius:10px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;margin-top:4px;" data-i18n="createAccount">Crear cuenta</button>
     </div>
-    <p style="text-align:center;font-size:0.75rem;color:var(--on-surface-muted);margin-top:16px;line-height:1.5" data-i18n="authPrivacy">🔒 Nunca compartimos tus datos con terceros.</p>
+    <p style="text-align:center;font-size:0.75rem;color:var(--on-surface-muted);margin-top:16px;line-height:1.5;display:flex;align-items:center;justify-content:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span data-i18n="authPrivacy">Nunca compartimos tus datos con terceros.</span></p>
   </div>
 </div>
 
@@ -3850,12 +3870,12 @@ initAuth();
 <div id="save-popup" style="display:none;position:fixed;inset:0;background:rgba(27,28,25,0.5);z-index:200;align-items:center;justify-content:center;">
   <div style="background:var(--surface-lowest);border-radius:20px;padding:32px;max-width:400px;width:90%;box-shadow:var(--shadow-lg);text-align:center;position:relative;">
     <button onclick="closeSavePopup()" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--on-surface-muted);font-size:1.2rem;">✕</button>
-    <div style="font-size:2rem;margin-bottom:12px">💾</div>
+    <div style="color:var(--primary);display:flex;align-items:center;justify-content:center;margin-bottom:12px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
     <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:8px;color:var(--on-surface)" data-i18n="savePopupTitle">Guarda tu análisis</h3>
     <p style="font-size:0.82rem;color:var(--on-surface-variant);line-height:1.6;margin-bottom:20px" data-i18n="savePopupSub">Crea una cuenta gratuita para guardar tus resultados.</p>
     <ul style="text-align:left;font-size:0.82rem;color:var(--on-surface-variant);line-height:1.8;margin-bottom:24px;list-style:none;padding:0;">
-      <li>🔒 <span data-i18n="savePopupBenefit1">Guarda tu historial de estados de cuenta</span></li>
-      <li>📊 <span data-i18n="savePopupBenefit2">Próximamente: comparación mensual y presupuestos</span></li>
+      <li style="display:flex;align-items:center;gap:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span data-i18n="savePopupBenefit1">Guarda tu historial de estados de cuenta</span></li>
+      <li style="display:flex;align-items:center;gap:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span data-i18n="savePopupBenefit2">Próximamente: comparación mensual y presupuestos</span></li>
     </ul>
     <button onclick="openAuthFromPopup()" style="width:100%;padding:13px;border-radius:10px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;margin-bottom:10px;" data-i18n="createFreeAccount">Crear cuenta gratis</button>
     <button onclick="closeSavePopup()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.82rem;cursor:pointer;" data-i18n="maybeLater">Ahora no</button>
@@ -3865,7 +3885,7 @@ initAuth();
 <!-- ── DUPLICATE STATEMENT MODAL ── -->
 <div id="duplicate-modal" style="display:none;position:fixed;inset:0;background:rgba(27,28,25,0.5);z-index:400;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
   <div style="background:var(--surface-lowest);border-radius:24px;padding:32px 28px;max-width:380px;width:100%;box-shadow:var(--shadow-lg);position:relative;text-align:center;">
-    <div style="font-size:2.5rem;margin-bottom:12px">📋</div>
+    <div style="color:var(--primary);display:flex;align-items:center;justify-content:center;margin-bottom:12px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
     <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;color:var(--on-surface);margin-bottom:8px" data-i18n="duplicateStatement">Estado de cuenta duplicado</h2>
     <p style="font-size:0.84rem;color:var(--on-surface-variant);line-height:1.5;margin-bottom:24px" data-i18n="duplicateStatementMsg">Ya subiste este estado de cuenta anteriormente. Si quieres verlo, encuéntralo en Mis Estados.</p>
     <div style="display:flex;flex-direction:column;gap:10px;">
@@ -3907,7 +3927,7 @@ initAuth();
 
   <!-- Not logged in message -->
   <div id="budget-login-msg" style="display:none;text-align:center;padding:60px 20px;color:var(--on-surface-muted);">
-    <div style="font-size:2rem;margin-bottom:12px">🔒</div>
+    <div style="color:var(--on-surface-muted);display:flex;align-items:center;justify-content:center;margin-bottom:12px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
     <p style="font-size:0.9rem;margin-bottom:16px" data-i18n="budgetLoginMsg">Inicia sesión para configurar tu presupuesto.</p>
     <button onclick="openAuthModal()"
       style="padding:10px 24px;border-radius:12px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;"
