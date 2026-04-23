@@ -36,9 +36,13 @@
   --amber:#8a5e00;
   --outline-variant:#debfc0;
   /* Shadows */
-  --shadow-sm:0 2px 8px rgba(27,28,25,0.06);
-  --shadow-md:0 4px 32px rgba(27,28,25,0.06);
-  --shadow-lg:0 8px 48px rgba(27,28,25,0.09);
+  --shadow-sm:0 2px 8px rgba(27,28,25,0.05);
+  --shadow-md:0 4px 20px rgba(27,28,25,0.08);
+  --shadow-lg:0 8px 48px rgba(27,28,25,0.10);
+  /* Type scale */
+  --fs-display:3rem;--fs-h1:2rem;--fs-h2:1.4rem;--fs-stat:2.4rem;--fs-body:0.94rem;--fs-meta:0.72rem;
+  /* Border radius */
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
   /* Tints */
   --primary-tint:rgba(109,0,30,0.07);
   --secondary-tint:rgba(53,99,128,0.07);
@@ -64,7 +68,7 @@ body{background:var(--bg);color:var(--on-surface);font-family:'Inter',sans-serif
 /* ── HEADER ──────────────────────────────────────────────── */
 .eyebrow{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.63rem;color:var(--primary);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .eyebrow::before{content:'';width:28px;height:1.5px;background:var(--primary);}
-h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:2.6rem;font-weight:800;letter-spacing:-0.04em;margin-bottom:10px;line-height:1.08;color:var(--on-surface);}
+h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:var(--fs-h1,2rem);font-weight:800;letter-spacing:-0.04em;margin-bottom:10px;line-height:1.08;color:var(--on-surface);}
 h1 em{color:var(--primary);font-style:normal;}
 .subtitle{color:var(--on-surface-variant);font-size:0.95rem;line-height:1.7;margin-bottom:40px;max-width:520px;}
 
@@ -79,10 +83,10 @@ h1 em{color:var(--primary);font-style:normal;}
 .btn-download:hover{opacity:0.9;transform:translateY(-1px);}
 
 /* ── UPLOAD SCREEN ───────────────────────────────────────── */
-.upload-zone{background:var(--surface-lowest);border:1.5px solid rgba(222,191,192,0.35);border-radius:24px;padding:52px 32px;text-align:center;cursor:pointer;transition:all 0.22s;position:relative;margin-bottom:0;box-shadow:var(--shadow-sm);}
+.upload-zone{background:var(--surface-lowest);border:1.5px solid rgba(222,191,192,0.35);border-radius:24px;padding:28px 32px;text-align:center;cursor:pointer;transition:all 0.22s;position:relative;margin-bottom:0;box-shadow:var(--shadow-sm);}
 .upload-zone:hover,.upload-zone.dragover{border-color:rgba(109,0,30,0.3);background:rgba(109,0,30,0.02);box-shadow:var(--shadow-md);}
 .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.upload-icon{font-size:2.8rem;margin-bottom:14px;line-height:1;}
+.upload-icon{font-size:2.8rem;margin-bottom:14px;line-height:1;display:flex;align-items:center;justify-content:center;}
 .upload-label{font-size:1rem;color:var(--on-surface);font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;}
 .upload-label span{font-size:0.82rem;display:block;margin-top:6px;color:var(--on-surface-variant);font-weight:400;}
 .section-label{font-family:'Inter',sans-serif;font-size:0.67rem;color:var(--on-surface-variant);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px;font-weight:600;}
@@ -90,6 +94,11 @@ h1 em{color:var(--primary);font-style:normal;}
 .acct-btn{padding:9px 20px;border-radius:9999px;border:none;background:var(--surface-high);color:var(--on-surface-variant);font-size:0.84rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;font-weight:500;}
 .acct-btn:hover{background:var(--surface-highest);color:var(--on-surface);}
 .acct-btn.active{background:linear-gradient(135deg,var(--primary),var(--primary-dk));color:var(--on-primary);font-weight:600;}
+/* Segmented control (03.02) */
+.acct-seg{display:flex;border-radius:9999px;background:var(--surface-high);padding:3px;gap:2px;margin-bottom:28px;}
+.acct-seg-btn{flex:1;padding:9px 14px;border-radius:9999px;border:none;background:transparent;color:var(--on-surface-variant);font-size:0.84rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;font-weight:500;text-align:center;white-space:nowrap;}
+.acct-seg-btn:hover{background:rgba(27,28,25,0.05);color:var(--on-surface);}
+.acct-seg-btn.active{background:var(--primary);color:var(--on-primary);font-weight:600;}
 .file-name{font-size:0.78rem;color:var(--primary);margin-top:4px;margin-bottom:0;font-family:'Inter',sans-serif;min-height:0;font-weight:600;}
 
 /* ── PROCESSING SCREEN ───────────────────────────────────── */
@@ -117,7 +126,8 @@ h1 em{color:var(--primary);font-style:normal;}
 .cat-selector-sub{color:var(--on-surface-variant);font-size:0.9rem;line-height:1.65;margin-bottom:28px;}
 .cat-chips{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
 .cat-chips-col{display:flex;flex-direction:column;gap:8px;}
-.cat-chips-col-title{font-size:0.61rem;font-family:'Inter',sans-serif;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px;font-weight:600;}
+.cat-chips-col-title{font-size:1.1rem;font-family:'Plus Jakarta Sans',sans-serif;color:var(--on-surface);letter-spacing:-0.01em;margin-bottom:10px;font-weight:700;padding-bottom:8px;border-bottom:2px solid var(--primary);}
+.cat-chips-col-title.income-col{border-bottom-color:var(--secondary);}
 .cat-chip{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:var(--surface-low);cursor:pointer;transition:all 0.15s;font-size:0.84rem;position:relative;border:none;}
 .cat-chip:hover{background:var(--surface-high);}
 .cat-chip.active{background:var(--primary-tint);}
@@ -174,7 +184,7 @@ tr:hover td{background:var(--surface-low);}
 .reasoning{font-size:0.68rem;color:var(--on-surface-muted);font-style:italic;}
 
 /* ── DASHBOARD SCREEN ────────────────────────────────────── */
-.dash-header{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(251,249,244,0.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:20;}
+.dash-header{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(251,249,244,0.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:20;border-bottom:1px solid var(--surface-high);}
 .dash-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:var(--on-surface);letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;}
 .dash-logo-dot{width:8px;height:8px;background:var(--primary);border-radius:50%;}
 .dash-actions{display:flex;gap:8px;align-items:center;}
@@ -182,15 +192,11 @@ tr:hover td{background:var(--surface-low);}
 
 /* stat cards */
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
-.stat-card{background:var(--surface-lowest);border-radius:24px;padding:24px;min-height:124px;position:relative;overflow:hidden;box-shadow:var(--shadow-md);transition:box-shadow 0.2s;}
+.stat-card{background:var(--surface-lowest);border:1px solid rgba(27,28,25,0.07);border-radius:24px;padding:24px;min-height:124px;position:relative;overflow:hidden;box-shadow:var(--shadow-md);transition:box-shadow 0.2s;}
 .stat-card:hover{box-shadow:var(--shadow-lg);}
-.stat-card.income-card{background:linear-gradient(135deg,rgba(53,99,128,0.08) 0%,var(--surface-lowest) 65%);}
-.stat-card.expense-card{background:linear-gradient(135deg,rgba(109,0,30,0.08) 0%,var(--surface-lowest) 65%);}
-.stat-card.balance-card{background:linear-gradient(135deg,rgba(45,122,94,0.08) 0%,var(--surface-lowest) 65%);}
-.stat-card.install-card{background:linear-gradient(135deg,rgba(138,94,0,0.08) 0%,var(--surface-lowest) 65%);}
 .stat-card-icon{font-size:1.1rem;margin-bottom:10px;display:block;opacity:0.7;}
 .stat-label{font-size:0.63rem;font-family:'Inter',sans-serif;color:var(--on-surface-variant);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;font-weight:600;}
-.stat-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.85rem;font-weight:800;letter-spacing:-0.04em;margin-bottom:6px;line-height:1;color:var(--on-surface);}
+.stat-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:var(--fs-stat,2.4rem);font-weight:800;letter-spacing:-0.04em;margin-bottom:6px;line-height:1;color:var(--on-surface);font-variant-numeric:tabular-nums;}
 .stat-value.green{color:var(--secondary);}
 .stat-value.red{color:var(--primary);}
 .stat-value.teal{color:var(--tertiary);}
@@ -215,12 +221,15 @@ tr:hover td{background:var(--surface-low);}
 .tab-btn.active{background:var(--surface-lowest);color:var(--on-surface);font-weight:700;box-shadow:var(--shadow-sm);}
 
 /* category rows */
-.cat-row{display:flex;align-items:center;gap:12px;padding:14px 22px;cursor:pointer;transition:all 0.12s;border-left:3px solid transparent;}
+.cat-row{display:flex;align-items:center;gap:12px;padding:14px 22px 6px;cursor:pointer;transition:all 0.12s;border-left:3px solid transparent;}
+/* proportion bars (02.04) */
+.cat-bar-track{height:2px;background:var(--surface-high);border-radius:9999px;margin:0 22px 10px;}
+.cat-bar{height:2px;background:var(--primary);border-radius:2px;transition:width 0.4s ease;}
 .cat-row:hover{filter:brightness(0.97);}
 .cat-row.active-filter{outline:none;}
 .cat-emoji{font-size:1rem;width:24px;text-align:center;flex-shrink:0;}
 .cat-name{font-size:0.85rem;font-weight:600;flex:1;color:var(--on-surface);font-family:'Inter',sans-serif;}
-.cat-amount{font-size:0.76rem;font-family:'Inter',monospace;color:var(--on-surface);text-align:right;min-width:120px;font-weight:700;}
+.cat-amount{font-size:0.76rem;font-family:'Inter',monospace;color:var(--on-surface);text-align:right;min-width:120px;font-weight:700;font-variant-numeric:tabular-nums;}
 
 /* search bar */
 .search-bar{display:flex;gap:8px;padding:14px 20px;background:var(--surface-low);flex-wrap:wrap;align-items:center;}
@@ -242,12 +251,14 @@ tr:hover td{background:var(--surface-low);}
 .custom-period-wrap.visible{display:flex;}
 .period-input{padding:7px 12px;border-radius:10px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.82rem;outline:none;cursor:pointer;}
 .period-input:focus{border-color:var(--primary);}
-.filter-bar-label{font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.06em;}
+.filter-bar-label{font-size:0.72rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.06em;}
+/* filter-row label (02.02) */
+.filter-row-label{font-size:0.62rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap;}
 
 /* transaction table */
 .txn-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
 .txn-table th{text-align:left;padding:10px 18px;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--on-surface-muted);font-weight:600;font-family:'Inter',sans-serif;background:var(--surface-low);position:sticky;top:0;z-index:5;white-space:nowrap;}
-.txn-table td{padding:12px 18px;vertical-align:middle;}
+.txn-table td{padding:14px 18px;vertical-align:middle;border-bottom:1px solid rgba(27,28,25,0.05);font-variant-numeric:tabular-nums;}
 .txn-table tr:last-child td{border-bottom:none;}
 .txn-table tr:hover td{background:var(--surface-low);}
 .txn-cat-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:9999px;border:none;background:var(--surface-low);color:var(--on-surface);font-size:0.73rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;font-weight:500;}
@@ -266,10 +277,10 @@ tr:hover td{background:var(--surface-low);}
 .cat-dd-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;cursor:pointer;font-size:0.84rem;transition:background 0.1s;font-family:'Inter',sans-serif;color:var(--on-surface);}
 .cat-dd-item:hover{background:var(--surface-low);}
 
-.privacy-notice{font-size:0.73rem;color:var(--on-surface-muted);margin-top:24px;padding:14px 18px;background:var(--surface-low);border-radius:16px;line-height:1.6;}
+.privacy-notice{font-size:0.82rem;color:var(--on-surface-variant);margin-top:12px;padding:8px 10px 8px 12px;background:transparent;border-left:2px solid var(--primary);border-radius:0;line-height:1.6;}
 
 /* ── BOTTOM NAV ──────────────────────────────────────────────── */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--surface-lowest);border-top:1px solid var(--surface-high);display:flex;align-items:center;justify-content:space-around;z-index:100;box-shadow:0 -2px 16px rgba(27,28,25,0.06);}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--surface-lowest);border-top:1px solid var(--surface-high);display:flex;align-items:center;justify-content:space-around;z-index:100;}
 .bottom-nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 32px;background:transparent;border:none;cursor:pointer;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:500;transition:color 0.15s;border-radius:12px;}
 .bottom-nav-btn:hover{color:var(--on-surface);background:var(--surface-low);}
 .bottom-nav-btn.active{color:var(--primary);}
@@ -359,21 +370,24 @@ tr:hover td{background:var(--surface-low);}
   .dash-btn{font-size:0.78rem;padding:7px 14px;}
   .dash-meta{
     flex:0 0 100%;margin:0;
-    display:grid!important;
-    grid-template-columns:1fr 1fr;
+    display:flex!important;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
     gap:6px;
-    overflow-x:visible;
     border-top:1px solid rgba(222,191,192,0.25);
-    padding-top:10px;
+    padding-top:8px;
+    padding-bottom:2px;
   }
+  .dash-meta::-webkit-scrollbar{display:none;}
   .dash-meta:empty{display:none;}
   .dash-meta .meta-pill{
     font-size:0.66rem;
-    padding:5px 10px;
+    padding:4px 10px;
     border-radius:8px;
-    overflow:hidden;
-    text-overflow:ellipsis;
     white-space:nowrap;
+    flex-shrink:0;
   }
 
   /* Dashboard body */
@@ -383,7 +397,7 @@ tr:hover td{background:var(--surface-low);}
   .stat-row{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
   .stat-card{padding:16px 14px;min-height:auto;border-radius:18px;}
   .stat-card-icon{font-size:0.95rem;margin-bottom:6px;}
-  .stat-value{font-size:1.4rem;letter-spacing:-0.03em;}
+  .stat-value{font-size:clamp(1.25rem,4vw,1.6rem);letter-spacing:-0.03em;}
   .stat-label{font-size:0.58rem;letter-spacing:0.08em;}
   .stat-sub{font-size:0.65rem;}
   .balance-bar-bg{margin:6px 0 3px;}
@@ -395,7 +409,8 @@ tr:hover td{background:var(--surface-low);}
   .panel-scroll{max-height:none;}  /* let it grow naturally on mobile */
 
   /* Category breakdown */
-  .cat-row{padding:11px 16px;gap:10px;}
+  .cat-row{padding:11px 16px 4px;gap:10px;}
+  .cat-bar-track{margin:0 16px 8px;}
   .cat-amount{min-width:90px;font-size:0.72rem;}
   .cat-name{font-size:0.82rem;}
 
@@ -431,16 +446,16 @@ tr:hover td{background:var(--surface-low);}
 .review-prog-bg{height:3px;background:var(--surface-high);border-radius:9999px;margin-bottom:32px;}
 .review-prog-fill{height:3px;background:var(--primary);border-radius:9999px;transition:width 0.6s ease;}
 .review-waiting-anim{font-size:2.6rem;animation:reviewPulse 2s ease-in-out infinite;}
-@keyframes reviewPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.92);}}
+@keyframes reviewPulse{0%,100%{opacity:1;}50%{opacity:0.45;}}
 .review-waiting-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:700;color:var(--on-surface);margin-top:4px;}
 .review-waiting-sub{font-size:0.85rem;color:var(--on-surface-variant);max-width:280px;line-height:1.6;text-align:center;}
 .review-card{background:var(--surface-lowest);border-radius:28px;padding:28px 24px;box-shadow:var(--shadow-lg);margin-bottom:16px;}
 @keyframes reviewCardIn{from{opacity:0;transform:translateY(18px) scale(0.97);}to{opacity:1;transform:none;}}
-.review-card-animate{animation:reviewCardIn 0.28s cubic-bezier(0.34,1.56,0.64,1);}
+.review-card-animate{animation:reviewCardIn 0.28s cubic-bezier(0.25,0.46,0.45,0.94);}
 .review-dir-pill{display:inline-flex;align-items:center;gap:5px;font-size:0.64rem;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;font-family:'Inter',sans-serif;padding:4px 10px;border-radius:9999px;margin-bottom:14px;}
 .review-dir-pill.credit{background:var(--secondary-tint);color:var(--secondary);}
 .review-dir-pill.debit{background:var(--primary-tint);color:var(--primary);}
-.review-amount{font-family:'Plus Jakarta Sans',sans-serif;font-size:2.5rem;font-weight:800;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;}
+.review-amount{font-family:'Plus Jakarta Sans',sans-serif;font-size:3rem;font-weight:800;letter-spacing:-0.04em;line-height:1;margin-bottom:8px;}
 .review-amount.credit{color:var(--secondary);}
 .review-amount.debit{color:var(--on-surface);}
 .review-desc{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.25rem;font-weight:700;color:var(--on-surface);margin-bottom:8px;line-height:1.2;}
@@ -455,7 +470,7 @@ tr:hover td{background:var(--surface-low);}
 .review-skip-btn:hover{background:var(--surface-highest);}
 @media(max-width:640px){
   .review-container{padding:24px 16px;}
-  .review-amount{font-size:2rem;}
+  .review-amount{font-size:2.4rem;}
   .review-desc{font-size:1.1rem;}
   .review-card{padding:22px 18px;}
   .review-cat-grid{grid-template-columns:1fr 1fr;gap:6px;}
@@ -495,27 +510,46 @@ tr:hover td{background:var(--surface-low);}
 .guide-steps2{font-size:0.84rem;color:var(--on-surface-variant);line-height:1.8;padding-left:20px;margin-bottom:14px;}
 .guide-steps2 li{margin-bottom:4px;}
 .guide-video-placeholder{padding:12px 16px;background:var(--surface-low);border-radius:10px;font-size:0.78rem;color:var(--on-surface-muted);text-align:center;border:1px dashed var(--surface-high);}
+
+/* ── FOCUS RING (06.04) ──────────────────────────────────── */
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+
+/* ── COMPARISON DIVERGING BAR (05.03) ───────────────────── */
+.comp-delta-bar-wrap{width:80px;display:inline-flex;align-items:center;height:6px;position:relative;vertical-align:middle;margin-right:6px;}
+.comp-delta-bar-neg{height:6px;border-radius:2px 0 0 2px;background:var(--primary);position:absolute;right:50%;top:0;}
+.comp-delta-bar-pos{height:6px;border-radius:0 2px 2px 0;background:var(--tertiary);position:absolute;left:50%;top:0;}
+.comp-delta-bar-mid{width:1px;height:10px;background:var(--surface-highest);position:absolute;left:50%;top:-2px;}
+
+/* ── DASHBOARD ZERO-STATE (06.05) ────────────────────────── */
+.stat-zero-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;text-align:center;}
+.stat-zero-state h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:var(--fs-h2,1.4rem);font-weight:700;color:var(--on-surface);margin-bottom:10px;}
+.stat-zero-state p{color:var(--on-surface-muted);font-size:var(--fs-body,0.94rem);margin-bottom:24px;max-width:340px;line-height:1.6;}
+
+/* ── REDUCED MOTION (06.06) ──────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes reviewPulse{0%,100%,50%{opacity:1;}}
+  @keyframes reviewCardIn{from,to{opacity:1;transform:none;}}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .review-card-animate{animation:none;}
+  .review-waiting-anim{animation:none;}
+  .balance-bar-fill,.cat-bar{transition:none;}
+}
 </style>
 </head>
 <body>
-<div style="position:fixed;top:14px;right:16px;z-index:1100;display:flex;gap:8px;align-items:center;">
-  <button id="auth-btn" onclick="openAuthModal()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);"><span data-i18n="signIn">Iniciar sesión</span></button>
-  <button id="signout-btn" onclick="handleSignOut()" style="display:none;padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);" data-i18n="signOut">Cerrar sesión</button>
-  <button id="lang-toggle" onclick="toggleLanguage()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:var(--shadow-sm);">EN</button>
-</div>
 
 <!-- ── COMPARISON SCREEN ── -->
 <div id="comparison-screen" class="screen">
 <div style="max-width:900px;margin:0 auto;padding:40px 20px 100px;">
 
   <div style="margin-bottom:28px;">
-    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px" data-i18n="compEyebrow">Comparación mensual</div>
+    <div style="font-size:0.72rem;font-family:monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px" data-i18n="compEyebrow">Comparación mensual</div>
     <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:var(--on-surface)" data-i18n="compTitle">¿Cómo vas este mes?</h1>
   </div>
 
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-    <div id="comp-mode-badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:var(--surface-lowest);border:1px solid var(--surface-high);font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);"></div>
-    <button id="comp-mode-toggle" onclick="toggleCompMode()" style="display:none;padding:5px 14px;border-radius:20px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'DM Mono',monospace;font-size:0.7rem;cursor:pointer;" data-i18n="compToggleCalendar">Ver por mes</button>
+    <div id="comp-mode-badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:var(--surface-lowest);border:1px solid var(--surface-high);font-size:0.72rem;font-family:monospace;color:var(--on-surface-muted);"></div>
+    <button id="comp-mode-toggle" onclick="toggleCompMode()" style="display:none;padding:5px 14px;border-radius:20px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:monospace;font-size:0.7rem;cursor:pointer;" data-i18n="compToggleCalendar">Ver por mes</button>
   </div>
 
   <div id="comp-needs-more" style="display:none;padding:10px 16px;border-radius:12px;background:var(--surface-lowest);border:1px solid var(--surface-high);font-size:0.8rem;color:var(--on-surface-muted);margin-bottom:20px;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
@@ -524,7 +558,7 @@ tr:hover td{background:var(--surface-low);}
   </div>
 
   <div style="margin-bottom:24px;">
-    <div style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px" data-i18n="compSelectMonths">Selecciona dos períodos para comparar</div>
+    <div style="font-size:0.7rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px" data-i18n="compSelectMonths">Selecciona dos períodos para comparar</div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
       <div style="flex:1;min-width:180px;">
         <div style="font-size:0.72rem;color:var(--on-surface-muted);margin-bottom:6px" data-i18n="compPeriodA">Período A</div>
@@ -544,19 +578,19 @@ tr:hover td{background:var(--surface-low);}
 
   <div class="comp-summary-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
     <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;">
-      <div style="font-size:0.64rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compIncome">Ingresos</div>
+      <div style="font-size:0.64rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compIncome">Ingresos</div>
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--tertiary)" id="comp-income-a">—</div>
       <div style="font-size:0.78rem;color:var(--on-surface-muted);margin-top:4px" id="comp-income-b">—</div>
       <div style="font-size:0.78rem;font-weight:600;margin-top:6px" id="comp-income-delta">—</div>
     </div>
     <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;">
-      <div style="font-size:0.64rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compExpenses">Gastos</div>
+      <div style="font-size:0.64rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compExpenses">Gastos</div>
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--primary)" id="comp-expense-a">—</div>
       <div style="font-size:0.78rem;color:var(--on-surface-muted);margin-top:4px" id="comp-expense-b">—</div>
       <div style="font-size:0.78rem;font-weight:600;margin-top:6px" id="comp-expense-delta">—</div>
     </div>
     <div class="comp-balance-card" style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;padding:18px 20px;">
-      <div style="font-size:0.64rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compBalance">Balance neto</div>
+      <div style="font-size:0.64rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px" data-i18n="compBalance">Balance neto</div>
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--secondary)" id="comp-balance-a">—</div>
       <div style="font-size:0.78rem;color:var(--on-surface-muted);margin-top:4px" id="comp-balance-b">—</div>
       <div style="font-size:0.78rem;font-weight:600;margin-top:6px" id="comp-balance-delta">—</div>
@@ -565,7 +599,7 @@ tr:hover td{background:var(--surface-low);}
 
   <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:16px;overflow:hidden;">
     <div style="padding:16px 20px;border-bottom:1px solid var(--surface-high);display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:0.78rem;font-weight:600;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;color:var(--on-surface-muted)" data-i18n="compByCategory">Por categoría</span>
+      <span style="font-size:0.78rem;font-weight:600;font-family:monospace;text-transform:uppercase;letter-spacing:0.08em;color:var(--on-surface-muted)" data-i18n="compByCategory">Por categoría</span>
       <div style="display:flex;gap:8px;">
         <button id="comp-tab-expense" onclick="setCompTab('expense')"
           style="padding:4px 12px;border-radius:6px;border:1px solid var(--surface-high);background:var(--primary-tint);color:var(--primary);font-size:0.74rem;cursor:pointer;font-family:'Inter',sans-serif;"
@@ -576,10 +610,10 @@ tr:hover td{background:var(--surface-low);}
       </div>
     </div>
     <div class="comp-cat-header" style="display:grid;grid-template-columns:1fr 120px 120px 100px;gap:0;padding:10px 20px;background:var(--surface-low);border-bottom:1px solid var(--surface-high);">
-      <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em" data-i18n="compColCategory">Categoría</div>
-      <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" id="comp-col-a">—</div>
-      <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" id="comp-col-b">—</div>
-      <div style="font-size:0.62rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" data-i18n="compColDelta">Cambio</div>
+      <div style="font-size:0.62rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em" data-i18n="compColCategory">Categoría</div>
+      <div style="font-size:0.62rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" id="comp-col-a">—</div>
+      <div style="font-size:0.62rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" id="comp-col-b">—</div>
+      <div style="font-size:0.62rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:right" data-i18n="compColDelta">Cambio</div>
     </div>
     <div id="comp-category-rows" style="max-height:500px;overflow-y:auto;"></div>
   </div>
@@ -601,7 +635,10 @@ tr:hover td{background:var(--surface-low);}
 
   <!-- Header -->
   <div style="margin-bottom:32px;">
-    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Finanzas</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div style="font-size:0.72rem;font-family:monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;">Finanzas</div>
+      <button id="upload-lang-toggle" onclick="toggleLanguage()" style="padding:4px 12px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;">EN</button>
+    </div>
     <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:800;color:var(--on-surface);line-height:1.2">
       Tu dinero,<br><em style="color:var(--primary);font-style:italic">sin filtros.</em>
     </h1>
@@ -618,12 +655,12 @@ tr:hover td{background:var(--surface-low);}
   <!-- ── UPLOAD SECTION ── -->
   <div style="background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:20px;padding:28px;margin-bottom:20px;">
 
-    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px" data-i18n="uploadNewLabel">Nuevo análisis</div>
+    <div style="font-size:0.72rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px" data-i18n="uploadNewLabel">Nuevo análisis</div>
 
     <!-- Drop zone -->
     <div class="upload-zone" id="drop-zone">
       <input type="file" id="file-input" accept=".pdf,.xlsx,.xls,.csv">
-      <div class="upload-icon">📂</div>
+      <div class="upload-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);margin:0 auto;display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
       <div class="upload-label">
         <strong data-i18n="uploadDropTitle">Arrastra tu estado de cuenta aquí</strong>
         <span data-i18n="uploadDropSub">PDF · Excel (.xlsx) · CSV · Cualquier banco</span>
@@ -633,11 +670,11 @@ tr:hover td{background:var(--surface-low);}
 
     <!-- Account type -->
     <div class="section-label" style="margin-top:16px" data-i18n="uploadAcctLabel">¿Qué tipo de cuenta es esta?</div>
-    <div class="acct-group" id="acct-group">
-      <button class="acct-btn active" data-type="credit" onclick="selectAcct(this)" data-i18n="uploadCredit">💳 Tarjeta de Crédito</button>
-      <button class="acct-btn" data-type="debit" onclick="selectAcct(this)" data-i18n="uploadDebit">🏦 Tarjeta de Débito</button>
-      <button class="acct-btn" data-type="savings" onclick="selectAcct(this)" data-i18n="uploadSavings">💰 Cuenta de Ahorro</button>
-      <button class="acct-btn" data-type="checking" onclick="selectAcct(this)" data-i18n="uploadChecking">📋 Cuenta de Cheques</button>
+    <div class="acct-seg" id="acct-group">
+      <button class="acct-seg-btn active" data-type="credit" onclick="selectAcct(this)" data-i18n="uploadCredit">Crédito</button>
+      <button class="acct-seg-btn" data-type="debit" onclick="selectAcct(this)" data-i18n="uploadDebit">Débito</button>
+      <button class="acct-seg-btn" data-type="savings" onclick="selectAcct(this)" data-i18n="uploadSavings">Ahorro</button>
+      <button class="acct-seg-btn" data-type="checking" onclick="selectAcct(this)" data-i18n="uploadChecking">Cheques</button>
     </div>
 
     <!-- Country -->
@@ -648,26 +685,27 @@ tr:hover td{background:var(--surface-low);}
       </select>
     </div>
 
-    <!-- Waterfall info -->
-    <div style="margin-bottom:20px;padding:10px 14px;background:var(--surface-low);border:1px solid var(--surface-high);border-radius:10px;font-size:0.78rem;color:var(--on-surface-muted);">
-      🌊 <span data-i18n="uploadWaterfall">Categorización inteligente — Haiku clasifica transacciones claras, Sonnet+WebSearch escala las inciertas.</span>
-    </div>
 
     <!-- CTA -->
     <button class="btn btn-primary" id="btn-start" disabled onclick="startPipeline()" style="width:100%" data-i18n="uploadBtn">Analizar mis finanzas →</button>
 
     <!-- Privacy -->
-    <p style="font-size:0.72rem;color:var(--on-surface-muted);margin-top:12px;text-align:center;line-height:1.5" data-i18n="uploadPrivacy">
-      🔒 Solo enviamos texto de transacciones — nunca tu nombre ni datos personales.
+    <p class="privacy-notice" data-i18n="uploadPrivacy">
+      Solo enviamos texto de transacciones — nunca tu nombre ni datos personales.
     </p>
   </div>
 
   <!-- ── PAST STATEMENTS SECTION (only shown when logged in) ── -->
-  <div id="history-section" style="display:none;margin-bottom:20px;">
-    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px" data-i18n="historyLabel">Tus estados anteriores</div>
-    <div id="history-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-    <div id="history-empty" style="display:none;padding:20px;text-align:center;color:var(--on-surface-muted);font-size:0.84rem;background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;">
-      <span data-i18n="historyEmpty">Aún no tienes estados guardados.</span>
+  <div id="history-section" style="display:none;" class="guides-wrap">
+    <button class="guides-toggle" onclick="toggleHistory()">
+      <span class="guides-title-row">🗂️ <span data-i18n="historyLabel">Tus estados anteriores</span></span>
+      <span class="guides-chevron">▼</span>
+    </button>
+    <div class="guides-body" style="flex-direction:column;gap:8px;padding-bottom:12px;">
+      <div id="history-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div id="history-empty" style="display:none;padding:20px;text-align:center;color:var(--on-surface-muted);font-size:0.84rem;background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:14px;">
+        <span data-i18n="historyEmpty">Aún no tienes estados guardados.</span>
+      </div>
     </div>
   </div>
 
@@ -902,8 +940,8 @@ tr:hover td{background:var(--surface-low);}
 
     <!-- Parse status shown inline while user browses categories -->
     <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;">
-      <span style="font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;" data-i18n="catParseLabel">Estado del parseo:</span>
-      <span id="parse-status" style="font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--muted)"><span class="spinner"></span>Starting…</span>
+      <span style="font-size:0.7rem;font-family:monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;" data-i18n="catParseLabel">Estado del parseo:</span>
+      <span id="parse-status" style="font-size:0.75rem;font-family:monospace;color:var(--muted)"><span class="spinner"></span>Starting…</span>
     </div>
   </div>
 </div>
@@ -977,6 +1015,9 @@ tr:hover td{background:var(--surface-low);}
     <div class="dash-logo"><div class="dash-logo-dot"></div>Finanzas</div>
     <div id="meta-bar" class="meta-bar dash-meta"></div>
     <div class="dash-actions">
+      <button id="auth-btn" onclick="openAuthModal()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;"><span data-i18n="signIn">Iniciar sesión</span></button>
+      <button id="signout-btn" onclick="handleSignOut()" style="display:none;padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;" data-i18n="signOut">Cerrar sesión</button>
+      <button id="lang-toggle" onclick="toggleLanguage()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;">EN</button>
       <button class="btn btn-download dash-btn" onclick="downloadExcel()" data-i18n="dashDownload">↓ Exportar</button>
       <button class="btn btn-secondary dash-btn" onclick="resetApp()" data-i18n="dashNew">↺ Nuevo</button>
     </div>
@@ -984,8 +1025,16 @@ tr:hover td{background:var(--surface-low);}
 
   <div class="dash-body">
 
+    <!-- Zero-state (shown when no data) -->
+    <div id="stat-zero-state-wrap" style="display:none;text-align:center;padding:48px 20px;margin-bottom:32px;background:var(--surface-lowest);border:1px solid rgba(27,28,25,0.07);border-radius:24px;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">📊</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:var(--fs-h2,1.4rem);font-weight:700;color:var(--on-surface);margin-bottom:10px;">Sube tu primer estado de cuenta</div>
+      <p style="color:var(--on-surface-muted);font-size:var(--fs-body,0.94rem);margin-bottom:24px;max-width:340px;margin-left:auto;margin-right:auto;line-height:1.6;">Arrastra un PDF o Excel de cualquier banco y la IA analizará tus gastos automáticamente.</p>
+      <button class="btn btn-primary" onclick="showUploadTab()">Subir estado →</button>
+    </div>
+
     <!-- Stat cards row -->
-    <div class="stat-row">
+    <div class="stat-row" id="stat-row-wrap">
       <div class="stat-card income-card">
         <span class="stat-card-icon">💵</span>
         <div class="stat-label" data-i18n="dashIncome">Ingresos totales</div>
@@ -1015,6 +1064,7 @@ tr:hover td{background:var(--surface-low);}
 
     <!-- Filter bar -->
     <div class="filter-bar">
+      <span class="filter-row-label">Filtrar por</span>
       <select class="filter-bar-select" id="filter-account" onchange="onAccountFilterChange()">
         <option value="all" data-i18n="filterAllAccounts">Todas las cuentas</option>
         <!-- Populated dynamically -->
@@ -1072,7 +1122,7 @@ tr:hover td{background:var(--surface-low);}
             <thead><tr>
               <th data-i18n="txnColDate">Fecha</th><th data-i18n="txnColDesc">Descripción</th><th data-i18n="txnColRef">Referencia</th>
               <th style="text-align:right" data-i18n="txnColAmt">Monto</th>
-              <th data-i18n="txnColCat">Categoría</th><th data-i18n="txnColConf">Conf.</th><th data-i18n="txnColReason">Razonamiento</th>
+              <th data-i18n="txnColCat">Categoría</th><th title="Alta ≥80% · Media 60–79% · Baja &lt;60%" style="cursor:help;" data-i18n="txnColConf">Conf. ⓘ</th><th data-i18n="txnColReason">Razonamiento</th>
             </tr></thead>
             <tbody id="dash-txn-body"></tbody>
           </table>
@@ -1285,7 +1335,7 @@ function renderHistoryList(statements) {
         <div style="font-weight:700;font-size:0.95rem;color:var(--on-surface);margin-bottom:4px">
           ${s.bank || 'Banco desconocido'} · ${s.account_type || ''}
         </div>
-        <div style="font-size:0.78rem;color:var(--on-surface-muted);font-family:'DM Mono',monospace;">
+        <div style="font-size:0.78rem;color:var(--on-surface-muted);font-family:monospace;">
           ${period}
         </div>
         <div style="display:flex;gap:16px;margin-top:8px;font-size:0.78rem;">
@@ -1462,15 +1512,15 @@ const STRINGS = {
     uploadTitle2: 'sin filtros.',
     uploadSubtitle: 'Sube tu estado de cuenta y la IA lo analiza automáticamente — cualquier banco, cualquier país.',
     uploadAcctLabel: '¿Qué tipo de cuenta es esta?',
-    uploadCredit: '💳 Tarjeta de Crédito',
-    uploadDebit: '🏦 Tarjeta de Débito',
-    uploadSavings: '💰 Cuenta de Ahorro',
-    uploadChecking: '📋 Cuenta de Cheques',
+    uploadCredit: 'Crédito',
+    uploadDebit: 'Débito',
+    uploadSavings: 'Ahorro',
+    uploadChecking: 'Cheques',
     uploadCountryLabel: 'País',
     uploadDropTitle: 'Arrastra tu estado de cuenta aquí',
     uploadDropSub: 'PDF · Excel (.xlsx) · CSV · Cualquier banco, cualquier país',
     uploadBtn: 'Analizar mis finanzas →',
-    uploadPrivacy: '🔒 Tu información es privada — solo enviamos texto de transacciones para análisis, nunca datos personales identificables.',
+    uploadPrivacy: 'Tu información es privada — solo enviamos texto de transacciones para análisis, nunca datos personales identificables.',
     processingTitle1: 'Analizando tu',
     processingTitle2: 'estado de cuenta',
     stepExtract: 'Extraer Texto',
@@ -1567,8 +1617,8 @@ const STRINGS = {
     compEyebrow: 'Comparación mensual',
     compTitle: '¿Cómo vas este mes?',
     compSelectMonths: 'Selecciona dos períodos para comparar',
-    compPeriodA: 'Período A',
-    compPeriodB: 'Período B',
+    compPeriodA: 'Este mes',
+    compPeriodB: 'Comparar con',
     compIncome: 'Ingresos',
     compExpenses: 'Gastos',
     compBalance: 'Balance neto',
@@ -1634,15 +1684,15 @@ const STRINGS = {
     uploadTitle2: 'unfiltered.',
     uploadSubtitle: 'Upload your bank statement and AI analyzes it automatically — any bank, any country.',
     uploadAcctLabel: 'What type of statement is this?',
-    uploadCredit: '💳 Credit Card',
-    uploadDebit: '🏦 Debit Card',
-    uploadSavings: '💰 Savings Account',
-    uploadChecking: '📋 Checking Account',
+    uploadCredit: 'Credit',
+    uploadDebit: 'Debit',
+    uploadSavings: 'Savings',
+    uploadChecking: 'Checking',
     uploadCountryLabel: 'Country',
     uploadDropTitle: 'Drop your bank statement here',
     uploadDropSub: 'PDF · Excel (.xlsx) · CSV · Any bank, any country',
     uploadBtn: 'Analyze my finances →',
-    uploadPrivacy: '🔒 Your data stays private — we only send transaction text for analysis, never personal identifiers.',
+    uploadPrivacy: 'Your data stays private — we only send transaction text for analysis, never personal identifiers.',
     processingTitle1: 'Analyzing your',
     processingTitle2: 'statement',
     stepExtract: 'Extract Text',
@@ -1739,8 +1789,8 @@ const STRINGS = {
     compEyebrow: 'Monthly comparison',
     compTitle: 'How are you doing this month?',
     compSelectMonths: 'Select two periods to compare',
-    compPeriodA: 'Period A',
-    compPeriodB: 'Period B',
+    compPeriodA: 'This month',
+    compPeriodB: 'Compare with',
     compIncome: 'Income',
     compExpenses: 'Expenses',
     compBalance: 'Net balance',
@@ -1822,8 +1872,9 @@ function setLanguage(lang) {
       el.textContent = t(key);
     }
   });
-  const btn = document.getElementById('lang-toggle');
-  if (btn) btn.textContent = t('langToggle');
+  document.querySelectorAll('#lang-toggle,#upload-lang-toggle').forEach(btn => {
+    if (btn) btn.textContent = t('langToggle');
+  });
   // Re-render dynamic sections that use translated strings
   renderCategorySelector();
   if (document.getElementById('results-screen')?.classList.contains('active')) {
@@ -1833,7 +1884,7 @@ function setLanguage(lang) {
     document.querySelector('.txn-table thead tr').innerHTML =
       `<th data-i18n="txnColDate">${t('txnColDate')}</th><th data-i18n="txnColDesc">${t('txnColDesc')}</th><th data-i18n="txnColRef">${t('txnColRef')}</th>
        <th style="text-align:right" data-i18n="txnColAmt">${t('txnColAmt')}</th>
-       <th data-i18n="txnColCat">${t('txnColCat')}</th><th data-i18n="txnColConf">${t('txnColConf')}</th><th data-i18n="txnColReason">${t('txnColReason')}</th>`;
+       <th data-i18n="txnColCat">${t('txnColCat')}</th><th title="Alta ≥80% · Media 60–79% · Baja &lt;60%" style="cursor:help;" data-i18n="txnColConf">${t('txnColConf')} ⓘ</th><th data-i18n="txnColReason">${t('txnColReason')}</th>`;
   }
 }
 
@@ -1895,6 +1946,9 @@ function setFile(file) {
 function toggleGuides() {
   document.getElementById('guides-wrap').classList.toggle('open');
 }
+function toggleHistory() {
+  document.getElementById('history-section').classList.toggle('open');
+}
 function toggleGuideItem(id) {
   const el = document.getElementById('guide-' + id);
   if (!el) return;
@@ -1905,7 +1959,7 @@ function toggleGuideItem(id) {
 }
 
 function selectAcct(btn) {
-  document.querySelectorAll('.acct-btn[data-type]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.acct-seg-btn[data-type],.acct-btn[data-type]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   selectedAcctType = btn.dataset.type;
 }
@@ -2191,14 +2245,16 @@ function renderCategorySelector() {
     .filter(({c}) => incomeIds.includes(c.id) || (c.custom && c.type === 'income'))
     .map(({c, i}) => chipHtml(c, i)).join('');
 
+  const expenseCount = userCategories.filter(c => c.active && (expenseIds.includes(c.id) || (c.custom && c.type !== 'income'))).length;
+  const incomeCount  = userCategories.filter(c => c.active && (incomeIds.includes(c.id) || (c.custom && c.type === 'income'))).length;
   chips.innerHTML = `
     <div class="cat-chips-col">
-      <div class="cat-chips-col-title" data-i18n="catExpenses">${t('catExpenses')}</div>
+      <div class="cat-chips-col-title" data-i18n="catExpenses">${t('catExpenses')} <span class="panel-badge">${expenseCount}</span></div>
       ${expenseChips}
       <button class="btn btn-secondary" onclick="toggleAddForm('expense')" style="margin-top:4px;font-size:0.78rem;padding:7px 12px;border-style:dashed" data-i18n="catAddExpense">${t('catAddExpense')}</button>
     </div>
     <div class="cat-chips-col">
-      <div class="cat-chips-col-title" data-i18n="catIncome">${t('catIncome')}</div>
+      <div class="cat-chips-col-title income-col" data-i18n="catIncome">${t('catIncome')} <span class="panel-badge">${incomeCount}</span></div>
       ${incomeChips}
       <button class="btn btn-secondary" onclick="toggleAddForm('income')" style="margin-top:4px;font-size:0.78rem;padding:7px 12px;border-style:dashed" data-i18n="catAddIncome">${t('catAddIncome')}</button>
     </div>`;
@@ -2841,6 +2897,17 @@ function renderStatCards(currency) {
   currency = currency || parsedData?.currency || selectedCountry.currency || 'MXN';
   const rows = getFilteredRows();
 
+  // Zero-state: no data yet
+  const zeroWrap = document.getElementById('stat-zero-state-wrap');
+  const statRowEl = document.getElementById('stat-row-wrap');
+  if (!rows || rows.length === 0) {
+    if (zeroWrap) zeroWrap.style.display = 'block';
+    if (statRowEl) statRowEl.style.display = 'none';
+    return;
+  }
+  if (zeroWrap) zeroWrap.style.display = 'none';
+  if (statRowEl) statRowEl.style.display = '';
+
   const income = rows.filter(r => r.direction === 'credit' && r.category !== 'internal_transfer' && r.category !== 'excluded');
   const expense = rows.filter(r => r.direction === 'debit' && r.category !== 'internal_transfer' && r.category !== 'excluded');
   const installments = (parsedData?.transactions || []).filter(t => t.type === 'Installment Plan');
@@ -2889,11 +2956,11 @@ function renderBreakdown(currency) {
       const pct = Math.round(amt / total * 100);
       const color = colorFn(catId);
       const isActive = dashCatFilter === catId;
-      return `<div class="cat-row ${isActive ? 'active-filter' : ''}" onclick="toggleCatFilter('${catId}')" style="background:linear-gradient(to right,${color}18 ${pct}%,transparent ${pct}%);border-left:3px solid ${color};">
+      return `<div class="cat-row ${isActive ? 'active-filter' : ''}" onclick="toggleCatFilter('${catId}')" style="border-left:3px solid ${color};">
         <span class="cat-emoji">${meta.emoji}</span>
         <span class="cat-name">${getCatLabel(catId) || meta.label}</span>
         <span class="cat-amount">${fmt(amt, currency)}<span style="font-size:0.65rem;opacity:0.55;margin-left:5px">${pct}%</span></span>
-      </div>`;
+      </div><div class="cat-bar-track"><div class="cat-bar" style="width:${pct}%;background:${color};"></div></div>`;
     }).join('');
   }
 
@@ -2965,7 +3032,7 @@ function renderDashTxns() {
       <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--blue);font-size:0.72rem">${esc(r.reference)}</td>
       <td class="td-mono" style="text-align:right;color:${r.direction==='credit'?'var(--green)':'var(--red)'}">${r.direction==='credit'?'+':'−'}${fmt(r.amount, currency)}</td>
       <td><button class="txn-cat-btn" onclick="openCatDd(event,${originalIndex})">${meta.emoji} ${getCatLabel(r.category) || meta.label} ▾</button></td>
-      <td style="white-space:nowrap"><span class="conf-dot ${confClass}">●</span> <span style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted)">${confPct}%</span></td>
+      <td style="white-space:nowrap"><span class="conf-dot ${confClass}">●</span> <span style="font-family:monospace;font-size:0.7rem;color:var(--muted)">${confPct}%</span></td>
       <td class="reasoning-cell" title="${esc(r.reasoning)}">${esc(r.reasoning)}</td>
     </tr>`;
   }).join('');
@@ -3273,12 +3340,13 @@ function renderComparison() {
   }
 
   function deltaHtml(a, b, isExpenseStat) {
-    if (!b) return '<span style="color:var(--on-surface-muted)">—</span>';
-    const pct = ((a - b) / b * 100);
+    // a = older period, b = newer period; show change from a → b
+    if (!a) return '<span style="color:var(--on-surface-muted)">—</span>';
+    const pct = ((b - a) / a * 100);
     const isPositive = isExpenseStat ? pct < 0 : pct > 0;
     const color = isPositive ? 'var(--tertiary)' : 'var(--primary)';
     const arrow = pct > 0 ? '↑' : '↓';
-    return `<span style="color:${color};font-weight:600">${arrow} ${Math.abs(pct).toFixed(0)}%</span>`;
+    return `<span style="color:${color};font-size:1.4rem;font-weight:800;line-height:1;">${arrow} ${Math.abs(pct).toFixed(0)}%</span>`;
   }
 
   const balA = totalsA.income - totalsA.expenses;
@@ -3311,7 +3379,8 @@ function renderComparison() {
     const amtA = catsA[catId] || 0;
     const amtB = catsB[catId] || 0;
     if (amtA === 0 && amtB === 0) return '';
-    const pct = amtB > 0 ? ((amtA - amtB) / amtB * 100) : null;
+    // a = older period, b = newer; show change from a → b
+    const pct = amtA > 0 ? ((amtB - amtA) / amtA * 100) : null;
     const isExpense = compTab === 'expense';
     const isPositive = pct === null ? null : (isExpense ? pct < 0 : pct > 0);
     const deltaColor = pct === null ? 'var(--on-surface-muted)' : isPositive ? 'var(--tertiary)' : 'var(--primary)';
@@ -3322,9 +3391,9 @@ function renderComparison() {
         <span>${meta.emoji}</span>
         <span style="color:var(--on-surface)">${getCatLabel(catId) || meta.label}</span>
       </div>
-      <div style="text-align:right;font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--on-surface)">${fmtAmt(amtA)}</div>
-      <div style="text-align:right;font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--on-surface-muted)">${fmtAmt(amtB)}</div>
-      <div style="text-align:right;font-family:'DM Mono',monospace;font-size:0.78rem;font-weight:600;color:${deltaColor}">${deltaText}</div>
+      <div style="text-align:right;font-family:monospace;font-size:0.82rem;color:var(--on-surface)">${fmtAmt(amtA)}</div>
+      <div style="text-align:right;font-family:monospace;font-size:0.82rem;color:var(--on-surface-muted)">${fmtAmt(amtB)}</div>
+      <div style="text-align:right;font-family:monospace;font-size:0.78rem;font-weight:600;color:${deltaColor}">${deltaText}</div>
     </div>`;
   }).join('');
 
@@ -3542,7 +3611,7 @@ function renderBudgetScreen() {
   document.getElementById('budget-summary').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
       <div>
-        <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">${monthLabel}</div>
+        <div style="font-size:0.72rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">${monthLabel}</div>
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:var(--on-surface)">
           ${fmtAmt(totalSpent)}
           <span style="font-size:1rem;font-weight:400;color:var(--on-surface-muted)">de ${fmtAmt(totalBudget)}</span>
@@ -3809,7 +3878,7 @@ initAuth();
 
   <!-- Header -->
   <div style="margin-bottom:24px;">
-    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px" data-i18n="budgetEyebrow">Presupuesto</div>
+    <div style="font-size:0.72rem;font-family:monospace;color:var(--primary);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px" data-i18n="budgetEyebrow">Presupuesto</div>
     <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:var(--on-surface)" data-i18n="budgetTitle">¿Cómo van tus gastos?</h1>
   </div>
 
@@ -3825,9 +3894,9 @@ initAuth();
 
   <!-- Category budget list -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-    <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;" data-i18n="budgetByCategory">Por categoría</div>
+    <div style="font-size:0.72rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;" data-i18n="budgetByCategory">Por categoría</div>
     <button onclick="autoAssignAllBudgets()" id="budget-auto-all-btn"
-      style="font-size:0.72rem;font-family:'DM Mono',monospace;padding:4px 12px;border-radius:6px;border:1px solid var(--primary);background:var(--primary-tint);color:var(--primary);cursor:pointer;font-weight:600;letter-spacing:0.04em;">
+      style="font-size:0.72rem;font-family:monospace;padding:4px 12px;border-radius:6px;border:1px solid var(--primary);background:var(--primary-tint);color:var(--primary);cursor:pointer;font-weight:600;letter-spacing:0.04em;">
       ✦ Auto-asignar todo
     </button>
   </div>
@@ -3853,9 +3922,9 @@ initAuth();
     <p style="font-size:0.78rem;color:var(--on-surface-muted);margin-bottom:20px" id="budget-modal-avg"></p>
     <div style="margin-bottom:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <label style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;" data-i18n="budgetModalLabel">Presupuesto mensual</label>
+        <label style="font-size:0.72rem;font-family:monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em;" data-i18n="budgetModalLabel">Presupuesto mensual</label>
         <button id="budget-auto-btn" onclick="document.getElementById('budget-modal-input').value=window._budgetSuggested||0"
-          style="display:none;font-size:0.72rem;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:6px;border:1px solid var(--primary);background:var(--primary-tint);color:var(--primary);cursor:pointer;font-weight:600;letter-spacing:0.04em;">
+          style="display:none;font-size:0.72rem;font-family:monospace;padding:3px 10px;border-radius:6px;border:1px solid var(--primary);background:var(--primary-tint);color:var(--primary);cursor:pointer;font-weight:600;letter-spacing:0.04em;">
           ✦ Auto
         </button>
       </div>
