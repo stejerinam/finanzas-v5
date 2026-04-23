@@ -1017,16 +1017,20 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   <!-- Sticky header -->
   <div class="dash-header">
     <div class="dash-logo"><div class="dash-logo-dot"></div>Finanzas</div>
-    <div id="meta-bar" class="meta-bar dash-meta"></div>
-    <div class="dash-actions">
+    <div id="meta-bar" class="meta-bar dash-meta" style="display:none;"></div>
+    <div class="dash-actions" style="position:relative;">
       <button id="auth-btn" onclick="openAuthModal()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;"><span data-i18n="signIn">Iniciar sesión</span></button>
-      <button id="signout-btn" onclick="handleSignOut()" style="display:none;padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;" data-i18n="signOut">Cerrar sesión</button>
+      <button id="signout-btn" style="display:none;"></button>
       <div id="lang-seg" style="display:flex;border-radius:9999px;background:var(--surface-high);padding:2px;gap:1px;flex-shrink:0;">
         <button id="lang-seg-es" onclick="setLanguage('es')" style="padding:3px 9px;border-radius:9999px;border:none;font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;background:transparent;color:var(--on-surface-muted);">ES</button>
         <button id="lang-seg-en" onclick="setLanguage('en')" style="padding:3px 9px;border-radius:9999px;border:none;font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;background:transparent;color:var(--on-surface-muted);">EN</button>
       </div>
-      <button class="btn btn-download dash-btn" onclick="downloadExcel()" data-i18n="dashDownload">↓ Exportar</button>
-      <button class="btn btn-secondary dash-btn" onclick="resetApp()" data-i18n="dashNew">↺ Nuevo</button>
+      <!-- Profile dropdown -->
+      <div id="profile-dropdown" style="display:none;position:absolute;top:calc(100% + 10px);right:0;z-index:100;background:var(--surface-lowest);border:1px solid var(--surface-high);border-radius:16px;padding:20px;min-width:230px;box-shadow:var(--shadow-lg);">
+        <div id="profile-dd-name" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--on-surface);margin-bottom:3px;"></div>
+        <div id="profile-dd-email" style="font-size:0.75rem;color:var(--on-surface-muted);margin-bottom:18px;word-break:break-all;"></div>
+        <button onclick="handleSignOut()" style="width:100%;padding:9px;border-radius:10px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;" data-i18n="signOut">Cerrar sesión</button>
+      </div>
     </div>
   </div>
 
@@ -2668,6 +2672,22 @@ async function submitAuth() {
   }
 }
 
+function toggleProfileDropdown(e) {
+  e?.stopPropagation();
+  const dd = document.getElementById('profile-dropdown');
+  if (!dd) return;
+  const isOpen = dd.style.display !== 'none';
+  dd.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    document.addEventListener('click', function closeDD(ev) {
+      if (!dd.contains(ev.target)) {
+        dd.style.display = 'none';
+        document.removeEventListener('click', closeDD);
+      }
+    });
+  }
+}
+
 function updateAuthButton() {
   const btn = document.getElementById('auth-btn');
   const signOutBtn = document.getElementById('signout-btn');
@@ -2684,11 +2704,15 @@ function updateAuthButton() {
       btn.style.padding = '2px';
       btn.style.borderRadius = '50%';
       btn.style.background = 'transparent';
-      btn.onclick = null;
-      btn.style.cursor = 'default';
+      btn.onclick = toggleProfileDropdown;
+      btn.style.cursor = 'pointer';
       btn.title = displayName;
     }
-    if (signOutBtn) signOutBtn.style.display = '';
+    const ddName = document.getElementById('profile-dd-name');
+    const ddEmail = document.getElementById('profile-dd-email');
+    if (ddName) ddName.textContent = displayName;
+    if (ddEmail) ddEmail.textContent = currentUser.email;
+    if (signOutBtn) signOutBtn.style.display = 'none';
     if (authWrap) authWrap.style.display = 'none';
     if (historySection) historySection.style.display = 'block';
   } else {
