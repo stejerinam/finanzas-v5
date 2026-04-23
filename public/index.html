@@ -1017,7 +1017,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   <!-- Sticky header -->
   <div class="dash-header">
     <div class="dash-logo"><div class="dash-logo-dot"></div>Finanzas</div>
-    <div id="meta-bar" class="meta-bar dash-meta" style="display:none;"></div>
+    <div id="meta-bar" class="meta-bar" style="display:none;"></div>
     <div class="dash-actions" style="position:relative;">
       <button id="auth-btn" onclick="openAuthModal()" style="padding:5px 14px;border-radius:8px;border:1.5px solid var(--outline-variant);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;"><span data-i18n="signIn">Iniciar sesión</span></button>
       <button id="signout-btn" style="display:none;"></button>
@@ -2715,6 +2715,7 @@ function updateAuthButton() {
     if (signOutBtn) signOutBtn.style.display = 'none';
     if (authWrap) authWrap.style.display = 'none';
     if (historySection) historySection.style.display = 'block';
+    revealBottomNav();
   } else {
     if (btn) {
       btn.setAttribute('data-i18n', 'signIn');
