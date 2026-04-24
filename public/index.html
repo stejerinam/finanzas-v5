@@ -3494,6 +3494,7 @@ function showComparisonScreen() {
 function showUploadScreen() {
   document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-upload')?.classList.add('active');
+  analysisSaved = false;
   loadHistory();
   show('upload-screen');
 }
