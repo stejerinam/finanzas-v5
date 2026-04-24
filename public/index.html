@@ -2621,7 +2621,7 @@ async function completeSurvey() {
     await fetch('/api/save-survey', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session: currentSession || null, answers: surveyAnswers }),
+      body: JSON.stringify({ surveyOnly: true, session: currentSession || null, answers: surveyAnswers }),
     });
   } catch(e) {
     console.error('Failed to save survey:', e);
@@ -2973,7 +2973,7 @@ async function submitAuth() {
           await fetch('/api/save-survey', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session: currentSession, answers: JSON.parse(savedAnswers) }),
+            body: JSON.stringify({ surveyOnly: true, session: currentSession, answers: JSON.parse(savedAnswers) }),
           });
         } catch(e) {
           console.error('Failed to persist survey answers:', e);
