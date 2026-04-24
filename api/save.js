@@ -139,8 +139,7 @@ export default async function handler(req, res) {
   const seenMerchants = new Set();
 
   txnRows.forEach((t) => {
-    const merchantKey = t.description?.toLowerCase().trim()
-      .replace(/\s+\w{6,}$/, '').trim();
+    const merchantKey = t.description?.toLowerCase().trim() || '';
 
     if (!merchantKey || seenMerchants.has(merchantKey)) return;
     if (!t.final_category || t.final_category === 'unassigned') return;
@@ -160,12 +159,30 @@ export default async function handler(req, res) {
   });
 
   if (merchantRows.length > 0) {
-    await supabase
-      .from('merchant_memory')
-      .upsert(merchantRows, {
-        onConflict: 'user_id,merchant_name,country',
-        ignoreDuplicates: false
-      });
+    for (const row of merchantRows) {
+      const { data: existing } = await supabase
+        .from('merchant_memory')
+        .select('id, times_seen')
+        .eq('user_id', user.id)
+        .eq('merchant_name', row.merchant_name)
+        .eq('country', row.country)
+        .single();
+
+      if (existing) {
+        await supabase
+          .from('merchant_memory')
+          .update({
+            ai_category: row.ai_category,
+            times_seen: existing.times_seen + 1,
+            last_seen_at: new Date().toISOString(),
+          })
+          .eq('id', existing.id);
+      } else {
+        await supabase
+          .from('merchant_memory')
+          .insert(row);
+      }
+    }
 
     // Update global merchant consensus (1 vote per user per merchant)
     for (const row of merchantRows) {

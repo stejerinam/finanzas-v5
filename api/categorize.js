@@ -14,13 +14,11 @@ export default async function handler(req, res) {
 
   const CONFIDENCE_THRESHOLD = 0.80;
   const CHUNK_SIZE = 50;
+  const MERCHANT_MEMORY_ENABLED = false;
 
   // ── MERCHANT MEMORY HELPERS ────────────────────────────────────────
   function normalizeMerchant(description) {
-    return description?.toLowerCase()
-      .trim()
-      .replace(/\s+\w{6,}$/, '')
-      .trim() || '';
+    return description?.toLowerCase().trim() || '';
   }
 
   function getThreshold(timesSeen) {
@@ -178,14 +176,14 @@ Return ONLY the JSON array.`;
     const preResolved = {};   // index → result
     let needsAI = transactions.map((txn, i) => ({ originalIndex: i, txn }));
 
-    if (userId) {
+    if (MERCHANT_MEMORY_ENABLED && userId) {
       const uniqueMerchants = [...new Set(
         transactions.map(t => normalizeMerchant(t.description))
       )].filter(Boolean);
 
       const { data: memoryRows } = await supabase
         .from('merchant_memory')
-        .select('merchant_name, ai_category, user_category, confidence, times_seen')
+        .select('merchant_name, ai_category, user_category, times_seen')
         .eq('user_id', userId)
         .in('merchant_name', uniqueMerchants);
 
@@ -207,26 +205,28 @@ Return ONLY the JSON array.`;
               category: memory.user_category,
               finalCategory: memory.user_category,
               confidence: 1.0,
-              reasoning: 'user correction',
+              reasoning: 'user correction from memory',
               tier: 'memory-user',
               autoUnassigned: false,
             };
             return;
           }
 
-          // AI-based memory — apply dynamic confidence threshold
+          // AI-based memory — apply dynamic threshold based on times_seen
           const threshold = getThreshold(memory.times_seen);
-          const confidence = memory.confidence || 0;
-          if (threshold && confidence >= threshold && memory.ai_category) {
+          if (threshold && memory.ai_category) {
             preResolved[i] = {
               index: i + 1,
               category: memory.ai_category,
               finalCategory: memory.ai_category,
-              confidence,
-              reasoning: 'merchant memory',
+              confidence: memory.times_seen >= 10 ? 0.88 : 0.90,
+              reasoning: 'ai category from memory',
               tier: 'memory-ai',
               autoUnassigned: false,
             };
+            return;
+          } else {
+            needsAI.push({ originalIndex: i, txn: t });
             return;
           }
         }
