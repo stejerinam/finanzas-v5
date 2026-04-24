@@ -535,6 +535,31 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   .review-waiting-anim{animation:none;}
   .balance-bar-fill,.cat-bar{transition:none;}
 }
+
+.survey-option {
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1.5px solid var(--surface-high);
+  background: var(--surface-lowest);
+  color: var(--on-surface);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  width: 100%;
+}
+.survey-option:hover {
+  border-color: var(--primary);
+  background: var(--surface-low);
+}
+.survey-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-tint);
+  color: var(--primary);
+  font-weight: 600;
+}
 </style>
 </head>
 <body>
@@ -973,6 +998,61 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 </div>
 </div>
 
+<!-- ── SURVEY SCREEN ── -->
+<div id="survey-screen" class="screen">
+<div style="max-width:560px;margin:0 auto;padding:40px 20px;min-height:100vh;display:flex;flex-direction:column;justify-content:center;">
+
+  <!-- Progress bar -->
+  <div style="margin-bottom:32px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted);text-transform:uppercase;letter-spacing:0.08em" id="survey-progress-label">Pregunta 1 de 5</span>
+      <span style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--on-surface-muted)" id="survey-ai-status">La IA está trabajando...</span>
+    </div>
+    <div style="height:3px;background:var(--surface-high);border-radius:2px;">
+      <div id="survey-progress-bar" style="height:3px;background:var(--primary);border-radius:2px;transition:width 0.4s ease;width:20%;"></div>
+    </div>
+  </div>
+
+  <!-- Question container -->
+  <div id="survey-question-container" style="flex:1;display:flex;flex-direction:column;">
+    <h2 id="survey-question-text" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.4rem;font-weight:700;color:var(--on-surface);line-height:1.4;margin-bottom:8px;"></h2>
+    <p id="survey-question-sub" style="font-size:0.88rem;color:var(--on-surface-muted);margin-bottom:28px;line-height:1.5;"></p>
+
+    <!-- Multiple choice options -->
+    <div id="survey-options" style="display:flex;flex-direction:column;gap:10px;"></div>
+
+    <!-- Open text input -->
+    <textarea id="survey-text-input"
+      style="display:none;width:100%;min-height:120px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:'Inter',sans-serif;font-size:0.92rem;line-height:1.6;outline:none;resize:vertical;transition:border-color 0.15s;box-sizing:border-box;"
+      placeholder="Escribe aquí..."
+      oninput="onSurveyTextInput()">
+    </textarea>
+  </div>
+
+  <!-- Navigation -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:32px;">
+    <button id="survey-back-btn" onclick="surveyBack()"
+      style="padding:10px 20px;border-radius:10px;border:1.5px solid var(--surface-high);background:transparent;color:var(--on-surface-muted);font-family:'Inter',sans-serif;font-size:0.88rem;cursor:pointer;display:none;">
+      ← Atrás
+    </button>
+    <div style="flex:1;"></div>
+    <button id="survey-next-btn" onclick="surveyNext()" disabled
+      style="padding:12px 28px;border-radius:10px;border:none;background:var(--primary);color:var(--on-primary);font-family:'Inter',sans-serif;font-size:0.92rem;font-weight:600;cursor:pointer;opacity:0.4;transition:opacity 0.15s;">
+      Siguiente →
+    </button>
+  </div>
+
+  <!-- Skip option -->
+  <div style="text-align:center;margin-top:16px;">
+    <button onclick="skipSurvey()"
+      style="background:none;border:none;color:var(--on-surface-muted);font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;">
+      Omitir por ahora
+    </button>
+  </div>
+
+</div>
+</div>
+
 <!-- ── REVIEW SCREEN ── -->
 <div id="review-screen" class="screen">
 <div class="review-container">
@@ -1279,6 +1359,15 @@ async function initAuth() {
     currentUserName = session.user.user_metadata?.full_name
       || session.user.email.split('@')[0];
     await loadUserCategories();
+    // Sync survey completion state from Supabase profile
+    const { data: profile } = await sb
+      .from('profiles')
+      .select('survey_completed')
+      .eq('id', session.user.id)
+      .single();
+    if (profile?.survey_completed) {
+      localStorage.setItem('survey_completed', 'true');
+    }
     const r = await fetch('/api/history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1688,6 +1777,12 @@ const STRINGS = {
     uploadWaterfall: 'Categorización inteligente — Haiku clasifica transacciones claras, Sonnet+WebSearch escala las inciertas.',
     guidesLabel: 'Guías de descarga',
     guidesSub: '¿Cómo descargar tu estado de cuenta?',
+    surveyNext: 'Siguiente →',
+    surveySkip: 'Omitir por ahora',
+    surveyBack: '← Atrás',
+    surveyFinish: 'Ver mi dashboard →',
+    surveyAiWorking: 'La IA está trabajando...',
+    surveyAiDone: '✓ Análisis completado',
   },
   en: {
     eyebrow: 'Finanzas · v5',
@@ -1860,6 +1955,12 @@ const STRINGS = {
     uploadWaterfall: 'Smart categorization — Haiku classifies clear transactions, Sonnet+WebSearch escalates uncertain ones.',
     guidesLabel: 'Download guides',
     guidesSub: 'How to download your bank statement?',
+    surveyNext: 'Next →',
+    surveySkip: 'Skip for now',
+    surveyBack: '← Back',
+    surveyFinish: 'View my dashboard →',
+    surveyAiWorking: 'AI is working...',
+    surveyAiDone: '✓ Analysis complete',
   }
 };
 
@@ -2346,6 +2447,204 @@ function setReviewWaitingMsg(title, sub) {
   if (s) s.textContent = sub || '';
 }
 
+// ── SURVEY ───────────────────────────────────────────────────────────
+
+const SURVEY_QUESTIONS = [
+  {
+    id: 'richLife',
+    type: 'text',
+    question: 'Si tuvieras más dinero disponible este mes, ¿en qué lo usarías?',
+    sub: 'Descríbenos tu vida ideal sin límites. No hay respuesta correcta.',
+    placeholder: 'Ej: viajar más seguido, comer en buenos restaurantes sin culpa, ahorrar para una casa...',
+  },
+  {
+    id: 'situation',
+    type: 'choice',
+    question: '¿Cuál de estas describe mejor tu situación financiera hoy?',
+    sub: 'Elige la opción que más se acerque a tu realidad actual.',
+    options: [
+      { value: 'debt_stressed', label: 'Tengo deudas que siento que no avanzan' },
+      { value: 'money_disappears', label: 'Mis ingresos son buenos pero no sé a dónde va el dinero' },
+      { value: 'cant_save', label: 'Logro cubrir mis gastos pero no consigo ahorrar' },
+      { value: 'saving_optimize', label: 'Ahorro regularmente pero quiero optimizar mis decisiones' },
+      { value: 'growing_wealth', label: 'Estoy bien financieramente y busco hacer crecer mi patrimonio' },
+    ]
+  },
+  {
+    id: 'goal',
+    type: 'choice',
+    question: '¿Qué quieres lograr con tu dinero en los próximos 12 meses?',
+    sub: 'Elige tu prioridad principal.',
+    options: [
+      { value: 'pay_debt', label: 'Salir de deudas o reducirlas significativamente' },
+      { value: 'emergency_fund', label: 'Crear o fortalecer mi fondo de emergencia' },
+      { value: 'save_goal', label: 'Ahorrar para una meta específica (viaje, casa, educación)' },
+      { value: 'invest', label: 'Empezar a invertir o hacer crecer lo que ya tengo' },
+      { value: 'understand', label: 'Entender mis finanzas y tomar control de mis gastos' },
+    ]
+  },
+  {
+    id: 'savings',
+    type: 'choice',
+    question: '¿Cómo describes tu hábito de ahorro actual?',
+    sub: 'Sé honesto — esto nos ayuda a darte mejores recomendaciones.',
+    options: [
+      { value: 'automatic', label: 'Tengo un monto fijo que ahorro automáticamente cada mes' },
+      { value: 'manual', label: 'Ahorro manualmente cuando me acuerdo o cuando sobra dinero' },
+      { value: 'want_but_cant', label: 'Quisiera ahorrar pero al final del mes no queda nada' },
+      { value: 'not_saving', label: 'No estoy ahorrando en este momento' },
+    ]
+  },
+  {
+    id: 'debt',
+    type: 'choice',
+    question: '¿Cómo es tu situación con deudas actualmente?',
+    sub: 'Incluye tarjetas de crédito, préstamos personales, créditos hipotecarios, etc.',
+    options: [
+      { value: 'no_debt', label: 'No tengo deudas' },
+      { value: 'msi_only', label: 'Solo tengo compras a meses sin intereses (MSI)' },
+      { value: 'debt_managed', label: 'Tengo deudas con intereses que estoy pagando puntualmente' },
+      { value: 'debt_stressed', label: 'Tengo deudas con intereses que me generan estrés o dificultad' },
+    ]
+  },
+];
+
+let surveyCurrentQ = 0;
+let surveyAnswers = {};
+let surveyCompleted = false;
+
+function shouldShowSurvey() {
+  if (localStorage.getItem('survey_completed') === 'true') return false;
+  return true;
+}
+
+function startSurvey() {
+  if (!shouldShowSurvey()) return;
+  surveyCurrentQ = 0;
+  surveyAnswers = {};
+  renderSurveyQuestion();
+  show('survey-screen');
+}
+
+function renderSurveyQuestion() {
+  const q = SURVEY_QUESTIONS[surveyCurrentQ];
+  const total = SURVEY_QUESTIONS.length;
+
+  document.getElementById('survey-progress-label').textContent =
+    `Pregunta ${surveyCurrentQ + 1} de ${total}`;
+  document.getElementById('survey-progress-bar').style.width =
+    `${((surveyCurrentQ + 1) / total) * 100}%`;
+  document.getElementById('survey-ai-status').textContent = t('surveyAiWorking');
+  document.getElementById('survey-question-text').textContent = q.question;
+  document.getElementById('survey-question-sub').textContent = q.sub;
+
+  const backBtn = document.getElementById('survey-back-btn');
+  backBtn.style.display = surveyCurrentQ > 0 ? 'block' : 'none';
+  backBtn.textContent = t('surveyBack');
+
+  const nextBtn = document.getElementById('survey-next-btn');
+  const hasAnswer = surveyAnswers[q.id] !== undefined;
+  nextBtn.disabled = !hasAnswer;
+  nextBtn.style.opacity = hasAnswer ? '1' : '0.4';
+  nextBtn.textContent =
+    surveyCurrentQ === total - 1 ? t('surveyFinish') : t('surveyNext');
+
+  const optionsEl = document.getElementById('survey-options');
+  const textEl = document.getElementById('survey-text-input');
+
+  if (q.type === 'text') {
+    optionsEl.style.display = 'none';
+    textEl.style.display = 'block';
+    textEl.value = surveyAnswers[q.id] || '';
+    textEl.placeholder = q.placeholder || 'Escribe aquí...';
+    const hasText = (textEl.value.trim().length > 10);
+    nextBtn.disabled = !hasText;
+    nextBtn.style.opacity = hasText ? '1' : '0.4';
+  } else {
+    optionsEl.style.display = 'flex';
+    textEl.style.display = 'none';
+    optionsEl.innerHTML = q.options.map(opt => `
+      <button class="survey-option ${surveyAnswers[q.id] === opt.value ? 'selected' : ''}"
+        onclick="selectSurveyOption('${opt.value}')">
+        ${opt.label}
+      </button>
+    `).join('');
+  }
+}
+
+function selectSurveyOption(value) {
+  const q = SURVEY_QUESTIONS[surveyCurrentQ];
+  surveyAnswers[q.id] = value;
+  document.querySelectorAll('.survey-option').forEach(btn => btn.classList.remove('selected'));
+  event.target.classList.add('selected');
+  const nextBtn = document.getElementById('survey-next-btn');
+  nextBtn.disabled = false;
+  nextBtn.style.opacity = '1';
+  setTimeout(() => surveyNext(), 400);
+}
+
+function onSurveyTextInput() {
+  const q = SURVEY_QUESTIONS[surveyCurrentQ];
+  const text = document.getElementById('survey-text-input').value;
+  surveyAnswers[q.id] = text;
+  const nextBtn = document.getElementById('survey-next-btn');
+  const hasContent = text.trim().length > 10;
+  nextBtn.disabled = !hasContent;
+  nextBtn.style.opacity = hasContent ? '1' : '0.4';
+}
+
+function surveyNext() {
+  const q = SURVEY_QUESTIONS[surveyCurrentQ];
+  if (q.type === 'text') {
+    surveyAnswers[q.id] = document.getElementById('survey-text-input').value;
+  }
+  if (surveyCurrentQ < SURVEY_QUESTIONS.length - 1) {
+    surveyCurrentQ++;
+    renderSurveyQuestion();
+  } else {
+    completeSurvey();
+  }
+}
+
+function surveyBack() {
+  if (surveyCurrentQ > 0) {
+    surveyCurrentQ--;
+    renderSurveyQuestion();
+  }
+}
+
+async function completeSurvey() {
+  surveyCompleted = true;
+  localStorage.setItem('survey_completed', 'true');
+  localStorage.setItem('survey_answers', JSON.stringify(surveyAnswers));
+  try {
+    await fetch('/api/save-survey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession || null, answers: surveyAnswers }),
+    });
+  } catch(e) {
+    console.error('Failed to save survey:', e);
+  }
+  proceedAfterSurvey();
+}
+
+function proceedAfterSurvey() {
+  if (window.REVIEW_QUEUE && window.REVIEW_QUEUE.length > 0) {
+    show('review-screen');
+  } else if (parseComplete && categorizedData) {
+    renderResults();
+    show('results-screen');
+  } else {
+    show('review-screen');
+  }
+}
+
+function skipSurvey() {
+  localStorage.setItem('survey_completed', 'true');
+  proceedAfterSurvey();
+}
+
 // ── PIPELINE STEP 3 & 4 ──────────────────────────────────────────────
 async function startCategorize() {
   const activeCategories = userCategories.filter(c => c.active);
@@ -2359,7 +2658,12 @@ async function startCategorize() {
   allCatResults = [];
   finishReviewCalled = false;
 
-  show('review-screen');
+  // Show survey for first-time users while AI works in background
+  if (shouldShowSurvey()) {
+    startSurvey();
+  } else {
+    show('review-screen');
+  }
   setReviewWaitingMsg(t('reviewParsingTitle') || 'Parsing your statement…', t('reviewParsingSub') || 'Please wait while we read your transactions.');
   // Force waiting state visible
   const waitEl = document.getElementById('review-waiting');
@@ -2395,7 +2699,10 @@ async function startCategorize() {
   }
   reviewChunksTotal = chunks.length;
 
-  show('review-screen');
+  // Only navigate to review-screen if survey is not currently active
+  if (!document.getElementById('survey-screen').classList.contains('active')) {
+    show('review-screen');
+  }
   updateReviewUI();
 
   // Fire all chunks concurrently; as each resolves, surface unassigned immediately
@@ -2570,6 +2877,10 @@ function finishReview() {
   });
   categorizedData = allCatResults;
 
+  // Update survey AI status label if survey screen is active
+  const surveyStatus = document.getElementById('survey-ai-status');
+  if (surveyStatus) surveyStatus.textContent = t('surveyAiDone');
+
   // Show "done" state briefly, then render dashboard
   const waitEl = document.getElementById('review-waiting');
   const cardEl = document.getElementById('review-card-wrap');
@@ -2578,19 +2889,19 @@ function finishReview() {
   if (cardEl) cardEl.style.display = 'none';
   if (doneEl) doneEl.style.display = 'flex';
 
-  setTimeout(() => {
+  setTimeout(async () => {
     renderResults();
     show('results-screen');
     revealBottomNav();
     if (currentUser && currentSession && parsedData && categorizedData) {
-      saveAnalysis()
-        .then(async (d) => {
-          if (d?.statementId && currentSession) {
-            loadHistory();
-            await loadAllTransactions();
-          }
-        })
-        .catch(e => console.error('Save failed:', e));
+      analysisSaved = false;
+      try {
+        await saveAnalysis();
+      } catch(e) {
+        console.error('Save failed:', e);
+      }
+      loadHistory();
+      await loadAllTransactions();
     }
   }, 900);
 }
@@ -2655,6 +2966,19 @@ async function submitAuth() {
     if (authTab === 'signup') {
       const name = document.getElementById('auth-name')?.value.trim();
       await signUp(email, password, name);
+      // Persist survey answers collected before account creation
+      const savedAnswers = localStorage.getItem('survey_answers');
+      if (savedAnswers && currentSession) {
+        try {
+          await fetch('/api/save-survey', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session: currentSession, answers: JSON.parse(savedAnswers) }),
+          });
+        } catch(e) {
+          console.error('Failed to persist survey answers:', e);
+        }
+      }
     } else {
       await signIn(email, password);
     }
@@ -3495,6 +3819,7 @@ function showUploadScreen() {
   document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('nav-upload')?.classList.add('active');
   analysisSaved = false;
+  dashFilterMonth = 'all';
   loadHistory();
   show('upload-screen');
 }
