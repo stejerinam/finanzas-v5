@@ -2411,6 +2411,7 @@ async function startCategorize() {
             accountType: selectedAcctType,
             categories: activeCategories,
             userName: currentUserName || null,
+            userId: currentUser?.id || null,
           })
         });
         const d = await r.json();

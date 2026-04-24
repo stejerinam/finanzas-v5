@@ -1,7 +1,9 @@
+import { supabase } from './supabase.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { transactions, country, accountType, categories, userName } = req.body;
+  const { transactions, country, accountType, categories, userName, userId } = req.body;
   if (!transactions || !Array.isArray(transactions) || transactions.length === 0)
     return res.status(400).json({ error: 'transactions array required' });
   if (!categories || !Array.isArray(categories) || categories.length === 0)
@@ -12,6 +14,21 @@ export default async function handler(req, res) {
 
   const CONFIDENCE_THRESHOLD = 0.80;
   const CHUNK_SIZE = 50;
+
+  // ── MERCHANT MEMORY HELPERS ────────────────────────────────────────
+  function normalizeMerchant(description) {
+    return description?.toLowerCase()
+      .trim()
+      .replace(/\s+\w{6,}$/, '')
+      .trim() || '';
+  }
+
+  function getThreshold(timesSeen) {
+    if (timesSeen < 3) return null;  // not enough data, always use AI
+    if (timesSeen < 10) return 0.90;
+    if (timesSeen < 25) return 0.85;
+    return 0.80;
+  }
 
   // ── RETRY WRAPPER ──────────────────────────────────────────────────
   async function callWithRetry(payload, retries = 3) {
@@ -157,96 +174,177 @@ Return ONLY the JSON array.`;
 
   // ── MAIN WATERFALL ─────────────────────────────────────────────────
   try {
-    // Split into chunks for Haiku
-    const chunks = [];
-    for (let i = 0; i < transactions.length; i += CHUNK_SIZE) {
-      chunks.push({ txns: transactions.slice(i, i + CHUNK_SIZE), startIndex: i });
-    }
+    // ── STEP 1: MERCHANT MEMORY LOOKUP ────────────────────────────────
+    const preResolved = {};   // index → result
+    let needsAI = transactions.map((txn, i) => ({ originalIndex: i, txn }));
 
-    // Tier 1: Run all through Haiku (with one retry per chunk on failure)
-    const haikuResults = [];
-    for (const { txns, startIndex } of chunks) {
-      let chunkResults;
-      try {
-        chunkResults = await runHaiku(txns, startIndex);
-      } catch(e) {
-        console.error(`Haiku chunk failed at ${startIndex}, retrying once:`, e.message);
-        await new Promise(r => setTimeout(r, 2000));
-        try {
-          chunkResults = await runHaiku(txns, startIndex);
-        } catch(e2) {
-          console.error(`Haiku chunk retry also failed at ${startIndex}:`, e2.message);
-          // Mark as needs escalation rather than silently failing
-          chunkResults = txns.map((_, i) => ({
-            index: startIndex + i + 1,
-            category: 'unassigned',
-            confidence: 0,
-            reasoning: 'chunk failed',
-          }));
+    if (userId) {
+      const uniqueMerchants = [...new Set(
+        transactions.map(t => normalizeMerchant(t.description))
+      )].filter(Boolean);
+
+      const { data: memoryRows } = await supabase
+        .from('merchant_memory')
+        .select('merchant_name, ai_category, user_category, confidence, times_seen')
+        .eq('user_id', userId)
+        .in('merchant_name', uniqueMerchants);
+
+      const memoryMap = {};
+      (memoryRows || []).forEach(row => {
+        memoryMap[row.merchant_name] = row;
+      });
+
+      needsAI = [];
+      transactions.forEach((t, i) => {
+        const key = normalizeMerchant(t.description);
+        const memory = memoryMap[key];
+
+        if (memory) {
+          // Manual user correction — always trusted immediately
+          if (memory.user_category) {
+            preResolved[i] = {
+              index: i + 1,
+              category: memory.user_category,
+              finalCategory: memory.user_category,
+              confidence: 1.0,
+              reasoning: 'user correction',
+              tier: 'memory-user',
+              autoUnassigned: false,
+            };
+            return;
+          }
+
+          // AI-based memory — apply dynamic confidence threshold
+          const threshold = getThreshold(memory.times_seen);
+          const confidence = memory.confidence || 0;
+          if (threshold && confidence >= threshold && memory.ai_category) {
+            preResolved[i] = {
+              index: i + 1,
+              category: memory.ai_category,
+              finalCategory: memory.ai_category,
+              confidence,
+              reasoning: 'merchant memory',
+              tier: 'memory-ai',
+              autoUnassigned: false,
+            };
+            return;
+          }
         }
-      }
-      haikuResults.push(...chunkResults);
+
+        needsAI.push({ originalIndex: i, txn: t });
+      });
     }
 
-    // Force-escalate any chunk failures
-    haikuResults.forEach((r) => {
-      if (r.reasoning === 'chunk failed' || (r.confidence === 0 && r.category === 'unassigned')) {
-        r.confidence = 0; // ensure it gets escalated
-      }
-    });
+    // ── STEP 2: AI WATERFALL (only for needsAI transactions) ──────────
+    const waterfallResults = new Map(); // originalIndex → result
 
-    // Identify uncertain transactions for escalation
-    const toEscalate = [];
-    haikuResults.forEach((r, i) => {
-      if (r.confidence < CONFIDENCE_THRESHOLD) {
-        toEscalate.push({ originalIndex: i, txn: transactions[i] });
-      }
-    });
-
-    // Tier 2: Run uncertain ones through Sonnet + Web Search
-    const escalatedResults = new Map();
-    if (toEscalate.length > 0) {
-      const escalateChunks = [];
-      for (let i = 0; i < toEscalate.length; i += CHUNK_SIZE) {
-        escalateChunks.push(toEscalate.slice(i, i + CHUNK_SIZE));
+    if (needsAI.length > 0) {
+      // Re-index needsAI transactions for prompting (sequential for the AI)
+      const aiTxns = needsAI.map(n => n.txn);
+      const chunks = [];
+      for (let i = 0; i < aiTxns.length; i += CHUNK_SIZE) {
+        chunks.push({ txns: aiTxns.slice(i, i + CHUNK_SIZE), startIndex: i });
       }
 
-      for (const chunk of escalateChunks) {
-        const txns = chunk.map(e => e.txn);
-        const startIndex = chunk[0].originalIndex;
+      // Tier 1: Haiku
+      const haikuResults = [];
+      for (const { txns, startIndex } of chunks) {
         let chunkResults;
         try {
-          chunkResults = await runSonnetWithSearch(txns, startIndex);
-        } catch (e) {
-          // Sonnet failed — keep Haiku results for this chunk
-          console.error('Sonnet escalation failed, using Haiku fallback:', e.message);
-          chunkResults = chunk.map(e => haikuResults[e.originalIndex]);
+          chunkResults = await runHaiku(txns, startIndex);
+        } catch(e) {
+          console.error(`Haiku chunk failed at ${startIndex}, retrying once:`, e.message);
+          await new Promise(r => setTimeout(r, 2000));
+          try {
+            chunkResults = await runHaiku(txns, startIndex);
+          } catch(e2) {
+            console.error(`Haiku chunk retry also failed at ${startIndex}:`, e2.message);
+            chunkResults = txns.map((_, i) => ({
+              index: startIndex + i + 1,
+              category: 'unassigned',
+              confidence: 0,
+              reasoning: 'chunk failed',
+            }));
+          }
         }
-        chunkResults.forEach((r, i) => {
-          escalatedResults.set(chunk[i].originalIndex, r);
-        });
+        haikuResults.push(...chunkResults);
       }
+
+      // Force-escalate chunk failures
+      haikuResults.forEach(r => {
+        if (r.reasoning === 'chunk failed') r.confidence = 0;
+      });
+
+      // Identify uncertain transactions for escalation
+      const toEscalate = [];
+      haikuResults.forEach((r, i) => {
+        if (r.confidence < CONFIDENCE_THRESHOLD) {
+          toEscalate.push({ localIndex: i, originalIndex: needsAI[i].originalIndex, txn: needsAI[i].txn });
+        }
+      });
+
+      // Tier 2: Sonnet + Web Search for uncertain ones
+      const escalatedMap = new Map(); // localIndex → result
+      if (toEscalate.length > 0) {
+        const escalateChunks = [];
+        for (let i = 0; i < toEscalate.length; i += CHUNK_SIZE) {
+          escalateChunks.push(toEscalate.slice(i, i + CHUNK_SIZE));
+        }
+        for (const chunk of escalateChunks) {
+          const txns = chunk.map(e => e.txn);
+          const startIndex = chunk[0].localIndex;
+          let chunkResults;
+          try {
+            chunkResults = await runSonnetWithSearch(txns, startIndex);
+          } catch(e) {
+            console.error('Sonnet escalation failed, using Haiku fallback:', e.message);
+            chunkResults = chunk.map(e => haikuResults[e.localIndex]);
+          }
+          chunkResults.forEach((r, i) => {
+            escalatedMap.set(chunk[i].localIndex, r);
+          });
+        }
+      }
+
+      // Merge Haiku + Sonnet results, map back to originalIndex
+      haikuResults.forEach((haiku, localIdx) => {
+        const originalIndex = needsAI[localIdx].originalIndex;
+        const escalated = escalatedMap.get(localIdx);
+        const final = escalated || haiku;
+        waterfallResults.set(originalIndex, {
+          ...final,
+          finalCategory: final.confidence >= CONFIDENCE_THRESHOLD ? final.category : 'unassigned',
+          autoUnassigned: final.confidence < CONFIDENCE_THRESHOLD && final.category !== 'unassigned',
+          tier: escalated ? 'sonnet+search' : (haiku.reasoning === 'chunk failed' ? 'error' : 'haiku'),
+        });
+      });
     }
 
-    // Merge results
+    // ── STEP 3: MERGE BACK IN ORIGINAL ORDER ──────────────────────────
     const allResults = transactions.map((_, i) => {
-      const haiku = haikuResults[i] || { category: 'unassigned', confidence: 0, reasoning: 'parse error' };
-      const escalated = escalatedResults.get(i);
-      const final = escalated || haiku;
-      return {
-        ...final,
-        finalCategory: final.confidence >= CONFIDENCE_THRESHOLD ? final.category : 'unassigned',
-        autoUnassigned: final.confidence < CONFIDENCE_THRESHOLD && final.category !== 'unassigned',
-        tier: escalated ? 'sonnet+search' : (haiku.reasoning === 'chunk failed' ? 'error' : 'haiku'),
+      if (preResolved[i]) return preResolved[i];
+      return waterfallResults.get(i) || {
+        index: i + 1,
+        category: 'unassigned',
+        finalCategory: 'unassigned',
+        confidence: 0,
+        reasoning: 'not found',
+        tier: 'haiku',
+        autoUnassigned: false,
       };
     });
+
+    const escalatedCount = needsAI.length > 0
+      ? [...waterfallResults.values()].filter(r => r.tier === 'sonnet+search').length
+      : 0;
 
     return res.status(200).json({
       results: allResults,
       stats: {
         total: transactions.length,
-        haikuOnly: transactions.length - toEscalate.length,
-        escalated: toEscalate.length,
+        fromMemory: Object.keys(preResolved).length,
+        haikuOnly: needsAI.length - escalatedCount,
+        escalated: escalatedCount,
       }
     });
   } catch (err) {
