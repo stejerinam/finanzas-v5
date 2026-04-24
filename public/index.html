@@ -2560,7 +2560,8 @@ function renderSurveyQuestion() {
   if (q.type === 'multiselect_categories') {
     const selected = surveyAnswers[q.id] || [];
     const blocked = q.id === 'ordinaryCategories' ? (surveyAnswers['richLifeCategories'] || []) : [];
-    const cats = userCategories.filter(c => c.active && c.type === 'expense');
+    const incomeIds = new Set(['salary','freelance','reimbursement','other_income','internal_transfer','excluded','unassigned']);
+    const cats = userCategories.filter(c => c.active && !incomeIds.has(c.id));
     const maxReached = selected.length >= q.max;
 
     optionsEl.style.display = 'grid';
