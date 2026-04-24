@@ -2451,11 +2451,18 @@ function setReviewWaitingMsg(title, sub) {
 
 const SURVEY_QUESTIONS = [
   {
-    id: 'richLife',
-    type: 'text',
-    question: 'Si tuvieras más dinero disponible este mes, ¿en qué lo usarías?',
-    sub: 'Descríbenos tu vida ideal sin límites. No hay respuesta correcta.',
-    placeholder: 'Ej: viajar más seguido, comer en buenos restaurantes sin culpa, ahorrar para una casa...',
+    id: 'richLifeCategories',
+    type: 'multiselect_categories',
+    question: 'Si tuvieras más dinero este mes, ¿en qué gastarías más sin pensarlo dos veces?',
+    sub: 'Selecciona hasta 3 categorías.',
+    max: 3,
+  },
+  {
+    id: 'ordinaryCategories',
+    type: 'multiselect_categories',
+    question: '¿En qué categorías no te importaría gastar menos o ser más ordinario?',
+    sub: 'Selecciona hasta 3 categorías. No puedes elegir las mismas que en la pregunta anterior.',
+    max: 3,
   },
   {
     id: 'situation',
@@ -2543,32 +2550,51 @@ function renderSurveyQuestion() {
   backBtn.textContent = t('surveyBack');
 
   const nextBtn = document.getElementById('survey-next-btn');
-  const hasAnswer = surveyAnswers[q.id] !== undefined;
-  nextBtn.disabled = !hasAnswer;
-  nextBtn.style.opacity = hasAnswer ? '1' : '0.4';
+  const optionsEl = document.getElementById('survey-options');
+  const textEl = document.getElementById('survey-text-input');
+  textEl.style.display = 'none';
+
   nextBtn.textContent =
     surveyCurrentQ === total - 1 ? t('surveyFinish') : t('surveyNext');
 
-  const optionsEl = document.getElementById('survey-options');
-  const textEl = document.getElementById('survey-text-input');
+  if (q.type === 'multiselect_categories') {
+    const selected = surveyAnswers[q.id] || [];
+    const blocked = q.id === 'ordinaryCategories' ? (surveyAnswers['richLifeCategories'] || []) : [];
+    const cats = userCategories.filter(c => c.active && c.type === 'expense');
+    const maxReached = selected.length >= q.max;
 
-  if (q.type === 'text') {
-    optionsEl.style.display = 'none';
-    textEl.style.display = 'block';
-    textEl.value = surveyAnswers[q.id] || '';
-    textEl.placeholder = q.placeholder || 'Escribe aquí...';
-    const hasText = (textEl.value.trim().length > 10);
-    nextBtn.disabled = !hasText;
-    nextBtn.style.opacity = hasText ? '1' : '0.4';
+    optionsEl.style.display = 'grid';
+    optionsEl.style.gridTemplateColumns = 'repeat(2, 1fr)';
+    optionsEl.innerHTML = cats.map(c => {
+      const isSelected = selected.includes(c.id);
+      const isBlocked = blocked.includes(c.id);
+      const isDisabled = isBlocked || (!isSelected && maxReached);
+      return `<button
+        class="survey-option${isSelected ? ' selected' : ''}"
+        style="${isBlocked ? 'opacity:0.35;cursor:not-allowed;' : isDisabled ? 'opacity:0.5;cursor:not-allowed;' : ''}"
+        onclick="${isDisabled ? '' : `toggleSurveyCat('${c.id}')`}"
+        ${isDisabled ? 'disabled' : ''}>
+        ${c.emoji || '📌'} ${getCatLabel(c.id) || c.label}
+      </button>`;
+    }).join('');
+
+    const hasAnswer = selected.length > 0;
+    nextBtn.disabled = !hasAnswer;
+    nextBtn.style.opacity = hasAnswer ? '1' : '0.4';
   } else {
     optionsEl.style.display = 'flex';
-    textEl.style.display = 'none';
+    optionsEl.style.gridTemplateColumns = '';
+    const currentVal = surveyAnswers[q.id];
     optionsEl.innerHTML = q.options.map(opt => `
-      <button class="survey-option ${surveyAnswers[q.id] === opt.value ? 'selected' : ''}"
+      <button class="survey-option ${currentVal === opt.value ? 'selected' : ''}"
         onclick="selectSurveyOption('${opt.value}')">
         ${opt.label}
       </button>
     `).join('');
+
+    const hasAnswer = currentVal !== undefined;
+    nextBtn.disabled = !hasAnswer;
+    nextBtn.style.opacity = hasAnswer ? '1' : '0.4';
   }
 }
 
@@ -2583,21 +2609,20 @@ function selectSurveyOption(value) {
   setTimeout(() => surveyNext(), 400);
 }
 
-function onSurveyTextInput() {
+function toggleSurveyCat(catId) {
   const q = SURVEY_QUESTIONS[surveyCurrentQ];
-  const text = document.getElementById('survey-text-input').value;
-  surveyAnswers[q.id] = text;
-  const nextBtn = document.getElementById('survey-next-btn');
-  const hasContent = text.trim().length > 10;
-  nextBtn.disabled = !hasContent;
-  nextBtn.style.opacity = hasContent ? '1' : '0.4';
+  const selected = surveyAnswers[q.id] ? [...surveyAnswers[q.id]] : [];
+  const idx = selected.indexOf(catId);
+  if (idx >= 0) {
+    selected.splice(idx, 1);
+  } else if (selected.length < q.max) {
+    selected.push(catId);
+  }
+  surveyAnswers[q.id] = selected;
+  renderSurveyQuestion();
 }
 
 function surveyNext() {
-  const q = SURVEY_QUESTIONS[surveyCurrentQ];
-  if (q.type === 'text') {
-    surveyAnswers[q.id] = document.getElementById('survey-text-input').value;
-  }
   if (surveyCurrentQ < SURVEY_QUESTIONS.length - 1) {
     surveyCurrentQ++;
     renderSurveyQuestion();

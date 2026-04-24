@@ -14,7 +14,8 @@ export default async function handler(req, res) {
       .update({
         survey_completed: true,
         survey_completed_at: new Date().toISOString(),
-        rich_life_vision: answers.richLife,
+        rich_life_categories: answers.richLifeCategories || null,
+        ordinary_categories: answers.ordinaryCategories || null,
         financial_situation: answers.situation,
         primary_goal: answers.goal,
         savings_habit: answers.savings,
