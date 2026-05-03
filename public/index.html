@@ -560,9 +560,221 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   color: var(--primary);
   font-weight: 600;
 }
+
+/* ── ADVISOR SCREEN ──────────────────────────────────────────────── */
+#advisor-screen.active { padding: 40px 20px 100px; }
+.advisor-pipeline { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+.advisor-question-card {
+  background: var(--surface-lowest);
+  border-radius: var(--r-md);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.advisor-question-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--on-surface);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.advisor-rec-body {
+  background: var(--surface-lowest);
+  border-radius: var(--r-md);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+  line-height: 1.75;
+  font-size: 0.92rem;
+  color: var(--on-surface);
+}
+.advisor-rec-body h1,.advisor-rec-body h2,.advisor-rec-body h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  margin: 16px 0 8px;
+  color: var(--on-surface);
+}
+.advisor-rec-body h1 { font-size: 1.2rem; }
+.advisor-rec-body h2 { font-size: 1.05rem; }
+.advisor-rec-body h3 { font-size: 0.96rem; }
+.advisor-rec-body ul,.advisor-rec-body ol { padding-left: 20px; margin: 8px 0; }
+.advisor-rec-body li { margin-bottom: 4px; }
+.advisor-rec-body strong { font-weight: 700; color: var(--on-surface); }
+.advisor-rec-body p { margin: 8px 0; }
+.advisor-chat-wrap {
+  background: var(--surface-lowest);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.advisor-chat-header {
+  padding: 14px 20px;
+  background: var(--primary-tint);
+  border-bottom: 1px solid var(--surface-high);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--primary);
+}
+.advisor-chat-messages {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.advisor-chat-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.advisor-chat-msg.user {
+  background: var(--primary);
+  color: var(--on-primary);
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.advisor-chat-msg.assistant {
+  background: var(--surface-low);
+  color: var(--on-surface);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+.advisor-chat-msg.typing {
+  color: var(--on-surface-muted);
+  font-style: italic;
+}
+.advisor-chat-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--surface-high);
+  background: var(--surface-lowest);
+}
+.advisor-chat-input {
+  flex: 1;
+  border: 1.5px solid var(--surface-high);
+  border-radius: 9999px;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--on-surface);
+  outline: none;
+}
+.advisor-chat-input:focus { border-color: var(--primary); }
+.advisor-reset-link {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--on-surface-muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.advisor-reset-link:hover { color: var(--on-surface-variant); }
 </style>
 </head>
 <body>
+
+<!-- ── ADVISOR SCREEN ── -->
+<div id="advisor-screen" class="screen">
+<div style="max-width:680px;margin:0 auto;">
+
+  <!-- Initial state -->
+  <div id="advisor-initial">
+    <div class="eyebrow">Asesor IA</div>
+    <h1>Tu <em>asesor financiero</em> personal</h1>
+    <p class="subtitle">Analiza todos tus movimientos y genera recomendaciones personalizadas con IA. El análisis tarda entre 20 y 40 segundos.</p>
+    <button class="btn btn-primary" onclick="loadAdvisor()">Analizar mis finanzas</button>
+  </div>
+
+  <!-- Loading state -->
+  <div id="advisor-loading" style="display:none">
+    <div class="eyebrow">Asesor IA</div>
+    <h1>Analizando tus <em>finanzas</em></h1>
+    <div class="advisor-pipeline" id="advisor-steps">
+      <div class="step-card" id="advisor-step-1">
+        <div class="step-header">
+          <div class="step-num" id="advisor-sn-1">1</div>
+          <div>
+            <div class="step-title">Cargando datos</div>
+            <div class="step-status" id="advisor-ss-1">Esperando…</div>
+          </div>
+        </div>
+      </div>
+      <div class="step-card" id="advisor-step-2">
+        <div class="step-header">
+          <div class="step-num" id="advisor-sn-2">2</div>
+          <div>
+            <div class="step-title">Analizando con IA</div>
+            <div class="step-status" id="advisor-ss-2">Esperando…</div>
+          </div>
+        </div>
+      </div>
+      <div class="step-card" id="advisor-step-3">
+        <div class="step-header">
+          <div class="step-num" id="advisor-sn-3">3</div>
+          <div>
+            <div class="step-title">Validando análisis</div>
+            <div class="step-status" id="advisor-ss-3">Esperando…</div>
+          </div>
+        </div>
+      </div>
+      <div class="step-card" id="advisor-step-4">
+        <div class="step-header">
+          <div class="step-num" id="advisor-sn-4">4</div>
+          <div>
+            <div class="step-title">Generando recomendaciones</div>
+            <div class="step-status" id="advisor-ss-4">Esperando…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Questions state -->
+  <div id="advisor-questions" style="display:none">
+    <div class="eyebrow">Preguntas de contexto</div>
+    <h1>Necesitamos un poco <em>más de información</em></h1>
+    <p class="subtitle" style="margin-bottom:24px">Responde estas preguntas para que el asesor pueda darte mejores recomendaciones.</p>
+    <div id="advisor-questions-list"></div>
+    <button class="btn btn-primary" onclick="submitAdvisorAnswers()" id="advisor-submit-btn" style="margin-top:8px" disabled>Ver mis recomendaciones</button>
+  </div>
+
+  <!-- Results state -->
+  <div id="advisor-results" style="display:none">
+    <div class="eyebrow">Asesor IA</div>
+    <h1>Tus <em>recomendaciones</em></h1>
+    <div class="advisor-rec-body" id="advisor-rec-body"></div>
+
+    <div class="advisor-chat-wrap">
+      <div class="advisor-chat-header">💬 Chatea con tu asesor</div>
+      <div class="advisor-chat-messages" id="advisor-chat-messages"></div>
+      <div class="advisor-chat-input-row">
+        <input class="advisor-chat-input" id="advisor-chat-input" type="text"
+          placeholder="Pregúntame algo sobre tus finanzas…"
+          onkeydown="if(event.key==='Enter')sendAdvisorMessage()">
+        <button class="btn btn-primary" onclick="sendAdvisorMessage()" style="padding:10px 18px;font-size:0.84rem">Enviar</button>
+      </div>
+    </div>
+    <span class="advisor-reset-link" onclick="resetAdvisor()">↺ Volver a analizar</span>
+  </div>
+
+  <!-- Error state -->
+  <div id="advisor-error" style="display:none">
+    <div class="eyebrow">Error</div>
+    <h1>Algo salió <em>mal</em></h1>
+    <p class="subtitle" id="advisor-error-msg">Hubo un error al analizar tus finanzas.</p>
+    <button class="btn btn-primary" onclick="resetAdvisor()">Intentar de nuevo</button>
+  </div>
+
+</div>
+</div>
 
 <!-- ── COMPARISON SCREEN ── -->
 <div id="comparison-screen" class="screen">
@@ -1245,6 +1457,10 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     <span data-i18n="navUpload">Subir estado</span>
   </button>
+  <button class="bottom-nav-btn" id="nav-advisor" onclick="showAdvisorScreen()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span>Asesor</span>
+  </button>
 </nav>
 
 <script>
@@ -1263,6 +1479,15 @@ let dashFilterDateFrom = null;
 let dashFilterDateTo = null;
 let budgetData = null;
 let budgetModalCatId = null;
+
+// ── ADVISOR STATE ──────────────────────────────────────────────────────
+let advisorAnalysis = null;
+let advisorCritique = null;
+let advisorProfileData = null;
+let advisorRecommendations = null;
+let advisorHistory = [];
+let advisorLoading = false;
+let advisorAnswers = {};
 
 async function loadAllTransactions() {
   if (!currentSession) return;
@@ -2519,6 +2744,7 @@ const SURVEY_QUESTIONS = [
 let surveyCurrentQ = 0;
 let surveyAnswers = {};
 let surveyCompleted = false;
+let surveyCats = [];
 
 function shouldShowSurvey() {
   if (localStorage.getItem('survey_completed') === 'true') return false;
@@ -2529,8 +2755,10 @@ function startSurvey() {
   if (!shouldShowSurvey()) return;
   surveyCurrentQ = 0;
   surveyAnswers = {};
-  renderSurveyQuestion();
+  const incomeIds = new Set(['salary','freelance','reimbursement','other_income','internal_transfer','excluded','unassigned']);
+  surveyCats = userCategories.filter(c => c.active && !incomeIds.has(c.id));
   show('survey-screen');
+  renderSurveyQuestion();
 }
 
 function renderSurveyQuestion() {
@@ -2560,8 +2788,7 @@ function renderSurveyQuestion() {
   if (q.type === 'multiselect_categories') {
     const selected = surveyAnswers[q.id] || [];
     const blocked = q.id === 'ordinaryCategories' ? (surveyAnswers['richLifeCategories'] || []) : [];
-    const incomeIds = new Set(['salary','freelance','reimbursement','other_income','internal_transfer','excluded','unassigned']);
-    const cats = userCategories.filter(c => c.active && !incomeIds.has(c.id));
+    const cats = surveyCats;
     const maxReached = selected.length >= q.max;
 
     optionsEl.style.display = 'grid';
@@ -2586,14 +2813,22 @@ function renderSurveyQuestion() {
     optionsEl.style.display = 'flex';
     optionsEl.style.gridTemplateColumns = '';
     const currentVal = surveyAnswers[q.id];
-    optionsEl.innerHTML = q.options.map(opt => `
-      <button class="survey-option ${currentVal === opt.value ? 'selected' : ''}"
+    const isCustom = currentVal !== undefined && currentVal !== 'other' && !q.options.some(o => o.value === currentVal);
+    const isOtherSelected = currentVal === 'other' || isCustom;
+    const allOptions = [...q.options, { value: 'other', label: 'Otro (especifica...)' }];
+    optionsEl.innerHTML = allOptions.map(opt => `
+      <button class="survey-option ${(currentVal === opt.value || (opt.value === 'other' && isOtherSelected)) ? 'selected' : ''}"
         onclick="selectSurveyOption('${opt.value}')">
         ${opt.label}
       </button>
     `).join('');
 
-    const hasAnswer = currentVal !== undefined;
+    if (isOtherSelected) {
+      textEl.style.display = 'block';
+      textEl.value = isCustom ? currentVal : '';
+    }
+
+    const hasAnswer = currentVal !== undefined && currentVal !== 'other';
     nextBtn.disabled = !hasAnswer;
     nextBtn.style.opacity = hasAnswer ? '1' : '0.4';
   }
@@ -2605,9 +2840,29 @@ function selectSurveyOption(value) {
   document.querySelectorAll('.survey-option').forEach(btn => btn.classList.remove('selected'));
   event.target.classList.add('selected');
   const nextBtn = document.getElementById('survey-next-btn');
-  nextBtn.disabled = false;
-  nextBtn.style.opacity = '1';
-  setTimeout(() => surveyNext(), 400);
+  const textEl = document.getElementById('survey-text-input');
+  if (value === 'other') {
+    textEl.style.display = 'block';
+    textEl.value = '';
+    textEl.focus();
+    nextBtn.disabled = true;
+    nextBtn.style.opacity = '0.4';
+  } else {
+    textEl.style.display = 'none';
+    nextBtn.disabled = false;
+    nextBtn.style.opacity = '1';
+    setTimeout(() => surveyNext(), 400);
+  }
+}
+
+function onSurveyTextInput() {
+  const q = SURVEY_QUESTIONS[surveyCurrentQ];
+  const textEl = document.getElementById('survey-text-input');
+  const nextBtn = document.getElementById('survey-next-btn');
+  const text = textEl.value.trim();
+  surveyAnswers[q.id] = text.length > 0 ? text : 'other';
+  nextBtn.disabled = text.length === 0;
+  nextBtn.style.opacity = text.length > 0 ? '1' : '0.4';
 }
 
 function toggleSurveyCat(catId) {
@@ -3857,6 +4112,333 @@ function toggleGuide(bank) {
   const isOpen = body.style.display !== 'none';
   body.style.display = isOpen ? 'none' : 'block';
   chevron?.classList.toggle('open', !isOpen);
+}
+
+// ── ADVISOR ───────────────────────────────────────────────────────────
+
+function renderMarkdown(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    // headings
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // bold + italic
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // unordered lists
+    .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+    // ordered lists
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    // wrap consecutive <li> in <ul>
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    // paragraphs: double newline → paragraph break
+    .split(/\n{2,}/).map(chunk => {
+      chunk = chunk.trim();
+      if (!chunk) return '';
+      if (/^<(h[123]|ul|ol|li)/.test(chunk)) return chunk;
+      return `<p>${chunk.replace(/\n/g, '<br>')}</p>`;
+    }).join('\n');
+}
+
+function setAdvisorStep(n, state, msg) {
+  const card = document.getElementById(`advisor-step-${n}`);
+  const status = document.getElementById(`advisor-ss-${n}`);
+  if (!card || !status) return;
+  card.className = `step-card ${state}`;
+  status.innerHTML = state === 'active' ? `<span class="spinner"></span>${msg}` : msg;
+}
+
+function showAdvisorScreen() {
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-advisor')?.classList.add('active');
+  show('advisor-screen');
+  renderAdvisorState();
+}
+
+function renderAdvisorState() {
+  const initial = document.getElementById('advisor-initial');
+  const loading = document.getElementById('advisor-loading');
+  const questions = document.getElementById('advisor-questions');
+  const results = document.getElementById('advisor-results');
+  const error = document.getElementById('advisor-error');
+
+  [initial, loading, questions, results, error].forEach(el => { if (el) el.style.display = 'none'; });
+
+  if (advisorLoading) {
+    loading.style.display = '';
+  } else if (advisorRecommendations) {
+    results.style.display = '';
+    document.getElementById('advisor-rec-body').innerHTML = renderMarkdown(advisorRecommendations);
+  } else if (advisorAnalysis && advisorCritique && !advisorRecommendations) {
+    // Questions state
+    const qList = extractAdvisorQuestions();
+    if (qList.length > 0) {
+      questions.style.display = '';
+      renderAdvisorQuestions(qList);
+    } else {
+      initial.style.display = '';
+    }
+  } else {
+    initial.style.display = '';
+  }
+}
+
+function extractAdvisorQuestions() {
+  if (!advisorCritique) return [];
+  const questions = [];
+  for (const p of (advisorCritique.problems || [])) {
+    for (const q of (p.clarifying_questions || [])) {
+      if (questions.length < 3) questions.push(q);
+    }
+  }
+  return questions;
+}
+
+async function loadAdvisor() {
+  if (advisorLoading) return;
+  if (!currentSession) { alert('Inicia sesión primero'); return; }
+
+  advisorLoading = true;
+  advisorAnalysis = null;
+  advisorCritique = null;
+  advisorRecommendations = null;
+  advisorHistory = [];
+  advisorAnswers = {};
+  renderAdvisorState();
+
+  // Reset step cards
+  for (let i = 1; i <= 4; i++) setAdvisorStep(i, '', 'Esperando…');
+  setAdvisorStep(1, 'active', 'Cargando datos…');
+
+  // Simulated step timing
+  const t2 = setTimeout(() => setAdvisorStep(2, 'active', 'Analizando con IA…'), 3000);
+  const t3 = setTimeout(() => setAdvisorStep(3, 'active', 'Validando análisis…'), 15000);
+
+  try {
+    const r = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession }),
+    });
+    clearTimeout(t2); clearTimeout(t3);
+
+    const d = await r.json();
+    if (!r.ok || d.error) throw new Error(d.error || 'Error en el análisis');
+
+    // Mark done steps
+    setAdvisorStep(1, 'done', 'Datos cargados');
+    setAdvisorStep(2, 'done', 'Análisis completado');
+    setAdvisorStep(3, 'done', 'Validación completada');
+
+    advisorAnalysis = d.analysis;
+    advisorCritique = d.critique;
+    advisorProfileData = d.profileData;
+    advisorLoading = false;
+
+    if (d.awaiting_answers) {
+      // Show questions
+      renderAdvisorState();
+    } else {
+      setAdvisorStep(4, 'done', 'Recomendaciones generadas');
+      advisorRecommendations = d.recommendations;
+      renderAdvisorState();
+    }
+  } catch (err) {
+    clearTimeout(t2); clearTimeout(t3);
+    advisorLoading = false;
+    document.getElementById('advisor-error-msg').textContent = err.message || 'Error al analizar. Intenta de nuevo.';
+    document.getElementById('advisor-initial').style.display = 'none';
+    document.getElementById('advisor-loading').style.display = 'none';
+    document.getElementById('advisor-error').style.display = '';
+  }
+}
+
+function renderAdvisorQuestions(questions) {
+  const container = document.getElementById('advisor-questions-list');
+  if (!container) return;
+  container.innerHTML = '';
+  advisorAnswers = {};
+
+  questions.forEach((q, idx) => {
+    const card = document.createElement('div');
+    card.className = 'advisor-question-card';
+
+    const label = document.createElement('div');
+    label.className = 'advisor-question-text';
+    label.textContent = q.question;
+    card.appendChild(label);
+
+    const opts = document.createElement('div');
+    opts.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+    const qId = `q${idx}`;
+
+    (q.options || []).forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'survey-option';
+      btn.textContent = opt;
+      btn.onclick = () => selectAdvisorAnswer(qId, opt, btn, q.question, card);
+      opts.appendChild(btn);
+    });
+
+    // "Otro" open-ended option
+    const otherBtn = document.createElement('button');
+    otherBtn.className = 'survey-option';
+    otherBtn.textContent = 'Otro (especifica...)';
+    const otherTextarea = document.createElement('textarea');
+    otherTextarea.style.cssText = 'display:none;width:100%;min-height:80px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--surface-high);background:var(--surface-lowest);color:var(--on-surface);font-family:\'Inter\',sans-serif;font-size:0.88rem;line-height:1.5;outline:none;resize:vertical;margin-top:6px;box-sizing:border-box;';
+    otherTextarea.placeholder = 'Escribe aquí...';
+    otherTextarea.oninput = () => onAdvisorTextInput(qId, q.question, otherTextarea);
+    otherBtn.onclick = () => selectAdvisorAnswer(qId, 'other', otherBtn, q.question, card, otherTextarea);
+    opts.appendChild(otherBtn);
+    opts.appendChild(otherTextarea);
+
+    card.appendChild(opts);
+    container.appendChild(card);
+  });
+
+  updateAdvisorSubmitBtn();
+}
+
+function selectAdvisorAnswer(qId, value, btn, question, card, otherTextarea) {
+  const resolvedCard = card || btn.closest('.advisor-question-card');
+  resolvedCard.querySelectorAll('.survey-option').forEach(b => b.classList.remove('selected'));
+  // Hide any open textarea in this card when switching options
+  resolvedCard.querySelectorAll('textarea').forEach(t => { t.style.display = 'none'; t.value = ''; });
+  btn.classList.add('selected');
+  if (value === 'other') {
+    if (otherTextarea) { otherTextarea.style.display = 'block'; otherTextarea.focus(); }
+    delete advisorAnswers[qId]; // not answered until user types
+  } else {
+    advisorAnswers[qId] = { question, answer: value };
+  }
+  updateAdvisorSubmitBtn();
+}
+
+function onAdvisorTextInput(qId, question, textarea) {
+  const text = textarea.value.trim();
+  if (text.length > 0) {
+    advisorAnswers[qId] = { question, answer: text };
+  } else {
+    delete advisorAnswers[qId];
+  }
+  updateAdvisorSubmitBtn();
+}
+
+function updateAdvisorSubmitBtn() {
+  const qList = extractAdvisorQuestions();
+  const answered = Object.keys(advisorAnswers).length;
+  const btn = document.getElementById('advisor-submit-btn');
+  if (btn) btn.disabled = answered < qList.length;
+}
+
+async function submitAdvisorAnswers() {
+  if (!currentSession || !advisorAnalysis || !advisorCritique || !advisorProfileData) return;
+  const btn = document.getElementById('advisor-submit-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Generando…'; }
+
+  setAdvisorStep(4, 'active', 'Generando recomendaciones…');
+  document.getElementById('advisor-questions').style.display = 'none';
+  document.getElementById('advisor-loading').style.display = '';
+
+  try {
+    const r = await fetch('/api/analyze-answers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session: currentSession,
+        profileData: advisorProfileData,
+        analysis: advisorAnalysis,
+        critique: advisorCritique,
+        answers: advisorAnswers,
+      }),
+    });
+    const d = await r.json();
+    if (!r.ok || d.error) throw new Error(d.error || 'Error generando recomendaciones');
+
+    setAdvisorStep(4, 'done', 'Recomendaciones generadas');
+    advisorRecommendations = d.recommendations;
+    renderAdvisorState();
+  } catch (err) {
+    document.getElementById('advisor-error-msg').textContent = err.message;
+    document.getElementById('advisor-loading').style.display = 'none';
+    document.getElementById('advisor-error').style.display = '';
+  }
+}
+
+async function sendAdvisorMessage() {
+  const input = document.getElementById('advisor-chat-input');
+  const messages = document.getElementById('advisor-chat-messages');
+  if (!input || !messages) return;
+
+  const text = input.value.trim();
+  if (!text || !currentSession) return;
+  input.value = '';
+
+  // Append user message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'advisor-chat-msg user';
+  userMsg.textContent = text;
+  messages.appendChild(userMsg);
+
+  // Typing indicator
+  const typing = document.createElement('div');
+  typing.className = 'advisor-chat-msg assistant typing';
+  typing.textContent = 'Escribiendo…';
+  messages.appendChild(typing);
+  messages.scrollTop = messages.scrollHeight;
+
+  // Disable input
+  input.disabled = true;
+
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session: currentSession,
+        message: text,
+        history: advisorHistory,
+        profileData: advisorProfileData,
+        analysis: advisorAnalysis,
+        recommendations: advisorRecommendations,
+      }),
+    });
+    const d = await r.json();
+    if (!r.ok || d.error) throw new Error(d.error || 'Error en el chat');
+
+    advisorHistory = d.history;
+
+    // Replace typing with response
+    typing.className = 'advisor-chat-msg assistant';
+    typing.innerHTML = renderMarkdown(d.response);
+    messages.scrollTop = messages.scrollHeight;
+  } catch (err) {
+    typing.className = 'advisor-chat-msg assistant';
+    typing.textContent = `Error: ${err.message}`;
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+}
+
+function resetAdvisor() {
+  advisorAnalysis = null;
+  advisorCritique = null;
+  advisorProfileData = null;
+  advisorRecommendations = null;
+  advisorHistory = [];
+  advisorLoading = false;
+  advisorAnswers = {};
+
+  const msgs = document.getElementById('advisor-chat-messages');
+  if (msgs) msgs.innerHTML = '';
+  const recBody = document.getElementById('advisor-rec-body');
+  if (recBody) recBody.innerHTML = '';
+
+  renderAdvisorState();
 }
 
 // ── UTILS ─────────────────────────────────────────────────────────────
