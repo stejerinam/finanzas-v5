@@ -4432,10 +4432,17 @@ async function sendAdvisorMessage() {
 
 function endAdvisorSession() {
   if (!currentSession || advisorTurnCount === 0) return;
+  // Trim to last 10 turns and strip non-text blocks so payload stays under sendBeacon's 64KB limit
+  const trimmedHistory = advisorHistory.slice(-10).map(msg => ({
+    role: msg.role,
+    content: Array.isArray(msg.content)
+      ? msg.content.filter(b => b.type === 'text')
+      : msg.content,
+  }));
   const payload = JSON.stringify({
     session: currentSession,
     analysis_id: advisorAnalysisId,
-    history: advisorHistory,
+    history: trimmedHistory,
     turn_count: advisorTurnCount,
   });
   // Use sendBeacon so it survives tab close / navigation
