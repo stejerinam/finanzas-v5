@@ -4158,6 +4158,7 @@ function showAdvisorScreen() {
   document.getElementById('nav-advisor')?.classList.add('active');
   show('advisor-screen');
   renderAdvisorState();
+  if (!advisorAnalysis && !advisorLoading && currentSession) loadAdvisor();
 }
 
 function renderAdvisorState() {
