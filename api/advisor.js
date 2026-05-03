@@ -212,7 +212,7 @@ async function handleAnalyze(req, res) {
       recommendations,
       in_deficit: analysis.in_deficit ?? null,
       deficit_amount: analysis.deficit_amount ?? null,
-      overall_confidence: critique.overall_confidence ?? null,
+      overall_confidence: critique.overall_confidence != null ? String(critique.overall_confidence) : null,
       data_quality: analysis.data_quality ?? null,
     }).select('id').single();
 
@@ -267,7 +267,7 @@ async function handleAnswers(req, res) {
       recommendations,
       in_deficit: analysis.in_deficit ?? null,
       deficit_amount: analysis.deficit_amount ?? null,
-      overall_confidence: critique.overall_confidence ?? null,
+      overall_confidence: critique.overall_confidence != null ? String(critique.overall_confidence) : null,
       data_quality: analysis.data_quality ?? null,
     }).select('id').single();
 
@@ -391,7 +391,12 @@ Rules:
     temperature: 0.3,
   });
 
-  const summaryJson = parseJSON(summaryData.content?.[0]?.text || '{}');
+  let summaryJson = null;
+  try {
+    summaryJson = parseJSON(summaryData.content?.[0]?.text || '{}');
+  } catch (parseErr) {
+    console.error('advisor [end-session] summary parse error:', parseErr.message);
+  }
 
   await supabase.from('ai_sessions').insert({
     user_id,
