@@ -392,10 +392,15 @@ Rules:
   });
 
   let summaryJson = null;
+  const rawSummary = summaryData.content?.[0]?.text || '';
   try {
-    summaryJson = parseJSON(summaryData.content?.[0]?.text || '{}');
+    // Replace literal control characters (unescaped newlines/tabs inside strings break JSON.parse)
+    const sanitized = rawSummary.replace(/[\r\n\t]/g, ' ');
+    summaryJson = parseJSON(sanitized);
   } catch (parseErr) {
     console.error('advisor [end-session] summary parse error:', parseErr.message);
+    // Fallback: store raw text so the session row is never empty
+    summaryJson = { synthesis: rawSummary.slice(0, 1000), parse_error: true };
   }
 
   await supabase.from('ai_sessions').insert({
