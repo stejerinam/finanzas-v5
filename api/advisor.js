@@ -196,25 +196,33 @@ async function handleAnalyze(req, res) {
   });
   const recommendations = recData.content?.[0]?.text || '';
 
-  // Save to cache
-  const earliestPeriodStart = stmtRows?.[0]?.period_start || '';
-  const latestPeriodEnd = stmtRows?.[stmtRows.length - 1]?.period_end || '';
-  await supabase.from('ai_analyses').update({ is_latest: false }).eq('user_id', user_id);
-  const { data: savedRow } = await supabase.from('ai_analyses').insert({
-    user_id,
-    is_latest: true,
-    statement_ids: currentStatementIds,
-    months_covered: `${earliestPeriodStart} to ${latestPeriodEnd}`,
-    analysis,
-    critique,
-    recommendations,
-    in_deficit: analysis.in_deficit ?? null,
-    deficit_amount: analysis.deficit_amount ?? null,
-    overall_confidence: critique.overall_confidence ?? null,
-    data_quality: analysis.data_quality ?? null,
-  }).select('id').single();
+  // Save to cache — best-effort, never blocks the response
+  let savedAnalysisId = null;
+  try {
+    const earliestPeriodStart = stmtRows?.[0]?.period_start || '';
+    const latestPeriodEnd = stmtRows?.[stmtRows.length - 1]?.period_end || '';
+    await supabase.from('ai_analyses').update({ is_latest: false }).eq('user_id', user_id);
+    const { data: savedRow, error: saveErr } = await supabase.from('ai_analyses').insert({
+      user_id,
+      is_latest: true,
+      statement_ids: currentStatementIds,
+      months_covered: `${earliestPeriodStart} to ${latestPeriodEnd}`,
+      analysis,
+      critique,
+      recommendations,
+      in_deficit: analysis.in_deficit ?? null,
+      deficit_amount: analysis.deficit_amount ?? null,
+      overall_confidence: critique.overall_confidence ?? null,
+      data_quality: analysis.data_quality ?? null,
+    }).select('id').single();
 
-  return res.status(200).json({ analysis, critique, profileData: trimmedProfileData, questions: [], recommendations, awaiting_answers: false, cached: false, analysis_id: savedRow?.id || null });
+    if (saveErr) console.error('advisor [analyze] save error:', saveErr);
+    else savedAnalysisId = savedRow?.id || null;
+  } catch (saveEx) {
+    console.error('advisor [analyze] save exception:', saveEx);
+  }
+
+  return res.status(200).json({ analysis, critique, profileData: trimmedProfileData, questions: [], recommendations, awaiting_answers: false, cached: false, analysis_id: savedAnalysisId });
 }
 
 // ── ACTION: answers ────────────────────────────────────────────────────
@@ -236,32 +244,40 @@ async function handleAnswers(req, res) {
   });
   const recommendations = recData.content?.[0]?.text || '';
 
-  // Save to ai_analyses (this path is taken when clarifying questions were asked)
-  const { data: stmtRows } = await supabase
-    .from('statements')
-    .select('id, period_start, period_end')
-    .eq('user_id', user_id)
-    .order('period_start', { ascending: true });
-  const currentStatementIds = (stmtRows || []).map(s => s.id).sort();
-  const earliestPeriodStart = stmtRows?.[0]?.period_start || '';
-  const latestPeriodEnd = stmtRows?.[stmtRows?.length - 1]?.period_end || '';
+  // Save to ai_analyses — best-effort, never blocks the response
+  let analysis_id = null;
+  try {
+    const { data: stmtRows } = await supabase
+      .from('statements')
+      .select('id, period_start, period_end')
+      .eq('user_id', user_id)
+      .order('period_start', { ascending: true });
+    const currentStatementIds = (stmtRows || []).map(s => s.id).sort();
+    const earliestPeriodStart = stmtRows?.[0]?.period_start || '';
+    const latestPeriodEnd = stmtRows?.[stmtRows?.length - 1]?.period_end || '';
 
-  await supabase.from('ai_analyses').update({ is_latest: false }).eq('user_id', user_id);
-  const { data: savedRow } = await supabase.from('ai_analyses').insert({
-    user_id,
-    is_latest: true,
-    statement_ids: currentStatementIds,
-    months_covered: `${earliestPeriodStart} to ${latestPeriodEnd}`,
-    analysis,
-    critique,
-    recommendations,
-    in_deficit: analysis.in_deficit ?? null,
-    deficit_amount: analysis.deficit_amount ?? null,
-    overall_confidence: critique.overall_confidence ?? null,
-    data_quality: analysis.data_quality ?? null,
-  }).select('id').single();
+    await supabase.from('ai_analyses').update({ is_latest: false }).eq('user_id', user_id);
+    const { data: savedRow, error: saveErr } = await supabase.from('ai_analyses').insert({
+      user_id,
+      is_latest: true,
+      statement_ids: currentStatementIds,
+      months_covered: `${earliestPeriodStart} to ${latestPeriodEnd}`,
+      analysis,
+      critique,
+      recommendations,
+      in_deficit: analysis.in_deficit ?? null,
+      deficit_amount: analysis.deficit_amount ?? null,
+      overall_confidence: critique.overall_confidence ?? null,
+      data_quality: analysis.data_quality ?? null,
+    }).select('id').single();
 
-  return res.status(200).json({ recommendations, analysis_id: savedRow?.id || null });
+    if (saveErr) console.error('advisor [answers] save error:', saveErr);
+    else analysis_id = savedRow?.id || null;
+  } catch (saveEx) {
+    console.error('advisor [answers] save exception:', saveEx);
+  }
+
+  return res.status(200).json({ recommendations, analysis_id });
 }
 
 // ── ACTION: chat ───────────────────────────────────────────────────────
