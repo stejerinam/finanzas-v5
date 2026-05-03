@@ -1488,6 +1488,8 @@ let advisorRecommendations = null;
 let advisorHistory = [];
 let advisorLoading = false;
 let advisorAnswers = {};
+let advisorAnalysisId = null;
+let advisorTurnCount = 0;
 
 async function loadAllTransactions() {
   if (!currentSession) return;
@@ -4236,6 +4238,7 @@ async function loadAdvisor() {
     advisorAnalysis = d.analysis;
     advisorCritique = d.critique;
     advisorProfileData = d.profileData;
+    advisorAnalysisId = d.analysis_id || null;
     advisorLoading = false;
 
     if (d.awaiting_answers) {
@@ -4360,6 +4363,7 @@ async function submitAdvisorAnswers() {
 
     setAdvisorStep(4, 'done', 'Recomendaciones generadas');
     advisorRecommendations = d.recommendations;
+    advisorAnalysisId = d.analysis_id || advisorAnalysisId;
     renderAdvisorState();
   } catch (err) {
     document.getElementById('advisor-error-msg').textContent = err.message;
@@ -4410,6 +4414,7 @@ async function sendAdvisorMessage() {
     if (!r.ok || d.error) throw new Error(d.error || 'Error en el chat');
 
     advisorHistory = d.history;
+    advisorTurnCount++;
 
     // Replace typing with response
     typing.className = 'advisor-chat-msg assistant';
@@ -4424,7 +4429,20 @@ async function sendAdvisorMessage() {
   }
 }
 
+function endAdvisorSession() {
+  if (!currentSession || advisorTurnCount === 0) return;
+  const payload = JSON.stringify({
+    session: currentSession,
+    analysis_id: advisorAnalysisId,
+    history: advisorHistory,
+    turn_count: advisorTurnCount,
+  });
+  // Use sendBeacon so it survives tab close / navigation
+  navigator.sendBeacon('/api/chat/end-session', new Blob([payload], { type: 'application/json' }));
+}
+
 function resetAdvisor() {
+  endAdvisorSession();
   advisorAnalysis = null;
   advisorCritique = null;
   advisorProfileData = null;
@@ -4432,6 +4450,8 @@ function resetAdvisor() {
   advisorHistory = [];
   advisorLoading = false;
   advisorAnswers = {};
+  advisorAnalysisId = null;
+  advisorTurnCount = 0;
 
   const msgs = document.getElementById('advisor-chat-messages');
   if (msgs) msgs.innerHTML = '';
@@ -4800,6 +4820,9 @@ function showBudgetScreen() {
 // Apply default language on load
 setLanguage('es');
 initAuth();
+
+// End advisor session on tab close / page unload
+window.addEventListener('beforeunload', () => endAdvisorSession());
 </script>
 
 <!-- ── AUTH MODAL ── -->

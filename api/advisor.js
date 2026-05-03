@@ -225,7 +225,7 @@ async function handleAnswers(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
-  await validateSession(session.access_token);
+  const user_id = await validateSession(session.access_token);
 
   const recData = await callClaude(apiKey, {
     model: 'claude-sonnet-4-6',
@@ -235,7 +235,33 @@ async function handleAnswers(req, res) {
     temperature: 0.3,
   });
   const recommendations = recData.content?.[0]?.text || '';
-  return res.status(200).json({ recommendations });
+
+  // Save to ai_analyses (this path is taken when clarifying questions were asked)
+  const { data: stmtRows } = await supabase
+    .from('statements')
+    .select('id, period_start, period_end')
+    .eq('user_id', user_id)
+    .order('period_start', { ascending: true });
+  const currentStatementIds = (stmtRows || []).map(s => s.id).sort();
+  const earliestPeriodStart = stmtRows?.[0]?.period_start || '';
+  const latestPeriodEnd = stmtRows?.[stmtRows?.length - 1]?.period_end || '';
+
+  await supabase.from('ai_analyses').update({ is_latest: false }).eq('user_id', user_id);
+  const { data: savedRow } = await supabase.from('ai_analyses').insert({
+    user_id,
+    is_latest: true,
+    statement_ids: currentStatementIds,
+    months_covered: `${earliestPeriodStart} to ${latestPeriodEnd}`,
+    analysis,
+    critique,
+    recommendations,
+    in_deficit: analysis.in_deficit ?? null,
+    deficit_amount: analysis.deficit_amount ?? null,
+    overall_confidence: critique.overall_confidence ?? null,
+    data_quality: analysis.data_quality ?? null,
+  }).select('id').single();
+
+  return res.status(200).json({ recommendations, analysis_id: savedRow?.id || null });
 }
 
 // ── ACTION: chat ───────────────────────────────────────────────────────
