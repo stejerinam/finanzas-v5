@@ -475,6 +475,9 @@ ${solutionsContext}
 </analisis>
 
 <principios>
+Genera EXACTAMENTE 2 recomendaciones en el output final — una ⚡ Victoria rápida y una 🔧 Hábito a construir.
+Si el análisis contiene una tercera opción como respaldo, no la incluyas en la respuesta al usuario.
+
 El objetivo es un mensaje que:
 1. Conecte al usuario con su meta — no lo haga sentir juzgado
 2. Le muestre una oportunidad concreta con números reales de sus transacciones
@@ -528,6 +531,7 @@ Diferencias entre una buena y mala recomendación:
 
 Sobre el tono:
 - Profesional y directo — como un asesor experto, no un coach motivacional
+- Sé conciso y directo. Evita explicaciones largas — el usuario puede pedir más detalle en el chat.
 - Sin relleno: nunca uses "es importante", "recuerda que", "considera que"
 - Sin mencionar metodologías, autores o frameworks por nombre
 - Las categorías de no tocar son intocables — ni las menciones como área de mejora

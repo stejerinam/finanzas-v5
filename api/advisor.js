@@ -191,7 +191,7 @@ async function handleAnalyze(req, res) {
     model: 'claude-sonnet-4-6',
     system: RECOMMENDATION_SYSTEM_PROMPT,
     messages: [{ role: 'user', content: buildRecommendationPrompt(profileData, analysis, critique, {}) }],
-    max_tokens: 2000,
+    max_tokens: 1500,
     temperature: 0.3,
   });
   const recommendations = recData.content?.[0]?.text || '';
@@ -231,7 +231,7 @@ async function handleAnswers(req, res) {
     model: 'claude-sonnet-4-6',
     system: RECOMMENDATION_SYSTEM_PROMPT,
     messages: [{ role: 'user', content: buildRecommendationPrompt(profileData, analysis, critique, answers || {}) }],
-    max_tokens: 2000,
+    max_tokens: 1500,
     temperature: 0.3,
   });
   const recommendations = recData.content?.[0]?.text || '';
