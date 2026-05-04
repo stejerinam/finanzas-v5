@@ -1,4 +1,4 @@
-import { supabase, supabaseAnon } from './supabase.js';
+import { supabase, supabaseAnon } from './lib/supabase.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -121,6 +121,8 @@ export default async function handler(req, res) {
       locale: selectedCountry?.locale || 'es-MX',
     })
     .eq('id', user.id);
+
+  await supabase.from('profiles').update({ analysis_pending: true }).eq('id', user.id);
 
   // Insert transactions
   const txnRows = transactions.map((t, i) => {

@@ -667,6 +667,25 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   outline: none;
 }
 .advisor-chat-input:focus { border-color: var(--primary); }
+.advisor-delta-card {
+  border-radius: var(--r-md);
+  padding: 14px 18px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  border-left: 3px solid;
+}
+.advisor-delta-card.on-track, .advisor-delta-card.updated {
+  background: var(--tertiary-tint);
+  border-color: var(--tertiary);
+  color: var(--on-surface);
+}
+.advisor-delta-card.needs-update {
+  background: var(--amber-tint);
+  border-color: var(--amber);
+  color: var(--on-surface);
+}
+.advisor-followthrough-list { margin: 8px 0 0; padding: 0; list-style: none; font-size: 0.85rem; }
+.advisor-followthrough-list li { margin-bottom: 4px; }
 .advisor-reset-link {
   display: inline-block;
   margin-top: 16px;
@@ -750,6 +769,8 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   <div id="advisor-results" style="display:none">
     <div class="eyebrow">Asesor IA</div>
     <h1>Tus <em>recomendaciones</em></h1>
+    <div id="advisor-delta-card" style="display:none;margin-bottom:16px"></div>
+    <button id="advisor-update-btn" class="btn btn-secondary" onclick="runDeltaCheck()" style="display:none;margin-bottom:16px;width:100%">Actualizar análisis →</button>
     <div class="advisor-rec-body" id="advisor-rec-body"></div>
 
     <div class="advisor-chat-wrap">
@@ -1490,6 +1511,7 @@ let advisorLoading = false;
 let advisorAnswers = {};
 let advisorAnalysisId = null;
 let advisorTurnCount = 0;
+let analysisPending = false;
 
 async function loadAllTransactions() {
   if (!currentSession) return;
@@ -4175,6 +4197,8 @@ function renderAdvisorState() {
   } else if (advisorRecommendations) {
     results.style.display = '';
     document.getElementById('advisor-rec-body').innerHTML = renderMarkdown(advisorRecommendations);
+    const updateBtn = document.getElementById('advisor-update-btn');
+    if (updateBtn) updateBtn.style.display = analysisPending ? '' : 'none';
   } else if (advisorAnalysis && advisorCritique && !advisorRecommendations) {
     // Questions state
     const qList = extractAdvisorQuestions();
@@ -4210,6 +4234,8 @@ async function loadAdvisor() {
   advisorRecommendations = null;
   advisorHistory = [];
   advisorAnswers = {};
+  const deltaCardReset = document.getElementById('advisor-delta-card');
+  if (deltaCardReset) { deltaCardReset.style.display = 'none'; deltaCardReset.innerHTML = ''; }
   renderAdvisorState();
 
   // Reset step cards
@@ -4240,6 +4266,7 @@ async function loadAdvisor() {
     advisorCritique = d.critique;
     advisorProfileData = d.profileData;
     advisorAnalysisId = d.analysis_id || null;
+    analysisPending = d.analysis_pending || false;
     advisorLoading = false;
 
     if (d.awaiting_answers) {
@@ -4430,6 +4457,79 @@ async function sendAdvisorMessage() {
   }
 }
 
+async function runDeltaCheck() {
+  const btn = document.getElementById('advisor-update-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Actualizando...'; }
+
+  try {
+    const r = await fetch('/api/analyze-delta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: currentSession }),
+    });
+    const d = await r.json();
+    if (!r.ok || d.error) throw new Error(d.error || 'Error al actualizar');
+
+    analysisPending = false;
+    if (btn) btn.style.display = 'none';
+
+    const deltaCard = document.getElementById('advisor-delta-card');
+    const recBody = document.getElementById('advisor-rec-body');
+
+    if (d.signal === 'on_track') {
+      if (deltaCard) {
+        deltaCard.className = 'advisor-delta-card on-track';
+        deltaCard.innerHTML = buildDeltaCardHTML('📈 Vas por buen camino', d);
+        deltaCard.style.display = '';
+      }
+    } else if (d.signal === 'needs_update') {
+      if (deltaCard) {
+        deltaCard.className = 'advisor-delta-card needs-update';
+        deltaCard.innerHTML = buildDeltaCardHTML('📊 Algo cambió este mes', d, true);
+        deltaCard.style.display = '';
+      }
+    } else if (d.signal === 'significant_change') {
+      advisorAnalysis = d.analysis || advisorAnalysis;
+      advisorCritique = d.critique || advisorCritique;
+      advisorRecommendations = d.recommendations;
+      if (recBody) recBody.innerHTML = renderMarkdown(d.recommendations);
+      if (deltaCard) {
+        deltaCard.className = 'advisor-delta-card updated';
+        deltaCard.innerHTML = buildDeltaCardHTML('✨ Análisis actualizado', d);
+        deltaCard.style.display = '';
+      }
+    } else if (d.signal === 'new_user') {
+      if (btn) {
+        btn.textContent = 'Generar mi primer análisis →';
+        btn.disabled = false;
+        btn.onclick = () => loadAdvisor();
+        btn.style.display = '';
+      }
+    }
+    // 'no_new_statements' — button already hidden
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Actualizar análisis →'; }
+    console.error('Delta check error:', err);
+  }
+}
+
+function buildDeltaCardHTML(title, d, showRegenerate = false) {
+  let html = `<strong>${title}</strong>`;
+  if (d.progress_summary) html += `<p style="margin:6px 0 0;font-size:0.88rem">${d.progress_summary}</p>`;
+  if (d.followthrough?.length) {
+    html += '<ul class="advisor-followthrough-list">';
+    for (const f of d.followthrough) {
+      const icon = f.completed ? '✅' : f.no_evidence ? '❓' : '⏳';
+      html += `<li>${icon} ${f.action} — <em>${f.evidence || ''}</em></li>`;
+    }
+    html += '</ul>';
+  }
+  if (showRegenerate) {
+    html += `<a href="#" onclick="loadAdvisor();return false" style="display:inline-block;margin-top:10px;font-size:0.82rem;opacity:0.75;color:inherit">Regenerar análisis completo</a>`;
+  }
+  return html;
+}
+
 function endAdvisorSession() {
   if (!currentSession || advisorTurnCount === 0) return;
   // Trim to last 10 turns and strip non-text blocks so payload stays under sendBeacon's 64KB limit
@@ -4460,11 +4560,14 @@ function resetAdvisor() {
   advisorAnswers = {};
   advisorAnalysisId = null;
   advisorTurnCount = 0;
+  analysisPending = false;
 
   const msgs = document.getElementById('advisor-chat-messages');
   if (msgs) msgs.innerHTML = '';
   const recBody = document.getElementById('advisor-rec-body');
   if (recBody) recBody.innerHTML = '';
+  const deltaCard = document.getElementById('advisor-delta-card');
+  if (deltaCard) { deltaCard.style.display = 'none'; deltaCard.innerHTML = ''; }
 
   renderAdvisorState();
 }

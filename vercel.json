@@ -17,6 +17,7 @@
     { "src": "/api/get-all-transactions", "dest": "/api/get-all-transactions.js" },
     { "src": "/api/budgets", "dest": "/api/budgets.js" },
     { "src": "/api/save-survey", "dest": "/api/save.js" },
+    { "src": "/api/analyze-delta", "dest": "/api/advisor.js" },
     { "src": "/api/analyze", "dest": "/api/advisor.js" },
     { "src": "/api/analyze-answers", "dest": "/api/advisor.js" },
     { "src": "/api/chat", "dest": "/api/advisor.js" },
